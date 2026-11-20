@@ -1,0 +1,142 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Contacts · Pipeline first</title>
+<link rel="icon" href="data:,">
+<link rel="stylesheet" href="../shared/base.css">
+<style>
+  .toolbar { display: flex; align-items: center; gap: 16px; margin-bottom: 16px; flex-wrap: wrap; }
+  .search { height: 40px; width: 320px; border-radius: var(--radius-button); background: var(--color-snow); display: flex; align-items: center; gap: 8px; padding: 0 16px; color: var(--color-slate); border: 1px solid var(--color-border); }
+  .search svg { width: 16px; height: 16px; }
+  .filters { display: inline-flex; gap: 6px; }
+  .filters button { height: 32px; padding: 0 14px; border-radius: var(--radius-button); border: 1px solid var(--color-border); background: var(--color-snow); font: 500 var(--text-body-sm) var(--font-poppins); color: var(--color-slate); cursor: pointer; display: inline-flex; align-items: center; gap: 6px; }
+  .filters button .n { font-variant-numeric: tabular-nums; color: var(--color-slate); font-weight: 400; }
+  .filters button.on { background: var(--color-periwinkle-wash); border-color: var(--color-periwinkle-wash); color: var(--color-violet-deep); }
+  .filters button.on .n { color: var(--color-violet-deep); }
+
+  .panel.table-panel { padding: 8px 0 0; overflow: hidden; }
+  table { width: 100%; border-collapse: collapse; font-size: var(--text-body); }
+  th { height: 40px; text-align: left; font-weight: 500; font-size: var(--text-body-sm); color: var(--color-slate); padding: 0 16px; white-space: nowrap; }
+  th:first-child, td:first-child { padding-left: 24px; }
+  th:last-child, td:last-child { padding-right: 24px; }
+  th .arrow { display: inline-block; margin-left: 4px; color: var(--color-violet-deep); }
+  th.sorted { color: var(--color-ink); }
+  td { height: var(--row-height); padding: 0 16px; border-top: 1px solid var(--color-shadow-dust); white-space: nowrap; }
+  tbody tr { cursor: pointer; }
+  tbody tr:hover, tbody tr.hover { background: var(--color-periwinkle); }
+  .who { display: flex; align-items: center; gap: 10px; font-weight: 500; }
+  .none { color: var(--color-slate); }
+  .actions { display: flex; gap: 2px; justify-content: flex-end; }
+  .icon-btn { width: 32px; height: 32px; border-radius: 50%; border: 0; background: transparent; color: var(--color-slate); display: inline-flex; align-items: center; justify-content: center; cursor: pointer; opacity: .55; }
+  .icon-btn svg { width: 16px; height: 16px; }
+  tr:hover .icon-btn, tr.hover .icon-btn { opacity: 1; }
+  .icon-btn:hover, .icon-btn.hl { background: var(--color-periwinkle-wash); color: var(--color-violet-deep); }
+  .tip { position: absolute; transform: translate(-50%, -100%); margin-top: -8px; background: var(--color-ink); color: #fff; font-size: var(--text-caption); padding: 4px 8px; border-radius: 6px; white-space: nowrap; pointer-events: none; }
+  .rel { position: relative; }
+
+  .foot { display: flex; align-items: center; justify-content: space-between; padding: 12px 24px; border-top: 1px solid var(--color-shadow-dust); font-size: var(--text-body-sm); color: var(--color-slate); }
+  .foot .right { display: flex; align-items: center; gap: 16px; }
+  .select { height: 32px; padding: 0 10px 0 12px; border: 1px solid var(--color-border); border-radius: var(--radius-input); display: inline-flex; align-items: center; gap: 6px; color: var(--color-ink); background: var(--color-snow); }
+  .select svg { width: 14px; height: 14px; color: var(--color-slate); }
+  .pager { display: flex; gap: 4px; }
+  .pager span { min-width: 32px; height: 32px; border-radius: var(--radius-input); display: inline-flex; align-items: center; justify-content: center; color: var(--color-ink); font-variant-numeric: tabular-nums; }
+  .pager span.on { background: var(--color-periwinkle-wash); color: var(--color-violet-deep); font-weight: 500; }
+  .pager span.off { color: var(--color-iron); }
+  .pager svg { width: 16px; height: 16px; }
+</style>
+</head>
+<body class="bordered">
+<div id="app"></div>
+<script src="../shared/mock.js"></script>
+<script>
+const I = {
+  pencil: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 3a2.8 2.8 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5Z"/></svg>',
+  bin: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>',
+  down: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg>',
+  left: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m15 18-6-6 6-6"/></svg>',
+  right: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6"/></svg>',
+};
+// [first, last, organization or null, job title, email or null, phone, status]
+const CONTACTS = [
+  ["Amara", "Bello", "Fernleaf Retail", "Head of Stores", "amara.bello@fernleaf.example", "+1 415 555 0142", "customer"],
+  ["Ben", "Achterberg", "Orbitra Software", "CTO", "ben@orbitra.example", "+1 206 555 0178", "qualified"],
+  ["Carla", "Mendes", "Saltmarsh Capital", "Operations Manager", "c.mendes@saltmarsh.example", "+1 212 555 0119", "lead"],
+  ["Daniel", "Reyes", "Brightwater Logistics", "Fleet Director", "dreyes@brightwater.example", "+1 312 555 0164", "customer"],
+  ["Elena", "Kovacs", "Pinecrest Hotels", "IT Manager", "elena.kovacs@pinecrest.example", "+1 702 555 0133", "qualified"],
+  ["Farah", "Haddad", null, "Independent consultant", "farah.haddad@mailbox.example", "+1 617 555 0190", "lead"],
+  ["Gavin", "Lowe", "Fernhill Academy", "Head of Digital Learning", "g.lowe@fernhill.example", "+1 503 555 0126", "lead"],
+  ["Hana", "Sato", "Kestrel Health", "Practice Manager", "hana.sato@kestrel.example", "+1 619 555 0157", "customer"],
+  ["Isaac", "Mensah", "Tidewell Energy", "Grid Engineer", "imensah@tidewell.example", "+1 713 555 0104", "lead"],
+  ["Julia", "Park", "Tidewell Energy", "Head of Analytics", "julia.park@tidewell.example", "+1 713 555 0181", "qualified"],
+  ["Kofi", "Asante", "Quarry Lane Builders", "Project Manager", null, "+1 303 555 0148", "lead"],
+  ["Laura", "Chen", "Halcyon Media", "Ad Operations Lead", "laura.chen@halcyon.example", "+1 323 555 0115", "lead"],
+  ["Marcus", "Webb", "Saltmarsh Capital", "Finance Director", "marcus.webb@saltmarsh.example", "+1 212 555 0172", "qualified"],
+  ["Nadia", "Lindqvist", "Orbitra Software", "Procurement Lead", "nadia@orbitra.example", "+1 206 555 0139", "customer"],
+  ["Omar", "Farouk", null, "Freelance developer", "omar.farouk@mailbox.example", null, "lead"],
+  ["Priya", "Nair", "Kestrel Health", "Chief Operating Officer", "priya.nair@kestrel.example", "+1 619 555 0108", "qualified"],
+  ["Quinn", "Taylor", "Fernleaf Retail", "Store Systems Analyst", "quinn.taylor@fernleaf.example", "+1 415 555 0193", "lead"],
+  ["Rosa", "Martinez", "Halcyon Media", "Managing Editor", "rosa.martinez@halcyon.example", "+1 323 555 0161", "customer"],
+  ["Samuel", "Wright", "Quarry Lane Builders", "Safety Officer", "s.wright@quarrylane.example", "+1 303 555 0127", "lead"],
+  ["Tomi", "Okafor", "Corvo Manufacturing", "Plant Manager", "tomi.okafor@corvo.example", "+1 414 555 0185", "qualified"],
+  ["Uma", "Iyer", "Brightwater Logistics", "Customer Success Lead", "uma.iyer@brightwater.example", "+1 312 555 0111", "lead"],
+  ["Victor", "Almeida", "Corvo Manufacturing", "IT Director", "v.almeida@corvo.example", "+1 414 555 0150", "customer"],
+  ["Wen", "Zhou", "Pinecrest Hotels", "Revenue Manager", "wen.zhou@pinecrest.example", "+1 702 555 0176", "lead"],
+  ["Ximena", "Torres", "Fernhill Academy", "Registrar", "ximena.torres@fernhill.example", "+1 503 555 0102", "lead"],
+  ["Yusuf", "Demir", "Orbitra Software", "Engineering Manager", "yusuf@orbitra.example", "+1 206 555 0145", "lead"],
+].sort((a, b) => (a[1] + a[0]).localeCompare(b[1] + b[0]));
+const STATUS = { lead: ["Lead", "new"], qualified: ["Qualified", "qualified"], customer: ["Customer", "won"] };
+const COUNTS = { all: 80, lead: 41, qualified: 20, customer: 19 };
+
+const rows = CONTACTS.map((c, i) => {
+  const hover = i === 3;
+  const initials = c[0][0] + c[1][0];
+  return `<tr class="${hover ? "hover" : ""}">
+    <td><div class="who"><span class="avatar avatar-lg">${initials}</span>${c[0]} ${c[1]}</div></td>
+    <td>${c[2] ? `<a href="#" onclick="event.stopPropagation()">${c[2]}</a>` : '<span class="none">No organization</span>'}</td>
+    <td>${c[3]}</td>
+    <td>${c[4] ?? '<span class="none">—</span>'}</td>
+    <td class="num">${c[5] ?? '<span class="none">—</span>'}</td>
+    <td><span class="pill pill-${STATUS[c[6]][1]}">${STATUS[c[6]][0]}</span></td>
+    <td><div class="actions">
+      <span class="rel"><button class="icon-btn" aria-label="Edit ${c[0]} ${c[1]}" title="Edit">${I.pencil}</button></span>
+      <span class="rel"><button class="icon-btn ${hover ? "hl" : ""}" aria-label="Delete ${c[0]} ${c[1]}" title="Delete">${I.bin}</button>${hover ? '<span class="tip" style="left:16px;top:0">Delete</span>' : ""}</span>
+    </div></td>
+  </tr>`;
+}).join("");
+
+document.getElementById("app").innerHTML = `
+${sidebar("Contacts")}
+<main class="page">
+  <div class="page-head"><div><h1 class="page-title">Contacts</h1><div class="page-sub">${COUNTS.all} contacts · ${COUNTS.customer} customers</div></div>
+    <button class="btn btn-primary">${ICON.plus}New contact</button></div>
+  <div class="toolbar">
+    <div class="search">${ICON.search}<span>Search name, email, organization or title</span></div>
+    <div class="filters" role="group" aria-label="Filter by status">
+      <button class="on" aria-pressed="true">All <span class="n">${COUNTS.all}</span></button>
+      <button aria-pressed="false">Leads <span class="n">${COUNTS.lead}</span></button>
+      <button aria-pressed="false">Qualified <span class="n">${COUNTS.qualified}</span></button>
+      <button aria-pressed="false">Customers <span class="n">${COUNTS.customer}</span></button>
+    </div>
+  </div>
+  <section class="panel table-panel">
+    <table>
+      <thead><tr>
+        <th class="sorted" aria-sort="ascending">Name <span class="arrow">↑</span></th>
+        <th>Organization</th><th>Job title</th><th>Email</th><th>Phone</th><th>Status</th><th><span class="sr-only" style="position:absolute;left:-9999px">Actions</span></th>
+      </tr></thead>
+      <tbody>${rows}</tbody>
+    </table>
+    <div class="foot">
+      <span class="num">Showing 1–25 of ${COUNTS.all}</span>
+      <div class="right">
+        <span>Rows per page <span class="select num">25 ${I.down}</span></span>
+        <div class="pager"><span class="off" aria-label="Previous page">${I.left}</span><span class="on">1</span><span>2</span><span>3</span><span>4</span><span aria-label="Next page">${I.right}</span></div>
+      </div>
+    </div>
+  </section>
+</main>`;
+</script>
+</body>
+</html>
