@@ -1,38 +1,13 @@
 ---
 name: brand
-description: Accountable's brand guidelines for fonts, colors, surfaces and tone. Use for any UI work.
+description: Accountable's brand guidelines for fonts, colors, surfaces, components and tone. Use for any UI work.
 ---
 
 # Brand
 
-## Fonts
+Read [DESIGN.md](DESIGN.md) before any UI work. It is the visual reference for fonts, colors, spacing, radii, shadows, surfaces and components, and has ready-made CSS custom properties.
 
-From Google Fonts:
-
-- **Headings and body**: Instrument Sans
-- **Accent (a tagline or a quote)**: Instrument Serif
-- **Code, numbers and identifiers**: JetBrains Mono
-
-## Colors
-
-The color scheme for this product:
-
-- **Primary**: Sea Green `#06D6A0`, Midnight text
-- **Secondary**: Marigold `#FFC145`, Midnight text
-- **Tertiary**: Coral `#F78C6B`, Midnight text
-- **Information**: Cerulean `#118AB2`, white text
-- **Highlight or alert**: Raspberry `#EF476F`, white text
-- **Ink on light backgrounds**: Midnight `#073B4C`
-- **Ink on dark backgrounds**: Sea Mist `#CDD8DB`
-
-Use Sea Green, Marigold and Coral when three things sit side by side, such as pipeline stages or chart series. Add Cerulean fourth and Raspberry fifth.
-
-## Surfaces
-
-- **Light mode**: page background `#F0F4F5`, white panels and cards
-- **Dark mode**: page background `#04232E`, black panels and cards
-
-Panels are rounded with no outline. Sea Green and Marigold are too bright for small text, so darken them for headings and body copy on light backgrounds and lighten them on dark ones.
+Where DESIGN.md and the sections below disagree, the sections below win.
 
 ## Avoid
 
