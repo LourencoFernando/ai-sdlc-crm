@@ -18,16 +18,17 @@
 
   .panel.table-panel { padding: 8px 0 0; overflow: hidden; }
   table { width: 100%; border-collapse: collapse; font-size: var(--text-body); }
-  th { height: 40px; text-align: left; font-weight: 500; font-size: var(--text-body-sm); color: var(--color-slate); padding: 0 16px; white-space: nowrap; }
+  th { height: 40px; text-align: left; font-weight: 500; font-size: var(--text-body-sm); color: var(--color-slate); padding: 0 12px; white-space: nowrap; }
   th:first-child, td:first-child { padding-left: 24px; }
   th:last-child, td:last-child { padding-right: 24px; }
   th .arrow { display: inline-block; margin-left: 4px; color: var(--color-violet-deep); }
   th.sorted { color: var(--color-ink); }
-  td { height: var(--row-height); padding: 0 16px; border-top: 1px solid var(--color-shadow-dust); white-space: nowrap; }
+  td { height: var(--row-height); padding: 0 12px; border-top: 1px solid var(--color-shadow-dust); white-space: nowrap; }
   tbody tr { cursor: pointer; }
   tbody tr:hover, tbody tr.hover { background: var(--color-periwinkle); }
   .who { display: flex; align-items: center; gap: 10px; font-weight: 500; }
   .none { color: var(--color-slate); }
+  td.email { max-width: 220px; overflow: hidden; text-overflow: ellipsis; }
   .actions { display: flex; gap: 2px; justify-content: flex-end; }
   .icon-btn { width: 32px; height: 32px; border-radius: 50%; border: 0; background: transparent; color: var(--color-slate); display: inline-flex; align-items: center; justify-content: center; cursor: pointer; opacity: .55; }
   .icon-btn svg { width: 16px; height: 16px; }
@@ -96,7 +97,7 @@ const rows = CONTACTS.map((c, i) => {
     <td><div class="who"><span class="avatar avatar-lg">${initials}</span>${c[0]} ${c[1]}</div></td>
     <td>${c[2] ? `<a href="#" onclick="event.stopPropagation()">${c[2]}</a>` : '<span class="none">No organization</span>'}</td>
     <td>${c[3]}</td>
-    <td>${c[4] ?? '<span class="none">—</span>'}</td>
+    <td class="email" title="${c[4] ?? ""}">${c[4] ?? '<span class="none">—</span>'}</td>
     <td class="num">${c[5] ?? '<span class="none">—</span>'}</td>
     <td><span class="pill pill-${STATUS[c[6]][1]}">${STATUS[c[6]][0]}</span></td>
     <td><div class="actions">
@@ -112,7 +113,7 @@ ${sidebar("Contacts")}
   <div class="page-head"><div><h1 class="page-title">Contacts</h1><div class="page-sub">${COUNTS.all} contacts · ${COUNTS.customer} customers</div></div>
     <button class="btn btn-primary">${ICON.plus}New contact</button></div>
   <div class="toolbar">
-    <div class="search">${ICON.search}<span>Search name, email, organization or title</span></div>
+    <div class="search">${ICON.search}<span>Search contacts</span></div>
     <div class="filters" role="group" aria-label="Filter by status">
       <button class="on" aria-pressed="true">All <span class="n">${COUNTS.all}</span></button>
       <button aria-pressed="false">Leads <span class="n">${COUNTS.lead}</span></button>

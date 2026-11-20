@@ -11,3 +11,4 @@ The project has not yet started.
 - 2026-11-20: Reworked the pipeline-first mockup: collapsible sidebar, full-width content, 1px outlines on panels and cards, and a flat Violet ring logo. Updated `docs/spec.md` and the brand reference to match.
 - 2026-11-20: Kept only the pipeline-first mockup (removed 1-classic and 3-ledger) and added a contacts table mockup.
 - 2026-11-20: Updated `docs/spec.md` to the chosen pipeline-first mockups: dashboard figures and panels (B1–B6), board search and Won/Lost columns (P8, P9), and the Screens section.
+- 2026-11-20: Took screenshots of the pipeline-first mockups (dashboard, pipeline with the sidebar open and collapsed, contacts) and fixed the layout problems they showed.
