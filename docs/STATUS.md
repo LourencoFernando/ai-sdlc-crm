@@ -12,3 +12,4 @@ The project has not yet started.
 - 2026-11-20: Kept only the pipeline-first mockup (removed 1-classic and 3-ledger) and added a contacts table mockup.
 - 2026-11-20: Updated `docs/spec.md` to the chosen pipeline-first mockups: dashboard figures and panels (B1–B6), board search and Won/Lost columns (P8, P9), and the Screens section.
 - 2026-11-20: Took screenshots of the pipeline-first mockups (dashboard, pipeline with the sidebar open and collapsed, contacts) and fixed the layout problems they showed.
+- 2026-11-20: Switched the backend from Python and FastAPI to NestJS with Prisma in `docs/TECH_STACK.md`, and updated the architecture, libraries, API errors and testing in `docs/spec.md` to match.

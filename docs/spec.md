@@ -131,12 +131,12 @@ Each requirement has an ID, so tests and reviews can refer to it.
 ### Architecture
 
 ```
-browser ── React app (Vite, frontend/) ──JSON over HTTP──▶ FastAPI (backend/) ──SQLAlchemy Core──▶ SQLite file
+browser ── React app (Vite, frontend/) ──JSON over HTTP──▶ NestJS (backend/) ──Prisma──▶ SQLite file
 ```
 
-- In development, Vite serves the frontend and proxies `/api` to FastAPI, so the browser sees one address.
+- In development, Vite serves the frontend and proxies `/api` to NestJS, so the browser sees one address.
 - The backend owns every rule: probabilities, close dates, stage-change entries, delete effects and validation. The frontend repeats a few of them only to update the screen straight away (P5) and to show form errors early.
-- The database file is `data/accountable.db`, which git ignores. The tests set `ACCOUNTABLE_DB` to a temporary file.
+- The database file is `data/accountable.db`, which git ignores. The tests set `ACCOUNTABLE_DB` to a temporary file. The schema lives in `backend/prisma/schema.prisma`, and Prisma migrations create and update the database when the backend starts.
 
 ### Libraries
 
@@ -153,8 +153,8 @@ browser ── React app (Vite, frontend/) ──JSON over HTTP──▶ FastAPI
 | Dates | date-fns |
 | Font | `@fontsource/poppins` |
 | Run both servers | concurrently |
-| Backend | FastAPI, Pydantic v2, SQLAlchemy Core, Uvicorn |
-| Tests | Vitest and Testing Library; pytest with FastAPI's TestClient; Playwright Test |
+| Backend | NestJS, Prisma with SQLite, class-validator and class-transformer |
+| Tests | Vitest and Testing Library; Jest and Supertest against the Nest app; Playwright Test |
 
 ### Data model
 
@@ -171,7 +171,7 @@ browser ── React app (Vite, frontend/) ──JSON over HTTP──▶ FastAPI
 
 ### API
 
-Everything is under `/api` and uses JSON. Errors return `{"detail": ..., "fields": {"email": "Already used by Dana Reyes"}}` with status 409 for a conflict and 422 for an invalid field.
+Everything is under `/api` and uses JSON. Errors return `{"detail": ..., "fields": {"email": "Already used by Dana Reyes"}}` with status 409 for a conflict and 422 for an invalid field. A global exception filter produces this shape, and the validation pipe uses 422 rather than Nest's default 400.
 
 | Method and path | Purpose |
 |-----------------|---------|
@@ -267,7 +267,7 @@ Colors, type, sizes, radii, shadows, components, chart styling and the stage and
 
 ## Testing
 
-- **Backend (pytest):** each rule in the Rules section of the intent, the probability and close-date rules, positions after a move, delete effects and previews, validation, and the dashboard figures against a small known data set.
+- **Backend (Jest and Supertest):** each rule in the Rules section of the intent, the probability and close-date rules, positions after a move, delete effects and previews, validation, and the dashboard figures against a small known data set.
 - **Frontend (Vitest):** formatting, date helpers (due soon, overdue, late), the optimistic totals on the board, and form validation.
 - **End to end (Playwright, installed Chrome):** the app starts on the dashboard with sample data; create, search, sort, edit and delete on each table; the contact status filter; collapsing the sidebar and finding it collapsed after a refresh; searching the board; drag between and within columns and refresh; a new deal from a column; logging an activity with a follow-up and marking it done from the dashboard; winning a deal and seeing the dashboard change; the blocked organization delete; and no console errors on any screen.
 - **By eye (success criterion 8):** before it's called done, someone uses every section and action in a real browser and checks each screen against this design.
