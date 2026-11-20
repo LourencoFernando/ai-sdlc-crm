@@ -11,10 +11,10 @@ This spec turns `docs/intent.md` into requirements and a design. The stack is in
 - **Contrast.** The brand now has Violet Deep `#4b4bd6` for violet text and links, keeps Iron for placeholders and disabled icons only, and has chart colors that are all at least 3:1 on white. Every pair is listed in the reference's Contrast section.
 - **Offline font.** Poppins is bundled from npm (`@fontsource/poppins`), so nothing is loaded from the web.
 - **Reopening a won or lost deal.** It keeps its close date, and is late only if that date has passed. The user can edit it.
-- **A contact who changes organization while being a deal's main contact.** Saving asks first, says which deals will lose this contact as their main contact, and then unlinks them.
+- **A contact who changes organization while being a deal's main contact.** Saving asks first, says which deals will lose this contact as their main contact, and then unlinks them. The form gets the list from the organization-change preview, and the PATCH carries `confirmUnlink: true`. Without it, the backend refuses with 409 and the same list.
 - **Stage-change entries** are system entries. They can't be edited or deleted on their own, and they are deleted with their deal.
 - **The blocked organization delete** lists the deals that block it, each linking to the deal so the user can reassign or delete it.
-- **"Today" and dates.** Every date is a calendar date with no time zone, and "today" is the date on the computer running the browser. The frontend sends today's date with requests that depend on it (closing a deal, dashboard figures), so the backend and the browser always agree.
+- **"Today" and dates.** Every date is a calendar date with no time zone, and "today" is the date on the computer running the browser. The frontend sends today's date with requests that depend on it (creating or saving a deal, moving a card, the dashboard figures), so the backend and the browser always agree.
 - **Sample data dates** are built relative to the day the seed runs, so "due soon" and "running late" never go stale.
 - **Tables search, sort and page in the browser.** Each list endpoint returns every row, which is fine for a few thousand. If the data grows past about 10,000 rows, move these to the server.
 
@@ -66,7 +66,7 @@ Each requirement has an ID, so tests and reviews can refer to it.
 ### Deals
 
 - **D1** Fields: name (required), organization (required), main contact (optional; the list only offers contacts of the chosen organization, and clears if the organization changes), stage, value (USD, 0 or more, whole dollars), probability (0–100, whole percent), expected or actual close date (required).
-- **D2** A new deal takes its stage's usual probability. Changing the stage, on the form or on the board, sets the probability to the new stage's usual one. A probability edited by hand is kept until the stage next changes.
+- **D2** A new deal takes its stage's usual probability. Changing the stage, on the form or on the board, sets the probability to the new stage's usual one. A probability edited by hand is kept until the stage next changes. When one save changes both the stage and the probability, the probability sent wins, because the form has already filled in the new stage's probability and the user may have changed it.
 - **D3** Moving to Won or Lost sets the close date to today. It can be edited afterwards.
 - **D4** A deal is **late** when it's open (not Won or Lost) and its close date is before today. A late deal shows a red "Late" pill in the table and on its pipeline card, and its close date is in Alert red.
 - **D5** Table columns: Name, Organization, Main contact, Stage, Value, Probability, Expected revenue (value × probability), Close date. Search covers name, organization and contact.
@@ -82,8 +82,18 @@ Each requirement has an ID, so tests and reviews can refer to it.
 - **P5** All totals update as soon as a card is dropped, before the server answers. If saving fails, the card goes back and an error message says so.
 - **P6** Each column has an "Add deal" button that opens the deal form with that stage chosen. The new deal goes to the top of the column.
 - **P7** Cards can also be moved with the keyboard (focus, Space to pick up, arrows, Space to drop).
-- **P8** A search box above the board filters the cards by deal name, organization or contact as you type. The totals still count every open deal.
-- **P9** Won and Lost are narrower columns showing a compact line per deal (name and short value), the 10 most recently closed first, then "Show all 26", which lists the rest in the column.
+- **P8** A search box above the board filters the cards by deal name, organization or contact as you type. The totals still count every open deal. Cards can still be dragged while the board is filtered (see P11).
+- **P9** Won and Lost are narrower columns showing a compact line per deal (name and short value), in their board order like any column, the first 10 and then "Show all 26", which lists the rest in the column. A deal that reaches Won or Lost from its form goes to the top, so the newest usually come first; one dragged there stays where it was dropped.
+
+#### Drag and drop
+
+Drag and drop is the heart of the board, so it's specified in detail.
+
+- **P10 Picking up.** The whole card is the handle. A drag starts once the pointer has moved 6px, so a plain click still opens the deal. While dragging, a copy of the card follows the pointer (lifted, slightly tilted), and the space it left stays open as a placeholder. Escape, or dropping outside every column, cancels: the card goes back and nothing is sent.
+- **P11 Where it lands.** The drop place shows as a dashed Violet outline between cards, and the cards around it move aside smoothly. Empty columns accept a drop. Over a column header the card goes to the top; over the space below the last card it goes to the end. The place is always worked out in the column's full list: with a search on (P8), or with only the first 10 of Won or Lost showing (P9), the card lands right after the visible card above the drop place. Dropping a card back where it started sends nothing.
+- **P12 Scrolling while dragging.** Near the left or right edge of the board it scrolls sideways, and near the top or bottom of a long column, or of the page, it scrolls up or down.
+- **P13 Saving.** Each drop sends one `move` with the card's stage, its index in the full column and today. The board shows the new place and totals at once (P5). Moves are saved one at a time in the order they were made, so quick moves never arrive out of order. The server answers with the order of both columns, and the board takes that as the truth. If a move fails, the board reloads from the server and a message says "Couldn't move Acme renewal. The board has been refreshed."
+- **P14 Announcements.** A screen reader hears each step, in plain words: "Picked up Acme renewal in Proposal", "Over Negotiation, position 2 of 5", "Moved Acme renewal to Negotiation, position 2", "Move cancelled".
 
 ### Activities and follow-ups
 
@@ -105,7 +115,7 @@ Each requirement has an ID, so tests and reviews can refer to it.
 ### Dashboard
 
 - **B1** Four headline figures:
-  - **Won this month**: revenue won from deals with a close date this month, compared with last month.
+  - **Won this month**: revenue won from deals with a close date this month, compared with the whole of last month.
   - **Deals won**: the number of deals won this month.
   - **Open pipeline**: total value of open deals, with the number of open deals.
   - **Expected revenue**: the sum of value × probability over open deals.
@@ -136,7 +146,7 @@ browser ── React app (Vite, frontend/) ──JSON over HTTP──▶ NestJS 
 
 - In development, Vite serves the frontend and proxies `/api` to NestJS, so the browser sees one address.
 - The backend owns every rule: probabilities, close dates, stage-change entries, delete effects and validation. The frontend repeats a few of them only to update the screen straight away (P5) and to show form errors early.
-- The database file is `data/accountable.db`, which git ignores. The tests set `ACCOUNTABLE_DB` to a temporary file. The schema lives in `backend/prisma/schema.prisma`, and Prisma migrations create and update the database when the backend starts.
+- The database file is `data/accountable.db`, which git ignores. The tests set `ACCOUNTABLE_DB` to a temporary file. The schema lives in `backend/prisma/schema.prisma`, and `prisma migrate deploy` creates and updates the database before the backend starts.
 
 ### Libraries
 
@@ -171,7 +181,7 @@ browser ── React app (Vite, frontend/) ──JSON over HTTP──▶ NestJS 
 
 ### API
 
-Everything is under `/api` and uses JSON. Errors return `{"detail": ..., "fields": {"email": "Already used by Dana Reyes"}}` with status 409 for a conflict and 422 for an invalid field. A global exception filter produces this shape, and the validation pipe uses 422 rather than Nest's default 400.
+Everything is under `/api` and uses JSON. Field names in requests and responses are camelCase (`organizationId`, `closeDate`, `followUpOn`), and Prisma maps them to the snake_case columns in the Data model with `@map`. Errors return `{"detail": ..., "fields": {"email": "Already used by Dana Reyes"}}` with status 409 for a conflict and 422 for an invalid field. A global exception filter produces this shape, and the validation pipe uses 422 rather than Nest's default 400.
 
 | Method and path | Purpose |
 |-----------------|---------|
@@ -180,9 +190,10 @@ Everything is under `/api` and uses JSON. Errors return `{"detail": ..., "fields
 | `GET /api/organizations/{id}/delete-preview` | What deleting would do: the blocking deals, or the contacts to be unlinked |
 | `GET/POST /api/contacts`, `GET/PATCH/DELETE /api/contacts/{id}` | Contacts; `?status=` filters |
 | `GET /api/contacts/{id}/delete-preview` | The counts of activities to delete and deals to unlink |
-| `GET/POST /api/deals`, `GET/PATCH/DELETE /api/deals/{id}` | Deals; a PATCH that changes the stage applies D2, D3 and D7 |
+| `GET /api/contacts/{id}/organization-change-preview?organizationId=` | The deals that would lose this contact as their main contact if it moved to that organization (or to none) |
+| `GET/POST /api/deals`, `GET/PATCH/DELETE /api/deals/{id}` | Deals; POST and PATCH carry `today`, and a PATCH that changes the stage applies D2, D3 and D7 |
 | `GET /api/deals/{id}/delete-preview` | The count of activities to delete |
-| `POST /api/deals/{id}/move` | `{stage, index, today}`: moves the deal to a position in a column, renumbers that column and the one it left in one transaction, and applies the stage rules |
+| `POST /api/deals/{id}/move` | `{stage, index, today}`: moves the deal to a position in a column (an index past the end means the end), renumbers that column and the one it left in one transaction, applies the stage rules only when the stage changed, and returns the ordered deal ids of both columns |
 | `GET /api/contacts/{id}/timeline`, `GET /api/deals/{id}/timeline` | Activities, newest first |
 | `POST /api/activities`, `PATCH/DELETE /api/activities/{id}` | Activities; PATCH `{done}` marks a follow-up |
 | `GET /api/dashboard?today=YYYY-MM-DD` | All dashboard figures (B1–B7) in one response |
@@ -226,7 +237,7 @@ Colors, type, sizes, radii, shadows, components, chart styling and the stage and
 **Dashboard** (mockup: `dashboard.html`). The page title, today's date and the overdue and late line (B1), with "Log activity" on the right.
 - First row: one wide panel. On the left, the four headline figures in a 2 × 2 grid, each with a small Slate label, the figure in weight 300 and a line below, such as "USD 4,600 more than October" in Forest, or in Alert when it's lower. On the right, Pipeline by stage (B5): blocks in each stage's pastel with a dot in its chart color, and a line saying Won and Lost are not counted.
 - Second row: a "Last 12 months" panel, two thirds wide, with Revenue won (line chart) above Deals won and lost (grouped bars, Forest and Slate). Beside it, the Follow-ups panel (B6) on a Lavender background with a Lavender-tinted outline, its tabs as a segmented control, and each follow-up on a white card.
-- Third row, side by side: the Sales funnel as tapering steps in the stage chart colors, with stage names on the left and values on the right; and Recent activity, each entry with its pastel badge, description, link and date, and "Show more".
+- Third row, side by side: the Sales funnel as tapering steps in the stage chart colors, with stage names on the left and values on the right; and Recent activity, each entry with its pastel badge, description, link and date.
 - Charts follow the reference's Charts section.
 
 **Tables** (mockup: `contacts.html`). The page title with a short count below it ("80 contacts · 19 customers") and the "New …" button on the right.
@@ -249,6 +260,8 @@ Colors, type, sizes, radii, shadows, components, chart styling and the stage and
 
 **Dialogs.** Forms and confirmations open in a centered white dialog with a 24px radius, `--shadow-overlay`, a dimmed backdrop, and Cancel (outlined pill) and the main action (filled pill) bottom right. A delete confirmation uses an Alert-colored "Delete" button and lists the effects as plain sentences.
 
+**Unsaved changes.** Closing a form that has changes, with Cancel, Escape, the close button or a click on the backdrop, asks "Discard your changes?" with "Keep editing" (outlined pill, focused) and "Discard" (Alert pill). A form with no changes closes straight away. Leaving the page or refreshing with a form open and changed shows the browser's own leave warning.
+
 **Feedback.** Saving shows a short message in the corner ("Deal saved"), with no exclamation marks. Form errors appear under their field in Alert red. Loading shows soft gray placeholders in the shape of the content.
 
 ### Formatting
@@ -269,5 +282,6 @@ Colors, type, sizes, radii, shadows, components, chart styling and the stage and
 
 - **Backend (Jest and Supertest):** each rule in the Rules section of the intent, the probability and close-date rules, positions after a move, delete effects and previews, validation, and the dashboard figures against a small known data set.
 - **Frontend (Vitest):** formatting, date helpers (due soon, overdue, late), the optimistic totals on the board, and form validation.
-- **End to end (Playwright, installed Chrome):** the app starts on the dashboard with sample data; create, search, sort, edit and delete on each table; the contact status filter; collapsing the sidebar and finding it collapsed after a refresh; searching the board; drag between and within columns and refresh; a new deal from a column; logging an activity with a follow-up and marking it done from the dashboard; winning a deal and seeing the dashboard change; the blocked organization delete; and no console errors on any screen.
+- **End to end (Playwright, installed Chrome):** the app starts on the dashboard with sample data; create, search, sort, edit and delete on each table; the contact status filter; collapsing the sidebar and finding it collapsed after a refresh; searching the board; drag and drop as listed in `docs/plan.md` (between and within columns, to an empty column, cancelling, with a search on, quick moves, a failed save, and refresh); a new deal from a column; logging an activity with a follow-up and marking it done from the dashboard; winning a deal and seeing the dashboard change; the blocked organization delete; and no console errors on any screen.
+- **Resetting between end-to-end tests:** when the backend runs with `ACCOUNTABLE_TEST=1`, it adds `POST /api/test/reset`, which reseeds the database. It doesn't exist otherwise.
 - **By eye (success criterion 8):** before it's called done, someone uses every section and action in a real browser and checks each screen against this design.
