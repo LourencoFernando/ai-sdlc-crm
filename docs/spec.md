@@ -18,6 +18,11 @@ This spec turns `docs/intent.md` into requirements and a design. The stack is in
 - **Sample data dates** are built relative to the day the seed runs, so "due soon" and "running late" never go stale.
 - **Tables search, sort and page in the browser.** Each list endpoint returns every row, which is fine for a few thousand. If the data grows past about 10,000 rows, move these to the server.
 
+- **Mockups.** The "pipeline first" design is the chosen one. Its mockups are in `docs/mockups/2-pipeline-first/` (dashboard, pipeline and contacts), and the Screens section below describes them. Where a mockup and this spec disagree, the spec wins.
+- **Navigation** is a collapsible sidebar, not a top bar. Content uses the full width beside it.
+- **Outlines.** Panels and cards have a 1px outline instead of a soft shadow, so their edges read clearly.
+- **Logo.** The logo is a flat Violet ring with the wordmark. There are no gradients anywhere.
+
 There are no open concerns.
 
 ## Requirements
@@ -70,13 +75,15 @@ Each requirement has an ID, so tests and reviews can refer to it.
 
 ### Pipeline
 
-- **P1** Six columns in stage order: New, Qualified, Proposal, Negotiation, Won, Lost. Each column header shows its name, number of deals, total value and expected revenue.
-- **P2** Above the board: the total value and expected revenue of all open deals. Won and Lost are left out.
+- **P1** Six columns in stage order: New, Qualified, Proposal, Negotiation, Won, Lost. Each column header shows its name, number of deals and total value, and the open columns also show their expected revenue.
+- **P2** Above the board: the total value and expected revenue of all open deals, the number of open deals, and a pill with the number running late. Won and Lost are left out.
 - **P3** Each card shows the deal's name, organization, value, probability, close date, the main contact's initials, and a "Late" pill when it's late. Clicking a card opens the deal.
 - **P4** Dragging a card to another column changes its stage (with D2, D3 and D7). Dragging within a column changes its place. A card can be dropped at any position, and its place is saved, so it's the same after a refresh.
 - **P5** All totals update as soon as a card is dropped, before the server answers. If saving fails, the card goes back and an error message says so.
 - **P6** Each column has an "Add deal" button that opens the deal form with that stage chosen. The new deal goes to the top of the column.
 - **P7** Cards can also be moved with the keyboard (focus, Space to pick up, arrows, Space to drop).
+- **P8** A search box above the board filters the cards by deal name, organization or contact as you type. The totals still count every open deal.
+- **P9** Won and Lost are narrower columns showing a compact line per deal (name and short value), the 10 most recently closed first, then "Show all 26", which lists the rest in the column.
 
 ### Activities and follow-ups
 
@@ -98,15 +105,17 @@ Each requirement has an ID, so tests and reviews can refer to it.
 ### Dashboard
 
 - **B1** Four headline figures:
-  - **Won this month**: revenue and number of deals won with a close date this month, compared with last month.
-  - **Open pipeline**: total value of open deals.
+  - **Won this month**: revenue won from deals with a close date this month, compared with last month.
+  - **Deals won**: the number of deals won this month.
+  - **Open pipeline**: total value of open deals, with the number of open deals.
   - **Expected revenue**: the sum of value × probability over open deals.
-  - **Follow-ups**: the number overdue and the number due soon.
-- **B2** **Revenue won** (line chart): revenue won per month over the last 12 months, the current month included.
+
+  Under the page title, a line gives the number of overdue follow-ups and of late deals: "5 follow-ups overdue and 4 deals running late".
+- **B2** **Revenue won** (line chart): revenue won per month over the last 12 months, the current month included, with the 12-month total and number of deals won.
 - **B3** **Deals won and lost** (bar chart): the number won and lost per month over the same 12 months, as grouped bars.
-- **B4** **Sales funnel**: one bar per open stage plus Won, each showing the total value of the deals at that stage or beyond, with the number of deals. Lost is left out.
-- **B5** **Pipeline by stage**: a stacked bar of open value by stage, with expected revenue beside it, linking to the Pipeline board.
-- **B6** **Follow-ups**: overdue first (oldest first), then due soon (soonest first), each with its checkbox, description and a link to its contact or deal.
+- **B4** **Sales funnel**: one step per open stage plus Won, each as wide as the total value of the deals at that stage or beyond, labelled with that value, the number of deals and the share kept from the step before ("62%"). Lost is left out.
+- **B5** **Pipeline by stage**: one block per open stage in a row, each as wide as its share of the open value, showing the stage name, its value, number of deals and expected revenue. It links to the Pipeline board. Won and Lost are left out.
+- **B6** **Follow-ups**: two tabs, Overdue (oldest first) and Due soon (soonest first), each with its count. Overdue is shown first when it has any, otherwise Due soon. Each follow-up has its checkbox, description, a link to its contact or deal, and its date as a pill.
 - **B7** **Recent activity**: the 10 newest activities and stage changes, each linking to its record.
 - **B8** Every figure is calculated from the data when the dashboard loads, so it reflects a deal just won or a follow-up just added.
 
@@ -200,29 +209,43 @@ The look follows the brand skill and its `DESIGN.md`. The brand's Avoid and Tone
 
 Colors, type, sizes, radii, shadows, components, chart styling and the stage and status colors all come from the brand reference, `.claude/skills/brand/DESIGN.md`. `frontend/src/styles/tokens.css` is a copy of its CSS custom properties, and components use the tokens, never raw values. In short:
 
-- **Surfaces:** a Cloud `#f5f6f8` canvas with white panels (24px radius, soft shadow, no border) and white pipeline cards (16px radius).
+- **Surfaces:** a Cloud `#f5f6f8` canvas with white panels (24px radius) and white pipeline cards (16px radius), each with a 1px Border `#c3c7d6` outline on all sides.
 - **Type:** Poppins throughout; 14px body and table cells, 18px panel titles, 28px page titles, 40px weight 300 headline figures; tabular figures for numbers.
 - **Actions:** violet pill buttons, 40px high, or 32px in toolbars, table rows and pipeline columns. Delete confirmations use the Alert pill.
 - **Meaning by color:** each stage and status has a pastel pill and a chart color, per the reference's stage and status table. Late and overdue use Alert.
-- **Avoid:** no border on one edge of a panel (late deals get a pill, not a stripe), no line across the top of the page or under the navigation bar, and no gradient fills. The prism gradient appears only in the logo mark.
+- **Avoid:** no border on one edge of a panel (late deals get a pill, not a stripe), no edge line on the sidebar or across the top of the page, and no gradient fills anywhere. The logo is a solid Violet ring beside the wordmark in Ink.
 
 ### Layout
 
-- A sticky white navigation bar, 64px high, holds the Accountable logo (the prism mark and the wordmark in Ink) on the left, then Dashboard, Organizations, Contacts, Deals and Pipeline. The current section is shown in Violet Deep with a Periwinkle Wash pill behind it. A primary "New deal" button sits on the right.
-- Content is centered with a max-width of 1200px and 32px side padding. The Pipeline board uses the full width and scrolls sideways if six columns don't fit.
+- A white sidebar, fixed on the left and 240px wide, holds the Accountable logo, a primary "New deal" button, then Dashboard, Organizations, Contacts, Deals and Pipeline, each with an icon. The current section is shown in Violet Deep with a Periwinkle Wash pill behind it. A "Collapse menu" button at the bottom shrinks it to 72px, showing icons only with tooltips; the choice is remembered per browser.
+- Content fills the width beside the sidebar, with 32px side padding. Pipeline columns grow to fill the width and the board scrolls sideways if they don't fit.
 - Every page starts with its title on the left and its main action (a violet pill) on the right.
 
 ### Screens
 
-**Dashboard.** First row: four headline-figure panels, each with a small label in Slate, the figure at 40px weight 300, and a comparison line, such as "USD 12,400 more than October" in Forest, or in Alert when it's lower. The Follow-ups panel has a Lavender background. Second row: Revenue won (line chart, two thirds of the width) and Pipeline by stage (one third). Third row: Deals won and lost (bar chart) and the Sales funnel, side by side. Fourth row: Follow-ups and Recent activity, side by side. Charts follow the reference's Charts section.
+**Dashboard** (mockup: `dashboard.html`). The page title, today's date and the overdue and late line (B1), with "Log activity" on the right.
+- First row: one wide panel. On the left, the four headline figures in a 2 × 2 grid, each with a small Slate label, the figure in weight 300 and a line below, such as "USD 4,600 more than October" in Forest, or in Alert when it's lower. On the right, Pipeline by stage (B5): blocks in each stage's pastel with a dot in its chart color, and a line saying Won and Lost are not counted.
+- Second row: a "Last 12 months" panel, two thirds wide, with Revenue won (line chart) above Deals won and lost (grouped bars, Forest and Slate). Beside it, the Follow-ups panel (B6) on a Lavender background with a Lavender-tinted outline, its tabs as a segmented control, and each follow-up on a white card.
+- Third row, side by side: the Sales funnel as tapering steps in the stage chart colors, with stage names on the left and values on the right; and Recent activity, each entry with its pastel badge, description, link and date, and "Show more".
+- Charts follow the reference's Charts section.
 
-**Tables.** One white panel per page. The toolbar is the search box (with a search icon, 320px wide), the status filter on Contacts (a row of pill toggles with counts), and the page size and paging on the right at the bottom. Row actions are icon buttons (pencil, bin) with tooltips, shown on every row and stronger on hover. The heading of the sorted column shows an arrow.
+**Tables** (mockup: `contacts.html`). The page title with a short count below it ("80 contacts · 19 customers") and the "New …" button on the right.
+- Above the panel, the toolbar: the search box (pill, 320px wide, with a search icon and outline), then on Contacts the status filter as outlined pill toggles with counts; the selected one is Violet Deep on Periwinkle Wash.
+- One white outlined panel holds the table. Headings in Slate, label weight; the sorted one in Ink with a Violet Deep arrow. Rows 48px with a Shadow Dust line between them, Periwinkle on hover.
+- The first column shows the name in label weight, with a 32px initials avatar on Contacts. Linked records (such as the organization) are Violet Deep links that open that record. Empty values show "—" in Slate, and a contact with no organization shows "No organization".
+- Status and stage show as pills. Row actions are icon buttons (pencil, bin) with tooltips, on every row, faint until the row is hovered.
+- The panel's footer shows "Showing 1–25 of 80" on the left, and "Rows per page" with the page buttons on the right.
 
 **Record pages.** A header panel with the record's name as the page title, its key facts as label and value pairs, its status or stage pill, and Edit and Delete. Below it, two columns: on the left, the linked records (contacts and deals as compact lists); on the right, the timeline with "Log activity" at the top.
 
 **Timeline.** A vertical list with a type icon in a round pastel badge for each entry: note (Lavender), call (Mint), email (Sky), stage change (Periwinkle Wash, arrow icon). Follow-ups show their date and label beside a checkbox. Edit and Delete are in a small menu on each entry; stage changes have none.
 
-**Pipeline.** Six columns, 280px wide, on the Cloud canvas, each with a header showing its pastel stage pill, count, total and expected revenue, and an "Add deal" pill button at the bottom. Cards are white with a 16px radius. A card being dragged lifts with `--shadow-lifted` and a slight tilt, and the drop place shows as a dashed Violet outline. The board's open totals sit in a summary row above the columns.
+**Pipeline** (mockup: `pipeline.html`). Below the title, a toolbar with the search box (P8) on the left and the open totals on the right (P2).
+- Six columns on the Cloud canvas. The four open ones are at least 280px wide and grow to fill the width. Won and Lost are narrower (P9).
+- Each column starts with a header card in its stage's pastel (Lost is white with an outline) showing the stage name, count, total value and "Expected USD …". On open columns, a thin bar shows expected revenue as a share of the value, in the stage's chart color. Won says "All time" and Lost says "Not counted in totals".
+- Cards are white, 16px radius, outlined. Each shows the name, the organization, the value and probability, a thin probability bar in the stage's chart color, the close date with a calendar icon, and the contact's initials. A late card has a Late pill at the top right and its date in Alert.
+- Open columns end with a dashed-outline "Add deal" button.
+- A card being dragged lifts with `--shadow-lifted` and a slight tilt, and the drop place shows as a dashed Violet outline.
 
 **Dialogs.** Forms and confirmations open in a centered white dialog with a 24px radius, `--shadow-overlay`, a dimmed backdrop, and Cancel (outlined pill) and the main action (filled pill) bottom right. A delete confirmation uses an Alert-colored "Delete" button and lists the effects as plain sentences.
 
@@ -239,11 +262,12 @@ Colors, type, sizes, radii, shadows, components, chart styling and the stage and
 
 - Text meets 4.5:1 contrast and chart marks 3:1, using only the pairs in the reference's Contrast section.
 - Every control can be used with the keyboard, focus shows as a 2px Violet Deep ring, and the pipeline supports keyboard moves (P7).
+- The collapsed sidebar keeps an accessible name and a tooltip on every icon, and its toggle reports whether it's expanded.
 - Status is never shown by color alone: pills carry words, and charts have labels.
 
 ## Testing
 
 - **Backend (pytest):** each rule in the Rules section of the intent, the probability and close-date rules, positions after a move, delete effects and previews, validation, and the dashboard figures against a small known data set.
 - **Frontend (Vitest):** formatting, date helpers (due soon, overdue, late), the optimistic totals on the board, and form validation.
-- **End to end (Playwright, installed Chrome):** the app starts on the dashboard with sample data; create, search, sort, edit and delete on each table; the contact status filter; drag between and within columns and refresh; a new deal from a column; logging an activity with a follow-up and marking it done from the dashboard; winning a deal and seeing the dashboard change; the blocked organization delete; and no console errors on any screen.
+- **End to end (Playwright, installed Chrome):** the app starts on the dashboard with sample data; create, search, sort, edit and delete on each table; the contact status filter; collapsing the sidebar and finding it collapsed after a refresh; searching the board; drag between and within columns and refresh; a new deal from a column; logging an activity with a follow-up and marking it done from the dashboard; winning a deal and seeing the dashboard change; the blocked organization delete; and no console errors on any screen.
 - **By eye (success criterion 8):** before it's called done, someone uses every section and action in a real browser and checks each screen against this design.
