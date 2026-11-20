@@ -18,9 +18,10 @@ Accountable is a CRM people use all day, on a laptop or desktop screen. It uses 
 | Iron | `#808080` | `--color-iron` | Disabled icons and input placeholders only. Too light for text people need to read |
 | Fog | `#cacbcd` | `--color-fog` | Outline of the Lost pill, disabled borders |
 | Mist | `#d0d4e4` | `--color-mist` | Light card outlines where a shadow isn't enough |
+| Border | `#c3c7d6` | `--color-border` | 1px outline on every side of panels, cards, the search field and the Lost pill |
 | Pebble | `#dddfeb` | `--color-pebble` | Input borders, outlined pill buttons |
 | Cloud | `#f5f6f8` | `--color-cloud` | Page canvas, pipeline board, neutral button fills. The floor color everything floats on |
-| Snow | `#ffffff` | `--color-snow` | Panels, cards, navigation bar, dialogs, input fields, button text |
+| Snow | `#ffffff` | `--color-snow` | Panels, cards, sidebar, dialogs, input fields, button text |
 | Shadow Dust | `#e6e7ea` | `--color-shadow-dust` | Lines between table rows, chart gridlines, shadow tint |
 
 ### Pastel surfaces
@@ -50,7 +51,6 @@ Pastels are backgrounds only, always with Ink text.
 | Ember | `#c25a14` | `--color-ember` | Negotiation stage in charts |
 | Apricot | `#ff8940` | `--color-apricot` | Warm accent and the source of Apricot Wash. Too light for chart lines or text |
 | Electric Cyan | `#3ac9ff` | `--color-electric-cyan` | Decorative accent only. Too light for chart lines or text |
-| Prism | `#8181ff` | `--color-prism` | Base color of the prism gradient (`--gradient-prism`), used only in the logo mark |
 
 ### Stage and status colors
 
@@ -129,7 +129,7 @@ The one typeface, used everywhere. A geometric sans with friendly rounded termin
 
 | Element | Size |
 |---------|------|
-| Navigation bar | 64px high |
+| Sidebar | 240px wide, 72px when collapsed |
 | Button | 40px high, 0 × 20px padding |
 | Small button (toolbars, table rows, pipeline columns) | 32px high, 0 × 14px padding |
 | Icon button | 32px square, round |
@@ -155,13 +155,13 @@ The one typeface, used everywhere. A geometric sans with friendly rounded termin
 
 | Name | Value | Token | Use |
 |------|-------|-------|-----|
-| soft | `rgba(205, 208, 223, 0.4) 0px 2px 48px 0px` | `--shadow-soft` | Panels and cards at rest |
+| soft | `rgba(205, 208, 223, 0.4) 0px 2px 48px 0px` | `--shadow-soft` | Floating items with no outline, such as a toast. Panels and cards use the 1px Border outline instead |
 | lifted | `rgba(0, 0, 0, 0.15) 0px 5px 45px 0px` | `--shadow-lifted` | A pipeline card being dragged, a hovered card |
 | overlay | `rgba(0, 0, 0, 0.15) 0px 4px 40px 0px` | `--shadow-overlay` | Dialogs, menus, tooltips |
 
 ### Layout
 
-- **Content max-width:** 1200px, centered, with 32px side padding. The pipeline board uses the full width.
+- **Content width:** content fills the space beside the sidebar, with 32px side padding. Pipeline columns grow to fill it, and the board scrolls sideways when they don't fit.
 - **Gap between panels:** 24px
 - **Panel padding:** 24px
 - **Element gap:** 8px
@@ -192,7 +192,7 @@ Filled Alert #c4314b, white text, full pill radius. Only in confirmations.
 ### Panel
 **Role:** The main container for tables, charts, record details and timelines
 
-White surface, 24px radius, 24px padding, soft shadow, no border. The title is heading-sm in Ink, with any action on the right of the title row.
+White surface, 24px radius, 24px padding, 1px Border outline on all four sides, no shadow. The title is heading-sm in Ink, with any action on the right of the title row.
 
 ### Pastel Tile
 **Role:** A headline figure or summary that should stand out, such as the dashboard's follow-ups count
@@ -202,7 +202,7 @@ One pastel background, 24px radius, 24px padding, small Slate label above a figu
 ### Pipeline Card
 **Role:** A deal on the pipeline board
 
-White surface, 16px radius, 12px × 16px padding, soft shadow. Deal name in label weight, organization in Slate below, then value and probability on one line, close date and the contact's avatar on the next. A late deal carries a Late pill. While dragging it lifts with the lifted shadow and a 2° tilt; the drop place shows as a dashed Violet outline, 16px radius.
+White surface, 16px radius, 12px × 16px padding, 1px Border outline. Deal name in label weight, organization in Slate below, then value and probability on one line, close date and the contact's avatar on the next. A late deal carries a Late pill. While dragging it lifts with the lifted shadow and a 2° tilt; the drop place shows as a dashed Violet outline, 16px radius.
 
 ### Data Table
 **Role:** Organizations, contacts and deals
@@ -219,10 +219,13 @@ Inside a panel. Headings in label weight, Slate, 40px row, with a sort arrow on 
 
 Round, Periwinkle Wash background, Violet Deep initials in caption weight. Overlapping avatars get a 2px white ring.
 
-### Navigation Bar
+### Sidebar
 **Role:** Top-level navigation between Dashboard, Organizations, Contacts, Deals and Pipeline
 
-White, 64px high, sticky. Accountable logo (prism mark and wordmark in Ink) on the left, section links in label weight and Slate, the current one in Violet Deep on a Periwinkle Wash pill, and the main action on the right.
+White, fixed to the left edge, full height, 240px wide. From the top: the Accountable logo, the primary "New deal" button, then one 40px link per section with an 18px Lucide icon and its name in label weight and Slate. The current section is Violet Deep on a Periwinkle Wash pill. A "Collapse menu" button at the bottom shrinks it to 72px, showing only the logo mark, a round plus button and the icons, each with a tooltip and accessible name. The choice is remembered per browser. The sidebar is told apart from the Cloud canvas by its white color, with no edge line.
+
+### Logo
+The mark is a ring in solid Violet: 24px across with a 5px stroke. Beside it, the wordmark "Accountable" in Ink, Poppins 18px weight 600. Collapsed, only the ring shows. The logo uses no gradient and no other color.
 
 ### Dialog
 **Role:** Forms and confirmations
@@ -237,7 +240,6 @@ White, 24px radius, 24px padding, overlay shadow, a backdrop of Ink at 40%. Titl
 - Use pastels as backgrounds for pills, tiles and timeline badges, always with Ink text
 - Keep weight 300 for the 40px headline figures only
 - Keep two radius tiers in step: 24px panels, 16px cards, 6px pills and inputs
-- Keep the prism gradient for the logo mark only
 - Use tabular figures wherever numbers line up
 
 ### Don't
@@ -246,23 +248,23 @@ White, 24px radius, 24px padding, overlay shadow, a backdrop of Ink at 40%. Titl
 - Don't set body text below 13px or weight 400, or labels below weight 500
 - Don't use pure #000000 for text. #333333 is the system's true black
 - Don't put more than 3 pastel colors side by side outside the stage colors
-- Don't use heavy drop shadows. Panels use one soft shadow
+- Don't use heavy drop shadows. Panels and cards use a 1px outline; shadows are for dragged cards, menus and dialogs
 - Don't add action colors. Violet is the one action color; Alert is only for danger and problems
-- Don't put a border on one edge of a panel, or a line across the top of the page or under the navigation bar
-- Don't use gradient fills on surfaces, buttons or text
+- Don't put a border on one edge of a panel or the sidebar, or a line across the top of the page
+- Don't use gradient fills anywhere, including the logo
 
 ## Surfaces
 
 | Level | Name | Value | Purpose |
 |-------|------|-------|---------|
 | 0 | Canvas | `#f5f6f8` | Page background and the pipeline board |
-| 1 | Panel / Card | `#ffffff` | Panels, cards, dialogs, navigation bar |
+| 1 | Panel / Card | `#ffffff` | Panels, cards, dialogs, sidebar |
 | 2 | Tinted | a pastel | Pastel tiles, pills, timeline badges |
 | 3 | Brand | `#6161ff` | Primary buttons and, rarely, a small brand highlight |
 
 ## Imagery
 
-Accountable's visuals are its own data: tables, charts, pipeline cards, pills and avatars. There is no photography, illustration or stock imagery. Icons are simple line icons (Lucide), 16–20px, in Slate or Ink. The only decorative visual is the prism gradient in the logo mark.
+Accountable's visuals are its own data: tables, charts, pipeline cards, pills and avatars. There is no photography, illustration or stock imagery. Icons are simple line icons (Lucide), 16–20px, in Slate or Ink.
 
 ## Charts
 
@@ -275,7 +277,7 @@ Accountable's visuals are its own data: tables, charts, pipeline cards, pills an
 
 ## Layout
 
-A sticky white navigation bar sits at the top. Below it, content is centered at up to 1200px on the Cloud canvas, and each page starts with its title on the left and its main action on the right. Pages are made of white panels with 24px gaps. The pipeline board uses the full width and scrolls sideways when its columns don't fit.
+A collapsible white sidebar sits on the left. Content fills the rest of the width on the Cloud canvas, with 32px side padding, and each page starts with its title on the left and its main action on the right. Pages are made of white panels with 24px gaps. Pipeline columns grow to fill the width, and the board scrolls sideways when they don't fit.
 
 ## Quick Color Reference
 
@@ -293,17 +295,17 @@ A sticky white navigation bar sits at the top. Below it, content is centered at 
 
 2. **Pastel Tile**: Background #eddff7. 24px radius. 24px padding. Label in Poppins 13px weight 500 #535768, figure below in Poppins 40px weight 300 #333333 with tabular figures.
 
-3. **Pipeline Card**: White #ffffff surface, 16px radius, 12px × 16px padding, shadow rgba(205,208,223,0.4) 0 2px 48px. Deal name in 14px weight 500 #333333, organization in 13px #535768, value as "USD 48,000" and "50%", close date, and a 24px avatar with initials on #dbdbff.
+3. **Pipeline Card**: White #ffffff surface, 16px radius, 12px × 16px padding, 1px #c3c7d6 outline. Deal name in 14px weight 500 #333333, organization in 13px #535768, value as "USD 48,000" and "50%", close date, and a 24px avatar with initials on #dbdbff.
 
 4. **Status Pill**: 22px high, 6px radius, background #ffd0b3, label "Negotiation" in Poppins 12px weight 500 #333333.
 
 ## Gradient System
 
-There is one gradient: the **brand prism**, a conic gradient cycling violet → teal → green → yellow → pink → violet, used only for the logo mark. Gradients are never used on surfaces, buttons, text or charts.
+There are no gradients. The logo, surfaces, buttons, text and charts all use flat colors.
 
 ## Component Visual Language
 
-The system is **flat with a soft shadow**: white panels on a soft gray canvas, told apart by space and a single soft shadow rather than borders. Pastel tints mark meaning (a stage, a status, a type of activity) rather than decoration. Buttons are filled pills. The data areas are compact and orderly, and the space around them is generous, so the app feels like a calm, tidy workshop.
+The system is **flat and outlined**: white panels and cards on a soft gray canvas, each with a 1px Border outline so edges read clearly. Pastel tints mark meaning (a stage, a status, a type of activity) rather than decoration. Buttons are filled pills. The data areas are compact and orderly, and the space around them is generous, so the app feels like a calm, tidy workshop.
 
 ## Quick Start
 
@@ -343,8 +345,7 @@ The system is **flat with a soft shadow**: white panels on a soft gray canvas, t
   --color-ember: #c25a14;
   --color-apricot: #ff8940;
   --color-electric-cyan: #3ac9ff;
-  --color-prism: #8181ff;
-  --gradient-prism: conic-gradient(from 270deg, rgb(129, 129, 255) 15%, rgb(51, 219, 219) 40%, rgb(51, 213, 142) 55%, rgb(255, 214, 51) 65%, rgb(252, 82, 125) 85%, rgb(129, 129, 255) 100%);
+  --color-border: #c3c7d6;
 
   /* Typography */
   --font-poppins: 'Poppins', ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
@@ -387,12 +388,12 @@ The system is **flat with a soft shadow**: white panels on a soft gray canvas, t
   --spacing-48: 48px;
 
   /* Layout */
-  --page-max-width: 1200px;
   --page-padding: 32px;
   --panel-gap: 24px;
   --panel-padding: 24px;
   --element-gap: 8px;
-  --nav-height: 64px;
+  --sidebar-width: 240px;
+  --sidebar-width-collapsed: 72px;
 
   /* Sizes */
   --control-height: 40px;
@@ -449,7 +450,7 @@ The system is **flat with a soft shadow**: white panels on a soft gray canvas, t
   --color-ember: #c25a14;
   --color-apricot: #ff8940;
   --color-electric-cyan: #3ac9ff;
-  --color-prism: #8181ff;
+  --color-border: #c3c7d6;
 
   --font-poppins: 'Poppins', ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
 
