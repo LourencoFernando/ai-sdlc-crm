@@ -14,7 +14,7 @@ Accountable is a business management system: a sales CRM that will grow into a f
 - **Organizations**: the companies we do business with. Open one to see its contacts and deals.
 - **Contacts**: the people we deal with, including leads and customers, with a filter by status. Open one to see their organization and a timeline of everything that has happened with them.
 - **Deals**: the potential sales, with each one's stage, value and close date. Open one to see its details and its timeline. A deal still open after its expected close date stands out, in the table and on its pipeline card.
-- **Pipeline**: the deals as cards on a board, one column per stage. Drag a card to another column to change the deal's stage, or within a column to change its place; a card can be dropped anywhere in a column, and it stays where it was dropped. A new deal can be added straight into a column, at that stage. The board shows the total value and expected revenue of the deals still open, each column shows its own, and the figures change as soon as a card moves.
+- **Pipeline**: the deals as cards on a board, one column per stage. Drag a card to another column to change the deal's stage, or within a column to change its place; a card can be dropped anywhere in a column, and it stays where it was dropped. A new deal can be added straight into a column, at that stage. All six stages have a column, Won and Lost included. The board shows the total value and expected revenue of the deals still open, leaving out Won and Lost. Each column shows its own, and the figures change as soon as a card moves.
 
 Every table has a search box, columns you can sort by clicking their headings, a way to add a new record, and edit and delete on each row. That's how we add a new deal, a new lead or a new customer. Deleting asks first, and says what will happen to the records linked to the one being deleted.
 
@@ -25,7 +25,24 @@ From any contact or deal you can log an activity (a note, call or email) and giv
 - **Organization**: a company we do business with. Name, website, industry and notes. An organization has many contacts and many deals.
 - **Contact**: a person we deal with. Name, email, phone, job title, the organization they belong to, and a status (lead, qualified or customer). A lead is a contact with the lead status, so there's no separate list of leads.
 - **Deal**: a potential sale. Name, the organization and the main contact it is with, its stage (New, Qualified, Proposal, Negotiation, Won or Lost), its value in US dollars, its probability of close, and its expected or actual close date. Each stage has a usual probability of close, and a deal takes its new stage's probability when it moves; a probability set by hand is kept until the stage changes.
-- **Activity**: something that happened, or needs to happen, with a contact or deal. Type (note, call or email), the contact or deal it relates to, a description and when it happened, and optionally a follow-up date and whether it's done.
+- **Activity**: something that happened, or needs to happen, with a contact or deal. Type (note, call or email), the contact, deal or both that it relates to, a description and when it happened, and optionally a follow-up date and whether it's done.
+
+### Rules
+
+- **Links.** A contact's organization is optional. A deal must have an organization. Its main contact is optional, and must belong to that organization.
+- **Stage probabilities.** The usual probability of close is New 10%, Qualified 25%, Proposal 50%, Negotiation 75%, Won 100% and Lost 0%.
+- **Closing a deal.** A deal that moves to Won or Lost has its close date set to today, which can still be edited afterwards. Won and Lost deals are no longer open.
+- **Contact status** changes only when someone edits it. Winning a deal does not make its contact a customer.
+- **Activities on two timelines.** An activity can relate to a contact, a deal or both. An activity logged on a deal relates to the deal's main contact as well by default, so it shows on both timelines.
+- **Follow-ups** have a date but no time. A follow-up is due soon from today through the next 7 days, and overdue from the day after its date until it's marked done. It can be marked done from the dashboard or from a timeline.
+- **Deleting**, which always asks first and says what will happen:
+  - An organization with deals can't be deleted. The prompt says so and lists the deals to move or delete first. Deleting an organization with no deals unlinks its contacts, which are kept.
+  - Deleting a contact deletes its activities, and deals with that contact as their main contact are kept without one.
+  - Deleting a deal deletes its activities.
+  - An activity that relates to both a contact and a deal is kept while either one still exists.
+- **Checks on forms.** Required fields must be filled in. A contact's email must be a valid email address, and no two contacts can share one. A deal's value can't be negative, and its probability is between 0 and 100.
+- **Dashboard period.** The month-by-month charts cover the last 12 months.
+- **Scale.** Each table stays fast with a few thousand records, and pages them.
 
 ### Sample data
 
@@ -51,10 +68,10 @@ The look follows Accountable's brand guidelines, which take priority over any ge
 ## Success criteria
 
 1. Someone non-technical can start Accountable with the one documented command, open it in a browser and land on the dashboard, with sample data on every screen.
-2. Organizations, contacts (leads, qualified contacts and customers) and deals can each be added, found by searching, sorted, edited and deleted from their tables, and every change is still there after a refresh and after a restart. Deleting asks first. The reset command brings back the sample data.
+2. Organizations, contacts (leads, qualified contacts and customers) and deals can each be added, found by searching, sorted, edited and deleted from their tables, and every change is still there after a refresh and after a restart. Deleting asks first and follows the deleting rules above: an organization with deals can't be deleted. Forms reject a malformed or duplicate email, a negative value and a probability outside 0–100. The reset command brings back the sample data.
 3. Contacts can be filtered by status, and each record's page shows the records it's linked to.
-4. Dragging a deal to another column on the pipeline changes its stage and its probability of close, and the deals list shows both. A card dropped anywhere in a column, including higher or lower in its own column, stays there after a refresh. The board's and the columns' totals and expected revenue change as soon as the card moves. A deal added in a column starts at that stage, and late deals stand out.
-5. An activity or follow-up logged on a contact or deal appears in its timeline, newest first, and so does an entry for each change of stage. Follow-ups show on the dashboard as upcoming or overdue until they're marked done.
+4. Dragging a deal to another column on the pipeline changes its stage and its probability of close to that stage's usual one, and the deals list shows both. Dropping it in Won or Lost sets its close date to today and takes it out of the board's open totals. A card dropped anywhere in a column, including higher or lower in its own column, stays there after a refresh. The board's and the columns' totals and expected revenue change as soon as the card moves. A deal added in a column starts at that stage, and late deals stand out.
+5. An activity or follow-up logged on a contact or deal appears in its timeline, newest first, and so does an entry for each change of stage. An activity logged on a deal also shows on its main contact's timeline. Follow-ups show on the dashboard as due soon (within 7 days) or overdue until they're marked done.
 6. The dashboard's figures match the data, and they reflect a deal marked won or a new follow-up.
 7. Every screen is sharp, modern and professional, and follows the brand. The dashboard is visually stunning, with a line chart, a bar chart and a visual of the pipeline.
 8. Before it's called done, someone has used it end to end in a real browser, the way a salesperson would: every section and every action above, each screen checked by eye, with no errors in the browser's console. Passing tests is necessary, but it isn't enough.
