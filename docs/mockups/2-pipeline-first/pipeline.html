@@ -1,0 +1,76 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Pipeline · Pipeline first</title>
+<link rel="icon" href="data:,">
+<link rel="stylesheet" href="../shared/base.css">
+<style>
+  .toolbar { display: flex; align-items: center; gap: 16px; margin-bottom: 20px; }
+  .search { height: 40px; width: 320px; border-radius: var(--radius-button); background: var(--color-snow); display: flex; align-items: center; gap: 8px; padding: 0 16px; color: var(--color-slate); border: 1px solid var(--color-border); }
+  .search svg { width: 16px; height: 16px; color: var(--color-slate); }
+  .totals { display: flex; gap: 28px; margin-left: auto; align-items: baseline; }
+  .totals b { font-weight: 500; font-size: 18px; }
+  .col { flex: 1 0 var(--pipeline-column-width); min-width: 0; display: flex; flex-direction: column; gap: 8px; }
+  .col.closed { flex: .75 0 210px; }
+  .head { border-radius: var(--radius-card); padding: 14px 16px; }
+  .head .top { display: flex; justify-content: space-between; font-weight: 500; }
+  .head .v { font-size: 20px; margin-top: 6px; letter-spacing: -0.01em; }
+  .head .e { font-size: var(--text-caption); color: var(--color-ink); opacity: .8; }
+  .meter { height: 6px; border-radius: 3px; background: rgba(255,255,255,.7); margin-top: 10px; overflow: hidden; }
+  .meter span { display: block; height: 100%; border-radius: 3px; }
+  .card { padding: 12px 14px; display: grid; gap: 8px; }
+  .card .line { display: flex; justify-content: space-between; align-items: center; font-size: var(--text-body-sm); gap: 8px; }
+  .prob { height: 4px; border-radius: 2px; background: var(--color-shadow-dust); }
+  .prob span { display: block; height: 100%; border-radius: 2px; }
+  .add { justify-content: center; width: 100%; background: transparent; color: var(--color-slate); border: 1px dashed var(--color-border); }
+  .add:hover { background: var(--color-snow); }
+  .mini { background: var(--color-snow); border: 1px solid var(--color-border); border-radius: 12px; padding: 10px 12px; display: flex; justify-content: space-between; gap: 8px; font-size: var(--text-body-sm); }
+  .mini .nm { font-weight: 500; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+</style>
+</head>
+<body class="bordered">
+<div id="app"></div>
+<script src="../shared/mock.js"></script>
+<script>
+const pastel = { new: "var(--color-sky)", qualified: "var(--color-periwinkle-wash)", proposal: "var(--color-lavender)", negotiation: "var(--color-apricot-wash)", won: "var(--color-mint)", lost: "var(--color-snow)" };
+const late = (d) => isLate(d) && d[4] > 0 && d[4] < 100;
+const card = (d, color) => `<div class="card">
+  <div class="line"><span class="card-name" style="font-size:14px">${d[0]}</span>${late(d) ? '<span class="pill pill-late">Late</span>' : ""}</div>
+  <div class="card-org" style="margin-top:-6px">${d[1]}</div>
+  <div class="line"><span class="num" style="font-weight:500;font-size:15px">${usd(d[3])}</span><span class="muted num">${d[4]}%</span></div>
+  <div class="prob"><span style="width:${d[4]}%;background:${color}"></span></div>
+  <div class="line"><span class="${late(d) ? "late-date" : "muted"} num">${ICON.calendar.replace("<svg", '<svg style="width:13px;height:13px;vertical-align:-2px;margin-right:4px"')}${fmtDate(d[5])}</span><span class="avatar">${d[2]}</span></div>
+</div>`;
+const column = (s) => {
+  const t = stageTotals(s.key), closed = s.key === "won" || s.key === "lost";
+  const head = `<div class="head" style="background:${pastel[s.key]};${s.key === "lost" ? "box-shadow:inset 0 0 0 1px var(--color-border)" : ""}">
+    <div class="top"><span>${s.name}</span><span class="num">${t.count}</span></div>
+    <div class="v num">${usd(t.value)}</div>
+    <div class="e num">${closed ? (s.key === "won" ? "All time" : "Not counted in totals") : "Expected " + usd(t.expected)}</div>
+    ${closed ? "" : `<div class="meter"><span style="width:${(t.expected / t.value) * 100}%;background:${s.chart}"></span></div>`}
+  </div>`;
+  const body = closed
+    ? DEALS[s.key].map((d) => `<div class="mini"><span class="nm">${d[0]}</span><span class="num muted">${usdShort(d[3])}</span></div>`).join("") + `<a href="#" class="small" style="text-align:center;padding:4px">Show all ${t.count}</a>`
+    : DEALS[s.key].map((d) => card(d, s.chart)).join("") + `<button class="btn btn-sm add">${ICON.plus}Add deal</button>`;
+  return `<section class="col ${closed ? "closed" : ""}">${head}${body}</section>`;
+};
+document.getElementById("app").innerHTML = `
+${sidebar("Pipeline")}
+<main class="page page-wide">
+  <div class="page-head"><div><h1 class="page-title">Pipeline</h1><div class="page-sub">The bar in each column header shows expected revenue as a share of its value</div></div></div>
+  <div class="toolbar">
+    <div class="search">${ICON.search}<span>Search deals</span></div>
+    <div class="totals">
+      <span class="muted small">Open pipeline <b class="num" style="color:var(--color-ink)">${usd(OPEN.value)}</b></span>
+      <span class="muted small">Expected revenue <b class="num" style="color:var(--color-ink)">${usd(OPEN.expected)}</b></span>
+      <span class="muted small">Open deals <b class="num" style="color:var(--color-ink)">${OPEN.count}</b></span>
+      <span class="small"><span class="pill pill-late">${LATE_COUNT} late</span></span>
+    </div>
+  </div>
+  <div class="board">${STAGES.map(column).join("")}</div>
+</main>`;
+</script>
+</body>
+</html>
