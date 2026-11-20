@@ -13,7 +13,7 @@
   .totals { display: flex; gap: 28px; margin-left: auto; align-items: baseline; }
   .totals b { font-weight: 500; font-size: 18px; }
   .col { flex: 1 0 var(--pipeline-column-width); min-width: 0; display: flex; flex-direction: column; gap: 8px; }
-  .col.closed { flex: .75 0 210px; }
+  .col.closed { flex: .75 0 190px; }
   .head { border-radius: var(--radius-card); padding: 14px 16px; }
   .head .top { display: flex; justify-content: space-between; font-weight: 500; }
   .head .v { font-size: 20px; margin-top: 6px; letter-spacing: -0.01em; }
@@ -28,6 +28,7 @@
   .add:hover { background: var(--color-snow); }
   .mini { background: var(--color-snow); border: 1px solid var(--color-border); border-radius: 12px; padding: 10px 12px; display: flex; justify-content: space-between; gap: 8px; font-size: var(--text-body-sm); }
   .mini .nm { font-weight: 500; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .mini .num { white-space: nowrap; flex: none; }
 </style>
 </head>
 <body class="bordered">
@@ -52,7 +53,7 @@ const column = (s) => {
     ${closed ? "" : `<div class="meter"><span style="width:${(t.expected / t.value) * 100}%;background:${s.chart}"></span></div>`}
   </div>`;
   const body = closed
-    ? DEALS[s.key].map((d) => `<div class="mini"><span class="nm">${d[0]}</span><span class="num muted">${usdShort(d[3])}</span></div>`).join("") + `<a href="#" class="small" style="text-align:center;padding:4px">Show all ${t.count}</a>`
+    ? DEALS[s.key].map((d) => `<div class="mini" title="${d[0]}"><span class="nm">${d[0]}</span><span class="num muted">${usdShort(d[3])}</span></div>`).join("") + `<a href="#" class="small" style="text-align:center;padding:4px">Show all ${t.count}</a>`
     : DEALS[s.key].map((d) => card(d, s.chart)).join("") + `<button class="btn btn-sm add">${ICON.plus}Add deal</button>`;
   return `<section class="col ${closed ? "closed" : ""}">${head}${body}</section>`;
 };

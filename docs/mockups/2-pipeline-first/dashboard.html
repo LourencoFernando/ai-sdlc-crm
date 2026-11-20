@@ -8,15 +8,15 @@
 <link rel="stylesheet" href="../shared/base.css">
 <style>
   .grid { display: grid; gap: var(--panel-gap); margin-bottom: var(--panel-gap); }
-  .hero { display: grid; grid-template-columns: 400px 1fr; gap: 32px; }
+  .hero { display: grid; grid-template-columns: minmax(320px, 1fr) minmax(0, 2fr); gap: 32px; }
   .figs { display: grid; grid-template-columns: 1fr 1fr; gap: 24px 20px; align-content: start; }
   .figs .figure { font-size: 30px; margin-top: 4px; }
   .figs .sub { font-size: var(--text-caption); margin-top: 2px; }
   .ribbon-head { display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 12px; }
   .ribbon { display: flex; gap: 8px; height: 168px; }
   .tile { border-radius: var(--radius-card); padding: 16px; display: flex; flex-direction: column; justify-content: space-between; min-width: 0; }
-  .tile .n { font-weight: 500; }
-  .tile .v { font-size: 22px; font-weight: 400; letter-spacing: -0.01em; }
+  .tile .n { font-weight: 500; white-space: nowrap; }
+  .tile .v { white-space: nowrap; font-size: 22px; font-weight: 400; letter-spacing: -0.01em; }
   .tile .e { font-size: var(--text-caption); }
   .tile .dot { width: 8px; height: 8px; border-radius: 50%; display: inline-block; margin-right: 6px; vertical-align: 1px; }
   .ribbon-foot { display: flex; gap: 8px; margin-top: 10px; font-size: var(--text-caption); color: var(--color-slate); }
@@ -60,7 +60,7 @@ steps.forEach((s, i) => {
 });
 const funnelSvg = `<svg viewBox="0 0 ${LX + FW + 110} ${steps.length * (rowH + gapY)}">${fsvg}</svg>`;
 
-const fuItem = (f, overdue) => `<div class="item"><span class="check" style="margin-top:2px"></span><div style="flex:1"><div class="item-title">${f[1]}</div><div class="item-meta"><a href="#">${f[2]}</a></div></div><span class="pill ${overdue ? "pill-overdue" : "pill-soon"}">${f[4]}</span></div>`;
+const fuItem = (f, overdue) => `<div class="item"><span class="check" style="margin-top:2px"></span><div style="flex:1"><div class="item-title">${f[1]}</div><div class="item-meta" style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-top:6px"><span class="pill ${overdue ? "pill-overdue" : "pill-soon"}">${f[4]}</span><a href="#">${f[2]}</a></div></div></div>`;
 const recent = RECENT.slice(0, 6).map((r) => `<div class="t-item">${badge(r[0])}<div><div class="item-title" style="font-size:14px">${r[1]}</div><div class="item-meta"><a href="#">${r[2]}</a></div></div><div class="muted small">${r[3]}</div></div>`).join("");
 
 document.getElementById("app").innerHTML = `
