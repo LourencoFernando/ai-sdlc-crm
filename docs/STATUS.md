@@ -1,4 +1,4 @@
-The project has not yet started.
+Building the MVP from `docs/plan.md`.
 
 - 2026-11-20: Settled the open points in `docs/intent.md` through an interview. It now has a Rules section covering required links, stage probabilities, closing deals, deleting, follow-ups, form checks, the dashboard period and scale.
 
@@ -16,3 +16,4 @@ The project has not yet started.
 - 2026-11-20: Wrote `docs/plan.md`: the files to create, eight phases of work, risks, and the unit and end-to-end tests that prove the MVP is done.
 - 2026-11-20: Added to `docs/spec.md` the organization-change preview for contacts, that a probability sent with a stage change wins (D2), and an unsaved changes warning on forms. Updated `docs/plan.md` to match, with a layered backend (domain rules apart from services) and package safety checks.
 - 2026-11-20: Fixed the spec before building: Won and Lost keep their dropped order (P9, per the intent), deal saves send today, camelCase API names, B1 compares with the whole of last month, no "Show more" on recent activity, a test-only reset endpoint, and a detailed drag and drop design (P10–P14). Added a Drag and drop section to `docs/plan.md` with its cases and tests.
+- 2026-11-20: Phase 1 (skeleton) done. npm workspaces with `dev`, `test` and `seed`; a NestJS 11 backend answering `GET /api/meta`; a Vite app calling it through the proxy; Jest, Vitest and Playwright each with a passing test. Packages are pinned to versions at least 14 days old, two transitive fixes are forced with `overrides` (multer 2.5.0, effect 3.22.4), and only better-sqlite3 and Prisma may run install scripts (`allowScripts`).

@@ -156,15 +156,15 @@ browser ── React app (Vite, frontend/) ──JSON over HTTP──▶ NestJS 
 | Server data and caching | TanStack Query |
 | Tables | TanStack Table |
 | Drag and drop | dnd-kit (`@dnd-kit/core`, `@dnd-kit/sortable`) |
-| Charts | Recharts |
+| Charts | Recharts (with its peer `react-is`) |
 | Forms and validation | React Hook Form with Zod |
 | Dialogs, menus, selects, tooltips | Radix UI primitives |
 | Icons | Lucide |
 | Dates | date-fns |
 | Font | `@fontsource/poppins` |
 | Run both servers | concurrently |
-| Backend | NestJS, Prisma with SQLite, class-validator and class-transformer |
-| Tests | Vitest and Testing Library; Jest and Supertest against the Nest app; Playwright Test |
+| Backend | NestJS 11, Prisma 7 with SQLite through its better-sqlite3 driver adapter (`@prisma/adapter-better-sqlite3`), class-validator and class-transformer |
+| Tests | Vitest with jsdom and Testing Library; Jest (ts-jest) and Supertest against the Nest app; Playwright Test |
 
 ### Data model
 
