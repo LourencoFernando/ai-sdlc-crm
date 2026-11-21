@@ -138,8 +138,11 @@ export function Board({
       const oldIndex = current[to].indexOf(id);
       const newIndex = current[to].indexOf(Number(over.id));
       if (oldIndex !== newIndex) next = { ...current, [to]: arrayMove(current[to], oldIndex, newIndex) };
-    } else if (isHeader(over.id)) {
+    } else if (isHeader(over.id) && current[to][0] !== id) {
+      // Over its own column's header: show the drop place at the top, where it will land.
       next = { ...current, [to]: [id, ...current[to].filter((x) => x !== id)] };
+      setDragItems(next);
+      itemsRef.current = next;
     }
     noteWhere(next, id);
   }

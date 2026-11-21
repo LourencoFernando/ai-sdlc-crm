@@ -7,8 +7,11 @@ import { clearDatabase } from './clear';
 export async function seedDatabase(prisma: PrismaClient, today: CalendarDate) {
   const data = buildSampleData(today);
   await clearDatabase(prisma);
-  // createdAt follows the activity date, so "newest first" reads naturally.
-  const createdAt = (date: CalendarDate, seq: number) => new Date(`${date}T09:00:00.000Z`).getTime() + seq * 1000;
+  // createdAt follows the activity date, so "newest first" reads naturally, and is never later
+  // than now, so anything logged after seeding comes first.
+  const latest = Date.now() - 60_000 - data.activities.length * 1000;
+  const createdAt = (date: CalendarDate, seq: number) =>
+    Math.min(new Date(`${date}T09:00:00.000Z`).getTime(), latest) + seq * 1000;
   await prisma.$transaction([
     prisma.organization.createMany({ data: data.organizations }),
     prisma.contact.createMany({ data: data.contacts }),

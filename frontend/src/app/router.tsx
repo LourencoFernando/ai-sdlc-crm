@@ -1,7 +1,7 @@
 import { createBrowserRouter } from 'react-router';
 import { Layout } from './Layout';
 import { NotFound } from './NotFound';
-import { Placeholder } from './Placeholder';
+import { DashboardPage } from '../features/dashboard/DashboardPage';
 import { OrganizationsPage } from '../features/organizations/OrganizationsPage';
 import { OrganizationPage } from '../features/organizations/OrganizationPage';
 import { ContactsPage } from '../features/contacts/ContactsPage';
@@ -14,7 +14,7 @@ export const router = createBrowserRouter([
   {
     element: <Layout />,
     children: [
-      { path: '/', element: <Placeholder title="Dashboard" /> },
+      { path: '/', element: <DashboardPage /> },
       { path: '/organizations', element: <OrganizationsPage /> },
       { path: '/organizations/:id', element: <OrganizationPage /> },
       { path: '/contacts', element: <ContactsPage /> },
