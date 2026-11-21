@@ -3,9 +3,17 @@ import { Sidebar } from './Sidebar';
 import { useSidebarCollapsed } from './sidebar-state';
 import { useUnreachable } from './connection';
 import { Unreachable } from './Unreachable';
-import { useForms } from './forms';
+import { FormsProvider, useForms } from './forms';
 
 export function Layout() {
+  return (
+    <FormsProvider>
+      <Shell />
+    </FormsProvider>
+  );
+}
+
+function Shell() {
   const [collapsed, toggle] = useSidebarCollapsed();
   const unreachable = useUnreachable();
   const forms = useForms();

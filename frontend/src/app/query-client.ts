@@ -23,6 +23,10 @@ export function createQueryClient(): QueryClient {
 }
 
 /** After a change, everything that might show it is reloaded (the dashboard, lists, record pages). */
-export function refreshAll(client: QueryClient): Promise<void> {
-  return client.invalidateQueries({ predicate: (q) => q.queryKey[0] !== 'meta' });
+export function refreshAll(client: QueryClient, except?: readonly unknown[]): Promise<void> {
+  const skip = except ? JSON.stringify(except) : null;
+  return client.invalidateQueries({
+    // Meta never changes, and delete previews are one-off reads for an open dialog.
+    predicate: (q) => !['meta', 'delete-preview'].includes(q.queryKey[0] as string) && JSON.stringify(q.queryKey) !== skip,
+  });
 }

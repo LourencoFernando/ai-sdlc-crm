@@ -20,7 +20,16 @@ export const test = base.extend<{ guard: void }>({
 
       const problems: string[] = [];
       page.on('console', (msg) => {
-        if (msg.type() === 'error') problems.push(`Console error: ${msg.text()}`);
+        if (msg.type() !== 'error') return;
+        // Chrome logs every 4xx response. A 409 or 422 is the backend refusing bad input, which the
+        // form shows under its field; those are expected. Anything else is a problem.
+        if (/Failed to load resource: the server responded with a status of (409|422)/.test(msg.text())) return;
+        problems.push(`Console error: ${msg.text()}`);
+      });
+      page.on('response', (res) => {
+        if (res.status() >= 400 && ![409, 422].includes(res.status())) {
+          problems.push(`Response ${res.status()} for ${res.request().method()} ${res.url()}`);
+        }
       });
       page.on('pageerror', (err) => problems.push(`Page error: ${err.message}`));
       page.on('request', (req) => {
