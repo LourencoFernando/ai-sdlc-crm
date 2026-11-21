@@ -1,15 +1,13 @@
-import { StrictMode, useEffect, useState } from 'react';
+import { StrictMode } from 'react';
 import { createRoot } from 'react-dom/client';
-
-function App() {
-  const [stages, setStages] = useState<string[]>([]);
-  useEffect(() => {
-    fetch('/api/meta')
-      .then((r) => r.json())
-      .then((m: { stages: { label: string }[] }) => setStages(m.stages.map((s) => s.label)));
-  }, []);
-  return <h1>Accountable {stages.join(', ')}</h1>;
-}
+// Poppins is bundled with the app, so nothing loads from the web (G2).
+import '@fontsource/poppins/latin-300.css';
+import '@fontsource/poppins/latin-400.css';
+import '@fontsource/poppins/latin-500.css';
+import '@fontsource/poppins/latin-600.css';
+import './styles/tokens.css';
+import './styles/global.css';
+import { App } from './app/App';
 
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
