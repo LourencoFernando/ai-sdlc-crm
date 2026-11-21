@@ -1,12 +1,13 @@
 import { useState } from 'react';
-import { useForm } from 'react-hook-form';
+import { Controller, useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
-import { useQueryClient } from '@tanstack/react-query';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { Dialog, useRequestClose } from '../../components/Dialog';
 import { Field } from '../../components/Field';
 import { Button } from '../../components/Button';
-import { api, type ActivityInput } from '../../api/endpoints';
+import { api, keys, type ActivityInput } from '../../api/endpoints';
+import { Combobox } from '../../components/Combobox';
 import type { Activity, Ref } from '../../api/types';
 import { handleSaveError } from '../../lib/form-errors';
 import { ACTIVITY_KINDS, KIND_LABEL, type ActivityKind } from '../../lib/stages';
@@ -21,6 +22,9 @@ const schema = z.object({
   followUpOn: z.string().refine((v) => v === '' || isValidDate(v), 'Enter the follow-up date'),
   done: z.boolean(),
   relateToMainContact: z.boolean(),
+  /** Chosen in the form only when it's opened without a contact or deal (from the dashboard). */
+  contactId: z.number().nullable(),
+  dealId: z.number().nullable(),
 });
 type Values = z.infer<typeof schema>;
 
@@ -48,6 +52,8 @@ export function ActivityForm({
       followUpOn: record?.followUpOn ?? '',
       done: record?.done ?? false,
       relateToMainContact: true,
+      contactId: null,
+      dealId: null,
     },
   });
   return (
@@ -76,6 +82,9 @@ function ActivityFields({
   const followUpOn = watch('followUpOn');
   const kind = watch('kind');
   const mainContact = target?.deal?.contact ?? null;
+  const choose = !record && !target?.deal && !target?.contact;
+  const contacts = useQuery({ queryKey: keys.contacts, queryFn: api.contacts, enabled: choose });
+  const deals = useQuery({ queryKey: keys.deals, queryFn: api.deals, enabled: choose });
 
   const submit = handleSubmit(async (values) => {
     setFormError(null);
@@ -86,7 +95,16 @@ function ActivityFields({
       followUpOn: values.followUpOn || null,
       done: values.followUpOn ? values.done : false,
     };
-    if (!record) {
+    if (choose) {
+      if (!values.contactId && !values.dealId) {
+        setError('contactId', { type: 'required', message: 'Choose a contact or a deal' });
+        return;
+      }
+      body.contactId = values.contactId;
+      body.dealId = values.dealId;
+      // With a deal and no contact chosen, the deal's main contact is related (A2).
+      body.relateToMainContact = values.contactId === null;
+    } else if (!record) {
       if (target?.deal) {
         body.dealId = target.deal.id;
         body.relateToMainContact = values.relateToMainContact;
@@ -110,6 +128,46 @@ function ActivityFields({
         <p className="muted small">On {target.deal ? `the deal ${target.deal.name}` : target.contact?.name}</p>
       )}
       <div className="form-grid">
+        {choose && (
+          <>
+            <Field label="Contact" optional error={formState.errors.contactId?.message}>
+              {(controlProps) => (
+                <Controller
+                  control={form.control}
+                  name="contactId"
+                  render={({ field }) => (
+                    <Combobox
+                      {...controlProps}
+                      options={(contacts.data ?? []).map((c) => ({ value: c.id, label: `${c.firstName} ${c.lastName}` }))}
+                      value={field.value}
+                      onChange={field.onChange}
+                      placeholder="Search contacts"
+                      noneLabel="No contact"
+                    />
+                  )}
+                />
+              )}
+            </Field>
+            <Field label="Deal" optional>
+              {(controlProps) => (
+                <Controller
+                  control={form.control}
+                  name="dealId"
+                  render={({ field }) => (
+                    <Combobox
+                      {...controlProps}
+                      options={(deals.data ?? []).map((d) => ({ value: d.id, label: `${d.name} · ${d.organization.name}` }))}
+                      value={field.value}
+                      onChange={field.onChange}
+                      placeholder="Search deals"
+                      noneLabel="No deal"
+                    />
+                  )}
+                />
+              )}
+            </Field>
+          </>
+        )}
         <fieldset className="field span-2 kind-field">
           <legend className="field-label">Type</legend>
           <div className="segmented" role="radiogroup" aria-label="Type">

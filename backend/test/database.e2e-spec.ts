@@ -50,3 +50,14 @@ describe('database setting (G3, G4)', () => {
     expect(res.body.recent).toHaveLength(10);
   });
 });
+
+describe('seeded activities', () => {
+  it('are never created later than now, so a new activity is the newest', async () => {
+    const t = await createTestApp();
+    const { localToday } = await import('../src/domain/dates');
+    await seedDatabase(t.prisma, localToday());
+    const latest = await t.prisma.activity.findFirst({ orderBy: { createdAt: 'desc' } });
+    expect(latest!.createdAt.getTime()).toBeLessThanOrEqual(Date.now());
+    await t.close();
+  });
+});

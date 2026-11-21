@@ -238,7 +238,10 @@ export function buildSampleData(today: CalendarDate): SampleData {
   const firstDay = addDays(today, -360);
   const add = (a: Omit<SampleActivity, 'id' | 'seq'>) => activities.push({ ...a, id: activities.length + 1, seq: activities.length });
   const nameOf = (contactId: number | null) => contacts.find((c) => c.id === contactId)?.firstName ?? 'the team';
-  const fill = (template: string, contactId: number | null) => template.replace('{first}', nameOf(contactId));
+  const fill = (template: string, contactId: number | null) => {
+    const text = template.replace('{first}', nameOf(contactId));
+    return text[0].toUpperCase() + text.slice(1);
+  };
 
   // Stage changes: each deal past New walks the stages up to where it is now (S3).
   for (const d of deals) {
