@@ -1,11 +1,23 @@
 import { test as base, expect } from '@playwright/test';
 
 /**
- * Every test fails on a console error or on any request that leaves localhost (G2, G8).
+ * Every test starts from fresh sample data, and fails on a console error or on any request that leaves localhost (G2, G8).
  */
+export const API_URL = 'http://127.0.0.1:3101';
+
+/** Today on this computer, as the browser sees it. */
+export function localToday(now = new Date()): string {
+  const p = (n: number) => String(n).padStart(2, '0');
+  return `${now.getFullYear()}-${p(now.getMonth() + 1)}-${p(now.getDate())}`;
+}
+
 export const test = base.extend<{ guard: void }>({
   guard: [
-    async ({ page }, use) => {
+    async ({ page, request }, use) => {
+      // Fresh sample data for every test.
+      const reset = await request.post(`${API_URL}/api/test/reset`, { data: { today: localToday() } });
+      expect(reset.status(), 'reset the test database').toBe(204);
+
       const problems: string[] = [];
       page.on('console', (msg) => {
         if (msg.type() === 'error') problems.push(`Console error: ${msg.text()}`);
