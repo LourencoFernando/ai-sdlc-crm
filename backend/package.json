@@ -3,11 +3,11 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "build": "prisma generate && nest build",
+    "build": "prisma generate && node -e \"require('fs').rmSync('build',{recursive:true,force:true})\" && tsc -p tsconfig.run.json",
     "db:deploy": "prisma migrate deploy",
     "dev": "prisma generate && nest start --watch --preserveWatchOutput",
-    "start": "npm run db:deploy && node dist/main.js",
-    "seed": "npm run build && npm run db:deploy && node dist/seed/seed.js",
+    "start": "npm run db:deploy && node build/main.js",
+    "seed": "npm run build && npm run db:deploy && node build/seed/seed.js",
     "test": "prisma generate && jest --runInBand",
     "typecheck": "tsc --noEmit -p tsconfig.json"
   },
