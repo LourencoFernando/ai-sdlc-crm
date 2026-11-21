@@ -11,9 +11,11 @@ export function localToday(now = new Date()): string {
   return `${now.getFullYear()}-${p(now.getMonth() + 1)}-${p(now.getDate())}`;
 }
 
-export const test = base.extend<{ guard: void }>({
+export const test = base.extend<{ guard: void; allowedErrors: RegExp[] }>({
+  /** Console errors a test causes on purpose, such as a move the server is made to refuse. */
+  allowedErrors: [[], { option: true }],
   guard: [
-    async ({ page, request }, use) => {
+    async ({ page, request, allowedErrors }, use) => {
       // Fresh sample data for every test.
       const reset = await request.post(`${API_URL}/api/test/reset`, { data: { today: localToday() } });
       expect(reset.status(), 'reset the test database').toBe(204);
@@ -24,10 +26,11 @@ export const test = base.extend<{ guard: void }>({
         // Chrome logs every 4xx response. A 409 or 422 is the backend refusing bad input, which the
         // form shows under its field; those are expected. Anything else is a problem.
         if (/Failed to load resource: the server responded with a status of (409|422)/.test(msg.text())) return;
+        if (allowedErrors.some((re) => re.test(msg.text()))) return;
         problems.push(`Console error: ${msg.text()}`);
       });
       page.on('response', (res) => {
-        if (res.status() >= 400 && ![409, 422].includes(res.status())) {
+        if (res.status() >= 400 && ![409, 422].includes(res.status()) && !allowedErrors.some((re) => re.test(String(res.status())))) {
           problems.push(`Response ${res.status()} for ${res.request().method()} ${res.url()}`);
         }
       });

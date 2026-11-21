@@ -8,6 +8,7 @@ import { ContactsPage } from '../features/contacts/ContactsPage';
 import { ContactPage } from '../features/contacts/ContactPage';
 import { DealsPage } from '../features/deals/DealsPage';
 import { DealPage } from '../features/deals/DealPage';
+import { PipelinePage } from '../features/pipeline/PipelinePage';
 
 export const router = createBrowserRouter([
   {
@@ -20,7 +21,7 @@ export const router = createBrowserRouter([
       { path: '/contacts/:id', element: <ContactPage /> },
       { path: '/deals', element: <DealsPage /> },
       { path: '/deals/:id', element: <DealPage /> },
-      { path: '/pipeline', element: <Placeholder title="Pipeline" /> },
+      { path: '/pipeline', element: <PipelinePage /> },
       { path: '*', element: <NotFound /> },
     ],
   },

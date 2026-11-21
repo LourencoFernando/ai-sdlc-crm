@@ -1,5 +1,18 @@
 Building the MVP from `docs/plan.md`.
 
+## How to run Accountable
+
+You need [Node.js](https://nodejs.org) 24 or later (Node 26 is the target; the build is tested on Node 24) and, for the end-to-end tests only, Google Chrome.
+
+1. Install once: `npm install` in the repo folder. Only better-sqlite3 and Prisma are allowed to run install scripts (see `allowScripts` in `package.json`).
+2. Start: `npm run dev`. It prints "Accountable is running. Open http://localhost:5173 in your browser." The first start creates `data/accountable.db` and fills it with sample data.
+3. Reset to fresh sample data: `npm run seed`. It works while the app is running; refresh the browser afterwards.
+4. Run every test: `npm test` (backend Jest and Supertest, frontend Vitest, then Playwright in Chrome). The tests use databases of their own in the system's temp folder, so your data is never touched.
+
+The data lives in `data/accountable.db`. Set `ACCOUNTABLE_DB` to use another file.
+
+## Progress
+
 - 2026-11-20: Settled the open points in `docs/intent.md` through an interview. It now has a Rules section covering required links, stage probabilities, closing deals, deleting, follow-ups, form checks, the dashboard period and scale.
 
 - 2026-11-20: Moved `docs/DESIGN.md` into the brand skill (`.claude/skills/brand/DESIGN.md`). The skill now points to it for the visual style and keeps only its Avoid and Tone sections.
@@ -21,3 +34,4 @@ Building the MVP from `docs/plan.md`.
 - 2026-11-21: Phase 3 (sample data) done. `backend/src/seed/sample-data.ts` builds 25 organizations, 80 contacts, 60 deals and 200 activities (plus stage changes) from a given today, tested on four dates including the 1st of a month. `npm run seed` reloads it, a new empty database is seeded on start, and `POST /api/test/reset` reseeds when `ACCOUNTABLE_TEST=1`.
 - 2026-11-21: Phase 4 (frontend shell) done. Brand tokens and global styles, bundled Poppins, the collapsible sidebar remembered per browser, all routes, the API client and query client, toasts, the "Can't reach Accountable" screen with Retry, and the shared components (Dialog with the unsaved changes warning, ConfirmDelete, pills, Money, DateText and others).
 - 2026-11-21: Phase 5 (tables, forms and record pages) done. Organizations, Contacts (with the status filter) and Deals tables with search, three-state sort and paging; forms with field errors, the organization search, the deal's contact tied to its organization and the unsaved changes warning; delete dialogs from the previews; record pages with timelines, logging, editing and deleting activities, and marking follow-ups done.
+- 2026-11-21: Phase 6 (pipeline) done. Board with stage columns, totals and compact Won and Lost lists; the pure board logic in `frontend/src/lib/pipeline.ts`; dragging with dnd-kit (drop detection written for columns, overlay, dashed drop place, cancel, auto-scroll, keyboard moves and announcements); moves saved one at a time with the server's order taken as the truth; board search; Add deal in a column. All 17 drag end-to-end tests passed ten runs in a row (170 of 170). The backend's run build now goes to `backend/build`, so `npm run seed` and `npm test` no longer break a running `npm run dev`.
