@@ -37,7 +37,8 @@ export const test = base.extend<{ guard: void; allowedErrors: RegExp[] }>({
       page.on('pageerror', (err) => problems.push(`Page error: ${err.message}`));
       page.on('request', (req) => {
         const url = new URL(req.url());
-        if (!['localhost', '127.0.0.1'].includes(url.hostname) && url.protocol !== 'data:') {
+        if (['data:', 'blob:'].includes(url.protocol)) return;
+        if (!['localhost', '127.0.0.1'].includes(url.hostname)) {
           problems.push(`Request left localhost: ${req.url()}`);
         }
       });

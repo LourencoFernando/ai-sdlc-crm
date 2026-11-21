@@ -68,7 +68,14 @@ export async function dragCard(page: Page, id: number, target: Target, options: 
   await page.mouse.down();
   await page.mouse.move(from.x + 4, from.y + 4, { steps: 2 });
   await page.mouse.move(from.x + 12, from.y + 12, { steps: 3 });
+  // Hold near the top or bottom edge while the target is out of view, so the page scrolls to it.
+  const height = page.viewportSize()!.height;
   let to = await targetPoint(page, target, id);
+  for (let i = 0; i < 60 && (to.y > height - 12 || to.y < 12); i++) {
+    await page.mouse.move(to.x, to.y > height - 12 ? height - 16 : 16, { steps: 4 });
+    await page.waitForTimeout(150);
+    to = await targetPoint(page, target, id);
+  }
   await page.mouse.move(to.x, to.y, { steps: 18 });
   // Cards slide aside while dragging, so aim again at where the target is now, as a person would,
   // until it stops moving.
