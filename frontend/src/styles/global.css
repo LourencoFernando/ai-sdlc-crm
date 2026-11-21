@@ -254,3 +254,93 @@ input, select, textarea { font: inherit; color: inherit; }
 .back-link { display: inline-flex; align-items: center; gap: 4px; font-size: var(--text-body-sm); font-weight: var(--font-weight-medium); margin-bottom: var(--spacing-8); }
 .back-link svg { width: 14px; height: 14px; }
 .notes { white-space: pre-wrap; margin-top: var(--spacing-16); color: var(--color-ink); }
+
+/* Data tables */
+.table-panel { padding: 0; overflow: hidden; }
+.table-scroll { overflow-x: auto; }
+.table { width: 100%; border-collapse: collapse; font-size: var(--text-body); table-layout: fixed; }
+.table th {
+  height: 48px; padding: 0 10px; text-align: left; color: var(--color-slate); font-weight: var(--font-weight-medium);
+  line-height: 1.3; border-bottom: 1px solid var(--color-shadow-dust);
+}
+.table th:first-child, .table td:first-child { padding-left: var(--spacing-24); }
+.table th:last-child, .table td:last-child { padding-right: var(--spacing-16); }
+.table th.right, .table td.right { text-align: right; }
+.table th.sorted { color: var(--color-ink); }
+.th-sort {
+  background: none; border: 0; padding: 0; font: inherit; color: inherit; cursor: pointer;
+  display: inline-flex; align-items: center; gap: 6px; border-radius: 4px; text-align: inherit;
+}
+th.right .th-sort { flex-direction: row-reverse; }
+.th-sort svg { width: 14px; height: 14px; color: var(--color-violet-deep); }
+.table td {
+  height: var(--row-height); padding: 0 10px; border-bottom: 1px solid var(--color-shadow-dust);
+  overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+}
+.table tbody tr { cursor: pointer; }
+.table tbody tr:hover { background: var(--color-periwinkle); }
+.table tbody tr:last-child td { border-bottom: 0; }
+.table td.actions { overflow: visible; padding-left: 0; }
+.table td.actions .row-actions { display: flex; gap: 2px; justify-content: flex-end; opacity: 0.5; transition: opacity 0.12s; }
+.table tr:hover .row-actions, .table tr:focus-within .row-actions { opacity: 1; }
+.table .name-cell { display: flex; min-width: 0; align-items: center; gap: var(--spacing-12); font-weight: var(--font-weight-medium); }
+.table .name-cell a, .table a.name-link { color: var(--color-ink); font-weight: var(--font-weight-medium); }
+.table .empty-value { color: var(--color-slate); }
+.table .cell-pills { display: inline-flex; gap: 6px; align-items: center; }
+.table-foot {
+  display: flex; align-items: center; justify-content: space-between; gap: var(--spacing-16);
+  padding: var(--spacing-12) var(--spacing-24); border-top: 1px solid var(--color-shadow-dust); font-size: var(--text-body-sm);
+}
+.pager { display: flex; align-items: center; gap: 4px; }
+.pager-size { display: inline-flex; align-items: center; gap: var(--spacing-8); margin-right: var(--spacing-12); }
+.pager-size .select { height: var(--control-height-sm); width: 72px; }
+.pager .icon-btn:disabled { opacity: 0.35; cursor: default; background: none; }
+.page-btn {
+  min-width: 32px; height: 32px; border-radius: var(--radius-input); border: 0; background: none; cursor: pointer;
+  font-variant-numeric: tabular-nums; color: var(--color-ink);
+}
+.page-btn:hover { background: var(--color-cloud); }
+.page-btn[aria-current='page'] { background: var(--color-periwinkle-wash); color: var(--color-violet-deep); font-weight: var(--font-weight-medium); }
+
+/* Combobox */
+.combo-pop { z-index: 60; }
+.combo { position: relative; }
+.combo-list {
+  background: var(--color-snow); border-radius: var(--radius-menu); box-shadow: var(--shadow-overlay); padding: 6px;
+  max-height: 240px; overflow-y: auto; z-index: 60; width: var(--radix-popover-trigger-width); margin: 0; list-style: none;
+}
+.combo-option { padding: 8px 10px; border-radius: var(--radius-input); cursor: pointer; }
+.combo-option[aria-selected='true'] { font-weight: var(--font-weight-medium); }
+.combo-option[data-active='true'] { background: var(--color-periwinkle); }
+.combo-empty { padding: 8px 10px; color: var(--color-slate); }
+.combo-clear { position: absolute; right: 6px; top: 50%; transform: translateY(-50%); }
+
+/* Segmented control (activity type, follow-up tabs) */
+.kind-field { border: 0; padding: 0; margin: 0; }
+.segmented { display: inline-flex; background: var(--color-cloud); border-radius: var(--radius-button); padding: 4px; gap: 2px; width: max-content; }
+.segment {
+  height: 32px; padding: 0 16px; border-radius: var(--radius-button); display: inline-flex; align-items: center;
+  font-weight: var(--font-weight-medium); color: var(--color-slate); cursor: pointer; border: 0; background: none;
+}
+.segment.on, .segment[aria-selected='true'] { background: var(--color-snow); color: var(--color-ink); box-shadow: 0 0 0 1px var(--color-border); }
+.segment:focus-within { outline: 2px solid var(--color-violet-deep); outline-offset: 1px; }
+
+/* Activity badges and the timeline */
+.badge { width: 32px; height: 32px; border-radius: 50%; display: inline-flex; align-items: center; justify-content: center; flex: none; color: var(--color-ink); }
+.badge svg { width: 15px; height: 15px; }
+.badge-note { background: var(--color-lavender); }
+.badge-call { background: var(--color-mint); }
+.badge-email { background: var(--color-sky); }
+.badge-stage_change { background: var(--color-periwinkle-wash); }
+.timeline { list-style: none; margin: 0; padding: 0; display: grid; }
+.timeline-entry { display: flex; gap: var(--spacing-12); padding: var(--spacing-12) 0; border-top: 1px solid var(--color-shadow-dust); align-items: flex-start; }
+.timeline-entry:first-child { border-top: 0; padding-top: 0; }
+.timeline-body { flex: 1; min-width: 0; display: grid; gap: 4px; }
+.timeline-text { overflow-wrap: anywhere; white-space: pre-wrap; }
+.timeline-meta { display: flex; gap: 6px; flex-wrap: wrap; color: var(--color-slate); font-size: var(--text-body-sm); }
+.timeline-follow { display: flex; align-items: center; gap: var(--spacing-12); margin-top: 2px; }
+.btn-danger-outline { background: var(--color-snow); border-color: var(--color-pebble); color: var(--color-alert); }
+.btn-danger-outline:hover { background: var(--color-alert-wash); }
+.record-head .page-title { overflow-wrap: anywhere; }
+.table .name-cell a { overflow: hidden; text-overflow: ellipsis; }
+.table th .th-sort { max-width: 100%; }

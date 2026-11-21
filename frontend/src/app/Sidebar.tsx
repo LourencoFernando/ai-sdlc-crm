@@ -1,14 +1,14 @@
 import { NavLink, Link } from 'react-router';
 import { Tooltip } from 'radix-ui';
-import { Building2, Columns3, Handshake, LayoutDashboard, PanelLeftClose, Plus, Users } from 'lucide-react';
+import { Briefcase, Building2, LayoutDashboard, PanelLeftClose, Plus, SquareKanban, Users } from 'lucide-react';
 import type { ReactNode } from 'react';
 
 const LINKS = [
   { to: '/', label: 'Dashboard', icon: LayoutDashboard, end: true },
   { to: '/organizations', label: 'Organizations', icon: Building2 },
   { to: '/contacts', label: 'Contacts', icon: Users },
-  { to: '/deals', label: 'Deals', icon: Handshake },
-  { to: '/pipeline', label: 'Pipeline', icon: Columns3 },
+  { to: '/deals', label: 'Deals', icon: Briefcase },
+  { to: '/pipeline', label: 'Pipeline', icon: SquareKanban },
 ];
 
 /** Only shows a tooltip when the sidebar is collapsed to icons. */
