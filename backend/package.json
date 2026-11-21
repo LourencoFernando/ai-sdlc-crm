@@ -7,7 +7,7 @@
     "db:deploy": "prisma migrate deploy",
     "dev": "prisma generate && nest start --watch --preserveWatchOutput",
     "start": "npm run db:deploy && node dist/main.js",
-    "seed": "npm run db:deploy && node dist/seed/seed.js",
+    "seed": "npm run build && npm run db:deploy && node dist/seed/seed.js",
     "test": "prisma generate && jest --runInBand",
     "typecheck": "tsc --noEmit -p tsconfig.json"
   },
