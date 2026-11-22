@@ -13,7 +13,7 @@
   "scripts": {
     "dev": "npm run db:deploy -w backend && concurrently --kill-others --names api,web --prefix-colors blue,magenta \"npm run dev -w backend\" \"npm run dev -w frontend\"",
     "seed": "npm run seed -w backend",
-    "test": "npm run test -w backend && npm run test -w frontend && npm run test:e2e",
+    "test": "node scripts/test.mjs",
     "test:e2e": "npm run build -w backend && playwright test",
     "typecheck": "npm run typecheck -w backend && npm run typecheck -w frontend"
   },
