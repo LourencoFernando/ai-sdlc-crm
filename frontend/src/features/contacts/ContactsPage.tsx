@@ -44,7 +44,7 @@ export function ContactsPage() {
     () => [
       {
         id: 'name',
-        meta: { width: '23%' },
+        meta: { width: '19%' },
         header: 'Name',
         accessorFn: (c) => `${c.lastName} ${c.firstName}`.toLowerCase(),
         cell: ({ row }) => {
@@ -61,7 +61,7 @@ export function ContactsPage() {
       },
       {
         id: 'organization',
-        meta: { width: '16%' },
+        meta: { width: '17%' },
         header: 'Organization',
         accessorFn: (c) => c.organization?.name.toLowerCase(),
         sortUndefined: 'last',
@@ -75,14 +75,14 @@ export function ContactsPage() {
           ),
       },
       { id: 'jobTitle',
-        meta: { width: '13%' }, header: 'Job title', accessorFn: (c) => c.jobTitle?.toLowerCase(), sortUndefined: 'last', cell: ({ row }) => row.original.jobTitle ?? empty },
+        meta: { width: '17%' }, header: 'Job title', accessorFn: (c) => c.jobTitle?.toLowerCase(), sortUndefined: 'last', cell: ({ row }) => row.original.jobTitle ?? empty },
       { id: 'email',
         meta: { width: '18%' }, header: 'Email', accessorFn: (c) => c.email ?? undefined, sortUndefined: 'last', cell: ({ row }) => row.original.email ?? empty },
       { id: 'phone',
-        meta: { width: '13%' }, header: 'Phone', accessorFn: (c) => c.phone ?? undefined, sortUndefined: 'last', cell: ({ row }) => <span className="num">{row.original.phone ?? empty}</span> },
+        meta: { width: '12%' }, header: 'Phone', accessorFn: (c) => c.phone ?? undefined, sortUndefined: 'last', cell: ({ row }) => <span className="num">{row.original.phone ?? empty}</span> },
       {
         id: 'status',
-        meta: { width: '11%' },
+        meta: { width: '10%' },
         header: 'Status',
         accessorFn: (c) => CONTACT_STATUSES.indexOf(c.status),
         cell: ({ row }) => <StatusPill status={row.original.status} />,
@@ -91,7 +91,7 @@ export function ContactsPage() {
         id: 'actions',
         header: () => <span className="visually-hidden">Actions</span>,
         enableSorting: false,
-        meta: { width: '6%', actions: true },
+        meta: { width: '7%', actions: true },
         cell: ({ row }) => (
           <RowActions
             name={`${row.original.firstName} ${row.original.lastName}`}

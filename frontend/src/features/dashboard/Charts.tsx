@@ -15,6 +15,21 @@ import { formatMoney, formatMoneyShort, formatMonth, plural } from '../../lib/fo
 
 const axis = { fontSize: 12, fill: 'var(--color-slate)', fontFamily: 'var(--font-poppins)' };
 
+/**
+ * Ticks from 0 in 4 to 6 even steps that cover `max`, each step a round 1, 2, 2.5 or 5 times a
+ * power of ten. Picks the lowest top, so the line uses most of the chart's height.
+ */
+export function moneyTicks(max: number): number[] {
+  if (max <= 0) return [0, 25_000, 50_000, 75_000, 100_000];
+  let best = { steps: 0, step: Infinity };
+  for (const steps of [4, 5, 6]) {
+    const power = 10 ** Math.floor(Math.log10(max / steps));
+    const step = [1, 2, 2.5, 5, 10].map((m) => m * power).find((s) => s * steps >= max)!;
+    if (steps * step < best.steps * best.step || best.steps === 0) best = { steps, step };
+  }
+  return Array.from({ length: best.steps + 1 }, (_, i) => i * best.step);
+}
+
 function ChartTooltip({ active, payload, label, money }: { active?: boolean; payload?: { name: string; value: number; color: string }[]; label?: string; money?: boolean }) {
   if (!active || !payload?.length || !label) return null;
   return (
@@ -33,6 +48,7 @@ function ChartTooltip({ active, payload, label, money }: { active?: boolean; pay
 export function LastTwelveMonths({ data }: { data: Dashboard }) {
   const months = data.months;
   const last = months[months.length - 1];
+  const ticks = moneyTicks(Math.max(...months.map((m) => m.revenueWon)));
   return (
     <section className="panel" aria-labelledby="months-title">
       <div className="panel-head">
@@ -45,11 +61,11 @@ export function LastTwelveMonths({ data }: { data: Dashboard }) {
       </div>
       <h3 className="chart-title">Revenue won</h3>
       <div className="chart" role="img" aria-label={`Revenue won per month. This month ${formatMoney(last.revenueWon)}.`}>
-        <ResponsiveContainer width="100%" height={220}>
-          <AreaChart data={months} margin={{ top: 24, right: 16, bottom: 0, left: 8 }}>
+        <ResponsiveContainer width="100%" height={240}>
+          <AreaChart data={months} margin={{ top: 16, right: 16, bottom: 0, left: 8 }}>
             <CartesianGrid vertical={false} stroke="var(--color-shadow-dust)" />
-            <XAxis dataKey="month" tickFormatter={formatMonth} tick={axis} axisLine={false} tickLine={false} interval={0} />
-            <YAxis tickFormatter={(v: number) => formatMoneyShort(v)} tick={axis} axisLine={false} tickLine={false} width={72} />
+            <XAxis dataKey="month" tickFormatter={formatMonth} tick={axis} axisLine={false} tickLine={false} interval={0} tickMargin={10} padding={{ left: 12, right: 12 }} />
+            <YAxis tickFormatter={(v: number) => formatMoneyShort(v)} tick={axis} axisLine={false} tickLine={false} width={72} ticks={ticks} domain={[0, ticks[ticks.length - 1]]} />
             <Tooltip content={<ChartTooltip money />} cursor={{ stroke: 'var(--color-border)' }} />
             <Area
               type="linear"
@@ -94,7 +110,7 @@ export function LastTwelveMonths({ data }: { data: Dashboard }) {
         <ResponsiveContainer width="100%" height={170}>
           <BarChart data={months} margin={{ top: 8, right: 16, bottom: 0, left: 8 }} barGap={3} barCategoryGap="28%">
             <CartesianGrid vertical={false} stroke="var(--color-shadow-dust)" />
-            <XAxis dataKey="month" tickFormatter={formatMonth} tick={axis} axisLine={false} tickLine={false} interval={0} />
+            <XAxis dataKey="month" tickFormatter={formatMonth} tick={axis} axisLine={false} tickLine={false} interval={0} tickMargin={10} />
             <YAxis allowDecimals={false} tick={axis} axisLine={false} tickLine={false} width={72} />
             <Tooltip content={<ChartTooltip />} cursor={{ fill: 'var(--color-periwinkle)', opacity: 0.5 }} />
             <Bar dataKey="won" name="Won" fill="var(--color-forest)" radius={[6, 6, 0, 0]} maxBarSize={14} isAnimationActive={false} />

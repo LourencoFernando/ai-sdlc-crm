@@ -40,6 +40,7 @@ input, select, textarea { font: inherit; color: inherit; }
 .page-sub { color: var(--color-slate); font-size: var(--text-body-sm); margin-top: 2px; }
 .page-actions { display: flex; gap: var(--spacing-8); align-items: center; }
 .stack { display: grid; gap: var(--panel-gap); }
+.stack > .page-head { margin-bottom: 0; }
 
 /* Sidebar */
 .side {
@@ -176,8 +177,8 @@ input, select, textarea { font: inherit; color: inherit; }
 .toggles { display: flex; gap: var(--spacing-8); flex-wrap: wrap; }
 .toggle {
   height: var(--control-height-sm); padding: 0 14px; border-radius: var(--radius-button); border: 1px solid var(--color-border);
-  background: var(--color-snow); color: var(--color-ink); cursor: pointer; font-weight: var(--font-weight-medium);
-  display: inline-flex; align-items: center; gap: 6px;
+  background: var(--color-snow); color: var(--color-slate); cursor: pointer; font-weight: var(--font-weight-medium);
+  font-size: var(--text-body-sm); display: inline-flex; align-items: center; gap: 6px;
 }
 .toggle .count { color: var(--color-slate); font-weight: var(--font-weight-regular); }
 .toggle[aria-pressed='true'] { background: var(--color-periwinkle-wash); color: var(--color-violet-deep); border-color: var(--color-periwinkle-wash); }
@@ -260,7 +261,7 @@ input, select, textarea { font: inherit; color: inherit; }
 .table-scroll { overflow-x: auto; }
 .table { width: 100%; border-collapse: collapse; font-size: var(--text-body); table-layout: fixed; }
 .table th {
-  height: 48px; padding: 0 10px; text-align: left; color: var(--color-slate); font-weight: var(--font-weight-medium);
+  height: 48px; padding: 0 10px; text-align: left; color: var(--color-slate); font-size: var(--text-body-sm); font-weight: var(--font-weight-medium);
   line-height: 1.3; border-bottom: 1px solid var(--color-shadow-dust);
 }
 .table th:first-child, .table td:first-child { padding-left: var(--spacing-24); }
@@ -360,18 +361,17 @@ th.right .th-sort { flex-direction: row-reverse; }
 .column { flex: 1 0 var(--pipeline-column-width); min-width: var(--pipeline-column-width); display: flex; flex-direction: column; gap: var(--spacing-8); }
 .column.compact { flex: 0 0 196px; min-width: 196px; }
 .column-head {
-  border-radius: var(--radius-card); padding: var(--spacing-12) var(--spacing-16); display: grid; gap: 2px;
+  border-radius: var(--radius-card); padding: 14px var(--spacing-16); display: grid; gap: 2px;
   border: 1px solid transparent;
 }
 .column-head.stage-lost { background: var(--color-snow); border-color: var(--color-border); }
 .column-title { display: flex; justify-content: space-between; align-items: center; }
 .column-title h2 { font-size: var(--text-label); font-weight: var(--font-weight-medium); }
 .column-title span { font-weight: var(--font-weight-medium); }
-.column-value { font-size: 20px; line-height: 1.3; font-weight: var(--font-weight-regular); letter-spacing: -0.01em; }
-.column.compact .column-value { font-size: var(--text-subheading); }
+.column-value { font-size: 20px; line-height: 1.4; font-weight: var(--font-weight-regular); letter-spacing: -0.01em; margin-top: 4px; white-space: nowrap; }
 .column-note { font-size: var(--text-caption); color: var(--color-ink); opacity: 0.85; }
-.column-bar { height: 4px; border-radius: 4px; background: rgb(255 255 255 / 0.7); overflow: hidden; margin-top: 8px; }
-.column-bar span { display: block; height: 100%; border-radius: 4px; }
+.column-bar { height: 6px; border-radius: 3px; background: rgb(255 255 255 / 0.7); overflow: hidden; margin-top: 8px; }
+.column-bar span { display: block; height: 100%; border-radius: 3px; }
 .column-cards { display: flex; flex-direction: column; gap: var(--spacing-8); min-height: 48px; }
 .column-empty { color: var(--color-slate); font-size: var(--text-body-sm); text-align: center; padding: var(--spacing-16) 0; }
 .board[data-dragging] .column-empty { display: none; }
@@ -401,7 +401,7 @@ th.right .th-sort { flex-direction: row-reverse; }
 .deal-card-date svg { width: 14px; height: 14px; }
 .compact-card {
   background: var(--color-snow); border: 1px solid var(--color-border); border-radius: var(--radius-menu);
-  padding: 8px var(--spacing-12); display: flex; justify-content: space-between; gap: var(--spacing-8); align-items: center;
+  padding: 10px var(--spacing-12); display: flex; justify-content: space-between; gap: var(--spacing-8); align-items: center;
   font-size: var(--text-body-sm); font-weight: var(--font-weight-medium); cursor: grab; user-select: none; touch-action: manipulation;
 }
 .compact-card:hover { border-color: var(--color-mist); }

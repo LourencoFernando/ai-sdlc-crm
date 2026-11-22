@@ -50,13 +50,16 @@ export function Headline({ data }: { data: Dashboard }) {
             Open board
           </Link>
         </div>
-        <div className="stage-blocks">
+        <div
+          className="stage-blocks"
+          style={{ gridTemplateColumns: data.pipelineByStage.map((s) => `minmax(132px, ${Math.max(s.share, 4)}fr)`).join(' ') }}
+        >
           {data.pipelineByStage.map((s) => (
             <Link
               key={s.stage}
               to="/pipeline"
               className="stage-block"
-              style={{ flexGrow: Math.max(s.share, 4), background: STAGE_COLOR[s.stage].pastel }}
+              style={{ background: STAGE_COLOR[s.stage].pastel }}
               aria-label={`${STAGE_LABEL[s.stage]}: ${formatMoney(s.value)}, ${plural(s.count, 'deal')}, expected ${formatMoney(s.expectedRevenue)}`}
             >
               <span className="stage-name">
