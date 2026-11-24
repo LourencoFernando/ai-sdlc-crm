@@ -14,6 +14,7 @@ import { RowActions } from '../../components/RowActions';
 import { Money } from '../../components/Money';
 import { useForms } from '../../app/forms';
 import { plural } from '../../lib/format';
+import { websiteLabel } from '../../lib/website';
 
 const searchFields = (o: OrganizationRow) => [o.name, o.industry, o.website];
 const empty = <span className="empty-value">—</span>;
@@ -45,7 +46,7 @@ export function OrganizationsPage() {
         header: 'Website',
         accessorFn: (o) => o.website ?? undefined,
         sortUndefined: 'last',
-        cell: ({ row }) => row.original.website?.replace(/^https?:\/\//, '') ?? empty,
+        cell: ({ row }) => (row.original.website ? websiteLabel(row.original.website) : empty),
       },
       { id: 'contacts', header: 'Contacts', accessorKey: 'contactCount', meta: { width: '10%', align: 'right' } },
       { id: 'openDeals', header: 'Open deals', accessorKey: 'openDealCount', meta: { width: '11%', align: 'right' } },

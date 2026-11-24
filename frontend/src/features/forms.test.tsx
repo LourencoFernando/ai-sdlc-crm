@@ -4,6 +4,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { DealForm } from './deals/DealForm';
 import { ContactForm } from './contacts/ContactForm';
 import { OrganizationForm } from './organizations/OrganizationForm';
+import { ActivityForm } from './activities/ActivityForm';
 import { mockFetch, renderApp } from '../test/render';
 import { contacts, meta, organizations } from '../test/fixtures';
 import { useMeta } from '../lib/hooks';
@@ -190,5 +191,42 @@ describe('a failed save (G9)', () => {
     expect(await screen.findByRole('alert')).toHaveTextContent("Your changes weren't saved. Can't reach Accountable. Check that it's running.");
     expect(screen.getByLabelText('Name')).toHaveValue('Northgate Legal');
     expect(onClose).not.toHaveBeenCalled();
+  });
+});
+
+describe('logging an activity from the dashboard (A2)', () => {
+  const deal = {
+    id: 5, name: 'Fleet telematics', organizationId: 1, organization: { id: 1, name: 'Acme' }, contactId: 10,
+    contact: { id: 10, name: 'Dana Reyes' }, stage: 'proposal', value: 45000, probability: 50, closeDate: '2026-12-01',
+    position: 0, createdAt: '2026-11-01T00:00:00Z', updatedAt: '2026-11-01T00:00:00Z',
+  };
+
+  async function logOnDeal(untick: boolean) {
+    calls = mockFetch({
+      'GET /contacts': () => ({ body: contacts }),
+      'GET /deals': () => ({ body: [deal] }),
+      'POST /activities': () => ({ body: { id: 1 } }),
+    }).calls;
+    const onClose = vi.fn<() => void>();
+    renderApp(<ActivityForm onClose={onClose} />);
+    await screen.findByRole('dialog', { name: 'Log activity' });
+    expect(screen.queryByLabelText(/Also show on/)).not.toBeInTheDocument();
+    await userEvent.click(screen.getByRole('combobox', { name: /Deal/ }));
+    await userEvent.click(await screen.findByRole('option', { name: /Fleet telematics/ }));
+    const relate = await screen.findByLabelText("Also show on Dana Reyes's timeline");
+    expect(relate).toBeChecked();
+    if (untick) await userEvent.click(relate);
+    await userEvent.type(screen.getByLabelText('Description'), 'Called about the pilot');
+    await userEvent.click(screen.getByRole('button', { name: 'Log activity' }));
+    await waitFor(() => expect(onClose).toHaveBeenCalled());
+    return calls.find((c) => c.method === 'POST' && c.path === '/activities')!.body;
+  }
+
+  it("shows the chosen deal's main contact, ticked", async () => {
+    expect(await logOnDeal(false)).toMatchObject({ dealId: 5, contactId: null, relateToMainContact: true });
+  });
+
+  it('lets the user untick it', async () => {
+    expect(await logOnDeal(true)).toMatchObject({ dealId: 5, contactId: null, relateToMainContact: false });
   });
 });

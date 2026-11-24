@@ -52,7 +52,7 @@ Each requirement has an ID, so tests and reviews can refer to it.
 
 ### Organizations
 
-- **O1** Fields: name (required), website, industry (one of Software, Financial services, Healthcare, Manufacturing, Retail, Logistics, Construction, Education, Media, Professional services, Hospitality, Energy or Other), notes.
+- **O1** Fields: name (required), website (optional; an http or https address, and one typed without a scheme, such as acme.com, is saved as https), industry (one of Software, Financial services, Healthcare, Manufacturing, Retail, Logistics, Construction, Education, Media, Professional services, Hospitality, Energy or Other), notes.
 - **O2** Table columns: Name, Industry, Website, Contacts (count), Open deals (count), Open pipeline (USD). Search covers name, industry and website.
 - **O3** Organization page: the details, with Edit and Delete; a list of its contacts, with "New contact" pre-filled with this organization; and a list of its deals, with "New deal" pre-filled the same way.
 
@@ -80,7 +80,7 @@ Each requirement has an ID, so tests and reviews can refer to it.
 - **P3** Each card shows the deal's name, organization, value, probability, close date, the main contact's initials, and a "Late" pill when it's late. Clicking a card opens the deal.
 - **P4** Dragging a card to another column changes its stage (with D2, D3 and D7). Dragging within a column changes its place. A card can be dropped at any position, and its place is saved, so it's the same after a refresh.
 - **P5** All totals update as soon as a card is dropped, before the server answers. If saving fails, the card goes back and an error message says so.
-- **P6** Each column has an "Add deal" button that opens the deal form with that stage chosen. The new deal goes to the top of the column.
+- **P6** Each open column (New, Qualified, Proposal, Negotiation) has an "Add deal" button that opens the deal form with that stage chosen. The new deal goes to the top of the column. Won and Lost have none: a deal reaches them by moving there, which sets its close date (D3).
 - **P7** Cards can also be moved with the keyboard (focus, Space to pick up, arrows, Space to drop).
 - **P8** A search box above the board filters the cards by deal name, organization or contact as you type. The totals still count every open deal. Cards can still be dragged while the board is filtered (see P11).
 - **P9** Won and Lost are narrower columns showing a compact line per deal (name and short value), in their board order like any column, the first 10 and then "Show all 26", which lists the rest in the column. A deal that reaches Won or Lost from its form goes to the top, so the newest usually come first; one dragged there stays where it was dropped.
@@ -146,6 +146,7 @@ browser ── React app (Vite, frontend/) ──JSON over HTTP──▶ NestJS 
 
 - In development, Vite serves the frontend and proxies `/api` to NestJS, so the browser sees one address.
 - The backend owns every rule: probabilities, close dates, stage-change entries, delete effects and validation. The frontend repeats a few of them only to update the screen straight away (P5) and to show form errors early.
+- The backend listens on 127.0.0.1 only. It answers only requests addressed to `localhost`, `127.0.0.1` or `[::1]` (403 otherwise), so a web page can't reach the data through DNS rebinding, and it accepts changes only as JSON (415 otherwise), so a web page on another site can't post a plain form to it.
 - The database file is `data/accountable.db`, which git ignores. The tests set `ACCOUNTABLE_DB` to a temporary file. The schema lives in `backend/prisma/schema.prisma`, and `prisma migrate deploy` creates and updates the database before the backend starts.
 
 ### Libraries

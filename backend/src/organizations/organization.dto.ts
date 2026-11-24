@@ -1,6 +1,6 @@
 import { IsIn, IsNotEmpty, IsOptional, IsString, MaxLength, ValidateIf } from 'class-validator';
 import { INDUSTRIES } from '../domain/industries';
-import { Trim, TrimToNull } from '../common/validation';
+import { IsWebsite, Trim, TrimToNull, WebsiteToNull } from '../common/validation';
 
 const INDUSTRY_MESSAGE = 'Choose an industry from the list';
 
@@ -11,10 +11,11 @@ export class CreateOrganizationDto {
   @MaxLength(200)
   name: string;
 
-  @TrimToNull()
+  @WebsiteToNull()
   @IsOptional()
   @IsString()
   @MaxLength(500)
+  @IsWebsite()
   website?: string | null;
 
   @TrimToNull()
@@ -37,10 +38,11 @@ export class UpdateOrganizationDto {
   @MaxLength(200)
   name?: string;
 
-  @TrimToNull()
+  @WebsiteToNull()
   @IsOptional()
   @IsString()
   @MaxLength(500)
+  @IsWebsite()
   website?: string | null;
 
   @TrimToNull()

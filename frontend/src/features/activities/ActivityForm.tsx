@@ -81,10 +81,17 @@ function ActivityFields({
   const { register, handleSubmit, formState, setError, watch, setValue } = form;
   const followUpOn = watch('followUpOn');
   const kind = watch('kind');
-  const mainContact = target?.deal?.contact ?? null;
   const choose = !record && !target?.deal && !target?.contact;
   const contacts = useQuery({ queryKey: keys.contacts, queryFn: api.contacts, enabled: choose });
   const deals = useQuery({ queryKey: keys.deals, queryFn: api.deals, enabled: choose });
+  const chosenDealId = watch('dealId');
+  const chosenContactId = watch('contactId');
+  // The main contact the activity will also relate to: the target deal's, or the chosen deal's when no contact is chosen (A2).
+  const mainContact = choose
+    ? chosenContactId === null
+      ? ((deals.data ?? []).find((d) => d.id === chosenDealId)?.contact ?? null)
+      : null
+    : (target?.deal?.contact ?? null);
 
   const submit = handleSubmit(async (values) => {
     setFormError(null);
@@ -102,8 +109,8 @@ function ActivityFields({
       }
       body.contactId = values.contactId;
       body.dealId = values.dealId;
-      // With a deal and no contact chosen, the deal's main contact is related (A2).
-      body.relateToMainContact = values.contactId === null;
+      // With a deal and no contact chosen, the deal's main contact is related unless unticked (A2).
+      body.relateToMainContact = values.contactId === null && values.relateToMainContact;
     } else if (!record) {
       if (target?.deal) {
         body.dealId = target.deal.id;
@@ -202,7 +209,7 @@ function ActivityFields({
             Follow-up done
           </label>
         )}
-        {target?.deal && mainContact && !record && (
+        {mainContact && !record && (
           <label className="checkbox-row span-2">
             <input type="checkbox" className="checkbox" {...register('relateToMainContact')} />
             Also show on {mainContact.name}'s timeline

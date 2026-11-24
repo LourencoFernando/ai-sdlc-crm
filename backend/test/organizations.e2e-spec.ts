@@ -24,6 +24,19 @@ describe('organizations (O1, O2)', () => {
     await a.http().patch(`/api/organizations/${org.id}`).send({ name: '' }).expect(422);
   });
 
+  it('saves a website without a scheme as https, and refuses other schemes', async () => {
+    expect((await a.org({ name: 'Bare', website: ' acme.com/about ' })).website).toBe('https://acme.com/about');
+    expect((await a.org({ name: 'Plain http', website: 'http://acme.com' })).website).toBe('http://acme.com');
+    expect((await a.org({ name: 'Upper', website: 'HTTPS://Acme.com' })).website).toBe('HTTPS://Acme.com');
+    for (const website of ['javascript:alert(1)', 'ftp://acme.com', 'mailto:a@acme.com', 'acme com']) {
+      const res = await a.http().post('/api/organizations').send({ name: 'Bad', website }).expect(422);
+      expect(res.body.fields.website).toBe('Enter a web address, such as acme.com');
+    }
+    const org = await a.org({ name: 'Patched' });
+    const res = await a.http().patch(`/api/organizations/${org.id}`).send({ website: 'patched.example' }).expect(200);
+    expect(res.body.website).toBe('https://patched.example');
+  });
+
   it('lists contact count, open deal count and open pipeline, leaving out Won and Lost', async () => {
     const org = await a.org({ name: 'Pinecrest Hotels' });
     await a.contact({ firstName: 'Elena', lastName: 'Kovacs', organizationId: org.id });

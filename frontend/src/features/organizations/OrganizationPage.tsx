@@ -12,6 +12,7 @@ import { EmptyState } from '../../components/EmptyState';
 import { useForms } from '../../app/forms';
 import { isLate, todayLocal } from '../../lib/dates';
 import { isOpenStage } from '../../lib/stages';
+import { websiteHref, websiteLabel } from '../../lib/website';
 
 export function OrganizationPage() {
   const id = Number(useParams().id);
@@ -33,10 +34,12 @@ export function OrganizationPage() {
           <div className="facts">
             <Fact label="Industry">{org.industry ?? <Empty />}</Fact>
             <Fact label="Website">
-              {org.website ? (
-                <a href={org.website} target="_blank" rel="noreferrer">
-                  {org.website.replace(/^https?:\/\//, '')}
+              {org.website && websiteHref(org.website) ? (
+                <a href={websiteHref(org.website)!} target="_blank" rel="noreferrer">
+                  {websiteLabel(org.website)}
                 </a>
+              ) : org.website ? (
+                websiteLabel(org.website)
               ) : (
                 <Empty />
               )}

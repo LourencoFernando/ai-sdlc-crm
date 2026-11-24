@@ -34,6 +34,15 @@ describe('activities and timelines (A1–A3, A6)', () => {
     expect(contactTimeline.map((x: { description: string }) => x.description)).not.toContain('Internal note');
   });
 
+  it('relates the main contact when a deal is chosen with no contact, as the dashboard form sends it (A2)', async () => {
+    const chosen = await a.activity({ dealId: deal.id, contactId: null, relateToMainContact: true, description: 'From the dashboard' });
+    expect(chosen).toMatchObject({ deal: { id: deal.id }, contact: { id: contact.id } });
+    const noFlag = await a.activity({ dealId: deal.id, contactId: null, description: 'No flag sent' });
+    expect(noFlag.contact).toMatchObject({ id: contact.id });
+    const off = await a.activity({ dealId: deal.id, contactId: null, relateToMainContact: false, description: 'Turned off' });
+    expect(off.contact).toBeNull();
+  });
+
   it('lists the timeline newest first by date, then by creation time (A3)', async () => {
     const c = await a.contact({ firstName: 'Tim', lastName: 'Line' });
     await a.activity({ contactId: c.id, description: 'old', occurredOn: '2026-10-01' });

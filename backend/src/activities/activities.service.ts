@@ -17,7 +17,8 @@ export class ActivitiesService {
     if (dealId !== null) {
       const deal = await this.prisma.deal.findUnique({ where: { id: dealId }, select: { contactId: true } });
       if (!deal) throw ApiError.invalid({ dealId: 'That deal no longer exists' });
-      if (data.contactId === undefined && relateToMainContact !== false) contactId = deal.contactId;
+      // No contact given (left out or null) means the deal's main contact, unless that's turned off (A2).
+      if (contactId === null && relateToMainContact !== false) contactId = deal.contactId;
     }
     if (contactId !== null && !(await this.prisma.contact.findUnique({ where: { id: contactId }, select: { id: true } }))) {
       throw ApiError.invalid({ contactId: 'That contact no longer exists' });
