@@ -1,4 +1,4 @@
-Building the MVP from `docs/plan.md`.
+The MVP is built (from `docs/changes/mvp/plan.md`). `docs/spec.md` describes the product as it stands.
 
 ## How to run Accountable
 
@@ -54,3 +54,4 @@ The data lives in `data/accountable.db`. Set `ACCOUNTABLE_DB` to use another fil
   - **The website check and the request checks weren't in the spec.** O1 now describes the website rule, and the Architecture section the host and JSON-only checks.
 
   `npm test` passes: 151 backend, 68 frontend and 42 end-to-end tests.
+- 2026-11-25: Reorganized the docs for future changes. `docs/intent.md` and `docs/plan.md` moved to `docs/changes/mvp/`. `docs/spec.md` now describes the whole product as it stands, with the problem statement, and is the authority. `AGENTS.md` says to read the spec first and only the current branch's `docs/changes/<branch name>/` folder, and `docs/REVIEW.md` flags code the spec doesn't describe. No code changed.

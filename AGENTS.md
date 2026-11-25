@@ -2,9 +2,12 @@
 
 ## Where to find things
 
-- `docs/intent.md`: what we're building
+- `docs/spec.md`: read this first. It describes the whole product as it stands today and is the authority on how it behaves.
+- `docs/changes/<branch name>/`: one folder per change, named after its branch, with `intent.md` (why and what) and `plan.md` (how). Read only the folder for the current branch; the other folders are past changes and aren't current.
 - `docs/TECH_STACK.md`: the stack
 - `docs/STATUS.md`: what's done so far
+
+When a change alters what the product does, update `docs/spec.md` to match in the same branch.
 
 Update `docs/STATUS.md` when you finish a piece of work
 
