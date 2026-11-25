@@ -11,8 +11,16 @@ function deal(stage: DashboardDeal['stage'], value: number, closeDate: string, p
 function activity(partial: Partial<DashboardActivity>): DashboardActivity {
   const id = nextId++;
   return {
-    id, kind: 'note', description: `Activity ${id}`, occurredOn: '2026-11-01', followUpOn: null, done: false,
-    createdAt: new Date(2026, 10, 1, 9, 0, id), contact: null, deal: null, ...partial,
+    id,
+    kind: 'note',
+    description: `Activity ${id}`,
+    occurredOn: '2026-11-01',
+    followUpOn: null,
+    done: false,
+    createdAt: new Date(2026, 10, 1, 9, 0, id),
+    contact: null,
+    deal: null,
+    ...partial,
   };
 }
 

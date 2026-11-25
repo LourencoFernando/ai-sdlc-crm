@@ -28,7 +28,9 @@ export interface TestApp {
 /** A Nest app on its own fresh database, set up like the real one. */
 export async function createTestApp(options: { testSupport?: boolean } = {}): Promise<TestApp> {
   const dbFile = freshDatabase();
-  const moduleRef = await Test.createTestingModule({ imports: [AppModule.create({ testSupport: options.testSupport })] }).compile();
+  const moduleRef = await Test.createTestingModule({
+    imports: [AppModule.create({ testSupport: options.testSupport })],
+  }).compile();
   const app = moduleRef.createNestApplication({ logger: false });
   configureApp(app);
   await app.init();

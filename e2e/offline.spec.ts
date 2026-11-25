@@ -28,7 +28,9 @@ test("stopping the backend shows Can't reach Accountable, and Retry recovers (G9
   await form.getByLabel('First name').fill('Still');
   await form.getByLabel('Last name').fill('Here');
   await form.getByRole('button', { name: 'Add contact' }).click();
-  await expect(form.getByRole('alert')).toHaveText("Your changes weren't saved. Can't reach Accountable. Check that it's running.");
+  await expect(form.getByRole('alert')).toHaveText(
+    "Your changes weren't saved. Can't reach Accountable. Check that it's running.",
+  );
   await expect(form.getByLabel('First name')).toHaveValue('Still');
   await form.getByRole('button', { name: 'Cancel' }).click();
   await page.getByRole('alertdialog').getByRole('button', { name: 'Discard' }).click();

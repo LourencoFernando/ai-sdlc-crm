@@ -58,7 +58,9 @@ export class OrganizationsService {
       if (!(await tx.organization.findUnique({ where: { id } }))) throw ApiError.notFound('Organization');
       const effect = await this.effect(tx, id);
       if (effect.blocked) {
-        throw ApiError.conflict('This organization has deals. Move or delete them first.', { deals: effect.blockingDeals });
+        throw ApiError.conflict('This organization has deals. Move or delete them first.', {
+          deals: effect.blockingDeals,
+        });
       }
       await tx.contact.updateMany({ where: { id: { in: effect.contactsToUnlink } }, data: { organizationId: null } });
       await tx.organization.delete({ where: { id } });

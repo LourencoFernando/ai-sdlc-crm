@@ -30,11 +30,23 @@ export function moneyTicks(max: number): number[] {
   return Array.from({ length: best.steps + 1 }, (_, i) => i * best.step);
 }
 
-function ChartTooltip({ active, payload, label, money }: { active?: boolean; payload?: { name: string; value: number; color: string }[]; label?: string; money?: boolean }) {
+function ChartTooltip({
+  active,
+  payload,
+  label,
+  money,
+}: {
+  active?: boolean;
+  payload?: { name: string; value: number; color: string }[];
+  label?: string;
+  money?: boolean;
+}) {
   if (!active || !payload?.length || !label) return null;
   return (
     <div className="chart-tooltip">
-      <p className="caption">{formatMonth(label)} {label.slice(0, 4)}</p>
+      <p className="caption">
+        {formatMonth(label)} {label.slice(0, 4)}
+      </p>
       {payload.map((p) => (
         <p key={p.name} className="num">
           <i style={{ background: p.color }} aria-hidden="true" /> {p.name}: {money ? formatMoney(p.value) : p.value}
@@ -60,12 +72,33 @@ export function LastTwelveMonths({ data }: { data: Dashboard }) {
         </p>
       </div>
       <h3 className="chart-title">Revenue won</h3>
-      <div className="chart" role="img" aria-label={`Revenue won per month. This month ${formatMoney(last.revenueWon)}.`}>
+      <div
+        className="chart"
+        role="img"
+        aria-label={`Revenue won per month. This month ${formatMoney(last.revenueWon)}.`}
+      >
         <ResponsiveContainer width="100%" height={240}>
           <AreaChart data={months} margin={{ top: 16, right: 16, bottom: 0, left: 8 }}>
             <CartesianGrid vertical={false} stroke="var(--color-shadow-dust)" />
-            <XAxis dataKey="month" tickFormatter={formatMonth} tick={axis} axisLine={false} tickLine={false} interval={0} tickMargin={10} padding={{ left: 12, right: 12 }} />
-            <YAxis tickFormatter={(v: number) => formatMoneyShort(v)} tick={axis} axisLine={false} tickLine={false} width={72} ticks={ticks} domain={[0, ticks[ticks.length - 1]]} />
+            <XAxis
+              dataKey="month"
+              tickFormatter={formatMonth}
+              tick={axis}
+              axisLine={false}
+              tickLine={false}
+              interval={0}
+              tickMargin={10}
+              padding={{ left: 12, right: 12 }}
+            />
+            <YAxis
+              tickFormatter={(v: number) => formatMoneyShort(v)}
+              tick={axis}
+              axisLine={false}
+              tickLine={false}
+              width={72}
+              ticks={ticks}
+              domain={[0, ticks[ticks.length - 1]]}
+            />
             <Tooltip content={<ChartTooltip money />} cursor={{ stroke: 'var(--color-border)' }} />
             <Area
               type="linear"
@@ -110,11 +143,33 @@ export function LastTwelveMonths({ data }: { data: Dashboard }) {
         <ResponsiveContainer width="100%" height={170}>
           <BarChart data={months} margin={{ top: 8, right: 16, bottom: 0, left: 8 }} barGap={3} barCategoryGap="28%">
             <CartesianGrid vertical={false} stroke="var(--color-shadow-dust)" />
-            <XAxis dataKey="month" tickFormatter={formatMonth} tick={axis} axisLine={false} tickLine={false} interval={0} tickMargin={10} />
+            <XAxis
+              dataKey="month"
+              tickFormatter={formatMonth}
+              tick={axis}
+              axisLine={false}
+              tickLine={false}
+              interval={0}
+              tickMargin={10}
+            />
             <YAxis allowDecimals={false} tick={axis} axisLine={false} tickLine={false} width={72} />
             <Tooltip content={<ChartTooltip />} cursor={{ fill: 'var(--color-periwinkle)', opacity: 0.5 }} />
-            <Bar dataKey="won" name="Won" fill="var(--color-forest)" radius={[6, 6, 0, 0]} maxBarSize={14} isAnimationActive={false} />
-            <Bar dataKey="lost" name="Lost" fill="var(--color-slate)" radius={[6, 6, 0, 0]} maxBarSize={14} isAnimationActive={false} />
+            <Bar
+              dataKey="won"
+              name="Won"
+              fill="var(--color-forest)"
+              radius={[6, 6, 0, 0]}
+              maxBarSize={14}
+              isAnimationActive={false}
+            />
+            <Bar
+              dataKey="lost"
+              name="Lost"
+              fill="var(--color-slate)"
+              radius={[6, 6, 0, 0]}
+              maxBarSize={14}
+              isAnimationActive={false}
+            />
           </BarChart>
         </ResponsiveContainer>
       </div>

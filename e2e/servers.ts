@@ -30,7 +30,11 @@ async function waitFor(url: string, timeout = 30_000): Promise<void> {
 }
 
 function prisma(args: string[], env: NodeJS.ProcessEnv) {
-  execFileSync(process.execPath, [path.join(root, 'node_modules/prisma/build/index.js'), ...args], { cwd: backendDir, env, stdio: 'pipe' });
+  execFileSync(process.execPath, [path.join(root, 'node_modules/prisma/build/index.js'), ...args], {
+    cwd: backendDir,
+    env,
+    stdio: 'pipe',
+  });
 }
 
 export class Backend {

@@ -18,7 +18,9 @@ export function RecentActivity({ data }: { data: Dashboard }) {
       ) : (
         <ol className="recent-list">
           {data.recent.map((a) => {
-            const link = a.deal ? { to: `/deals/${a.deal.id}`, name: a.deal.name } : a.contact && { to: `/contacts/${a.contact.id}`, name: a.contact.name };
+            const link = a.deal
+              ? { to: `/deals/${a.deal.id}`, name: a.deal.name }
+              : a.contact && { to: `/contacts/${a.contact.id}`, name: a.contact.name };
             return (
               <li key={a.id} className="recent-entry">
                 <KindBadge kind={a.kind} />

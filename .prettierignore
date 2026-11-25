@@ -1,0 +1,13 @@
+# Prettier formats the code: frontend, backend, e2e, scripts and the root config files.
+docs/
+.claude/
+data/
+coverage/
+build/
+dist/
+test-results/
+playwright-report/
+backend/src/generated/
+backend/prisma/migrations/
+package-lock.json
+*.md

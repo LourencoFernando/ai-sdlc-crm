@@ -19,20 +19,44 @@ describe('deals (D1, D2, D3, D7)', () => {
     expect(res.body.fields.organizationId).toBeDefined();
     const elsewhere = await a.org({ name: 'Elsewhere' });
     const stranger = await a.contact({ firstName: 'Sam', lastName: 'Stranger', organizationId: elsewhere.id });
-    res = await a.http().post('/api/deals').send({ name: 'X', organizationId: org.id, contactId: stranger.id, value: 1, closeDate: TODAY }).expect(422);
+    res = await a
+      .http()
+      .post('/api/deals')
+      .send({ name: 'X', organizationId: org.id, contactId: stranger.id, value: 1, closeDate: TODAY })
+      .expect(422);
     expect(res.body.fields.contactId).toBe('Choose a contact from Acme');
-    const unknownOrg = await a.http().post('/api/deals').send({ name: 'X', organizationId: 9999, value: 1, closeDate: TODAY }).expect(422);
+    const unknownOrg = await a
+      .http()
+      .post('/api/deals')
+      .send({ name: 'X', organizationId: 9999, value: 1, closeDate: TODAY })
+      .expect(422);
     expect(unknownOrg.body.fields.organizationId).toBeDefined();
   });
 
-  it("refuses a negative value and a probability outside 0 to 100", async () => {
-    let res = await a.http().post('/api/deals').send({ name: 'X', organizationId: org.id, value: -1, closeDate: TODAY }).expect(422);
+  it('refuses a negative value and a probability outside 0 to 100', async () => {
+    let res = await a
+      .http()
+      .post('/api/deals')
+      .send({ name: 'X', organizationId: org.id, value: -1, closeDate: TODAY })
+      .expect(422);
     expect(res.body.fields.value).toBeDefined();
-    res = await a.http().post('/api/deals').send({ name: 'X', organizationId: org.id, value: 1, probability: 101, closeDate: TODAY }).expect(422);
+    res = await a
+      .http()
+      .post('/api/deals')
+      .send({ name: 'X', organizationId: org.id, value: 1, probability: 101, closeDate: TODAY })
+      .expect(422);
     expect(res.body.fields.probability).toBeDefined();
-    res = await a.http().post('/api/deals').send({ name: 'X', organizationId: org.id, value: 1, probability: -1, closeDate: TODAY }).expect(422);
+    res = await a
+      .http()
+      .post('/api/deals')
+      .send({ name: 'X', organizationId: org.id, value: 1, probability: -1, closeDate: TODAY })
+      .expect(422);
     expect(res.body.fields.probability).toBeDefined();
-    res = await a.http().post('/api/deals').send({ name: 'X', organizationId: org.id, value: 1, closeDate: '2026-02-30' }).expect(422);
+    res = await a
+      .http()
+      .post('/api/deals')
+      .send({ name: 'X', organizationId: org.id, value: 1, closeDate: '2026-02-30' })
+      .expect(422);
     expect(res.body.fields.closeDate).toBeDefined();
   });
 
@@ -49,13 +73,21 @@ describe('deals (D1, D2, D3, D7)', () => {
 
   it('lets the probability sent with a stage change win (D2)', async () => {
     const d = await a.deal(org.id, { stage: 'proposal' });
-    const res = await a.http().patch(`/api/deals/${d.id}`).send({ stage: 'negotiation', probability: 60, today: TODAY }).expect(200);
+    const res = await a
+      .http()
+      .patch(`/api/deals/${d.id}`)
+      .send({ stage: 'negotiation', probability: 60, today: TODAY })
+      .expect(200);
     expect(res.body).toMatchObject({ stage: 'negotiation', probability: 60 });
   });
 
   it('sets the close date to today on Won or Lost, keeps a later edit, and keeps it when reopened (D3)', async () => {
     const d = await a.deal(org.id, { stage: 'negotiation', closeDate: '2027-01-31' });
-    let res = await a.http().patch(`/api/deals/${d.id}`).send({ stage: 'won', closeDate: '2027-01-31', today: TODAY }).expect(200);
+    let res = await a
+      .http()
+      .patch(`/api/deals/${d.id}`)
+      .send({ stage: 'won', closeDate: '2027-01-31', today: TODAY })
+      .expect(200);
     expect(res.body).toMatchObject({ stage: 'won', probability: 100, closeDate: TODAY });
     res = await a.http().patch(`/api/deals/${d.id}`).send({ closeDate: '2026-11-15', today: TODAY }).expect(200);
     expect(res.body.closeDate).toBe('2026-11-15');
@@ -69,7 +101,11 @@ describe('deals (D1, D2, D3, D7)', () => {
 
   it('adds one stage-change entry dated today per change, and none without one (D7)', async () => {
     const d = await a.deal(org.id, { stage: 'proposal' });
-    await a.http().patch(`/api/deals/${d.id}`).send({ name: 'Same stage', stage: 'proposal', today: TODAY }).expect(200);
+    await a
+      .http()
+      .patch(`/api/deals/${d.id}`)
+      .send({ name: 'Same stage', stage: 'proposal', today: TODAY })
+      .expect(200);
     expect(await timeline(d.id)).toEqual([]);
     await a.http().patch(`/api/deals/${d.id}`).send({ stage: 'negotiation', today: TODAY }).expect(200);
     await a.move(d.id, 'won', 0).expect(200);
@@ -78,7 +114,13 @@ describe('deals (D1, D2, D3, D7)', () => {
       'Moved from Negotiation to Won',
       'Moved from Proposal to Negotiation',
     ]);
-    expect(entries[1]).toMatchObject({ kind: 'stage_change', occurredOn: TODAY, fromStage: 'proposal', toStage: 'negotiation', contact: null });
+    expect(entries[1]).toMatchObject({
+      kind: 'stage_change',
+      occurredOn: TODAY,
+      fromStage: 'proposal',
+      toStage: 'negotiation',
+      contact: null,
+    });
   });
 
   it("won't let a stage-change entry be edited or deleted (D7)", async () => {
@@ -95,7 +137,11 @@ describe('deals (D1, D2, D3, D7)', () => {
     const d = await a.deal(org.id, { contactId: c.id });
     const other = await a.org({ name: 'Other Co' });
     await a.http().patch(`/api/deals/${d.id}`).send({ organizationId: other.id }).expect(422);
-    const res = await a.http().patch(`/api/deals/${d.id}`).send({ organizationId: other.id, contactId: null }).expect(200);
+    const res = await a
+      .http()
+      .patch(`/api/deals/${d.id}`)
+      .send({ organizationId: other.id, contactId: null })
+      .expect(200);
     expect(res.body).toMatchObject({ organizationId: other.id, contactId: null, organization: { name: 'Other Co' } });
   });
 });

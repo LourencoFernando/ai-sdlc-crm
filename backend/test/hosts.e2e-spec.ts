@@ -11,9 +11,12 @@ describe('allowed hosts', () => {
   });
   afterAll(() => t.close());
 
-  it.each(['localhost', 'localhost:5173', '127.0.0.1:3100', '[::1]:3100', 'LOCALHOST:3100'])('answers Host %s', async (host) => {
-    await a.http().get('/api/meta').set('Host', host).expect(200);
-  });
+  it.each(['localhost', 'localhost:5173', '127.0.0.1:3100', '[::1]:3100', 'LOCALHOST:3100'])(
+    'answers Host %s',
+    async (host) => {
+      await a.http().get('/api/meta').set('Host', host).expect(200);
+    },
+  );
 
   it.each(['evil.example', 'evil.example:3100', 'localhost.evil.example', '127.0.0.1.nip.io:3100'])(
     'refuses Host %s with 403',

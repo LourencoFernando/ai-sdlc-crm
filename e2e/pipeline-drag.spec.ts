@@ -1,7 +1,17 @@
 import type { APIRequestContext, Page } from '@playwright/test';
 import { test, expect, localToday, API_URL } from './fixtures';
 import { deals, type DealRow } from './api';
-import { card, column, columnIds, dragCard, keyboardMove, liveRegion, settled, showColumn, type StageKey } from './drag';
+import {
+  card,
+  column,
+  columnIds,
+  dragCard,
+  keyboardMove,
+  liveRegion,
+  settled,
+  showColumn,
+  type StageKey,
+} from './drag';
 
 async function apiColumn(request: APIRequestContext, stage: StageKey): Promise<DealRow[]> {
   return (await deals(request)).filter((d) => d.stage === stage).sort((a, b) => a.position - b.position);
@@ -16,7 +26,9 @@ async function openBoard(page: Page) {
 /** After a refresh the board shows exactly what the server has. */
 async function expectAfterRefresh(page: Page, stage: StageKey, expected: number[]) {
   await page.reload();
-  await expect(column(page, stage).locator('[data-deal-id]').first().or(column(page, stage).locator('.column-empty'))).toBeVisible();
+  await expect(
+    column(page, stage).locator('[data-deal-id]').first().or(column(page, stage).locator('.column-empty')),
+  ).toBeVisible();
   expect(await columnIds(page, stage)).toEqual(expected);
 }
 
@@ -203,7 +215,10 @@ test('dropping where it started, or outside every column, sends nothing (case 4)
   expect(changes.filter((e: { kind: string }) => e.kind === 'stage_change')).toHaveLength(0);
 });
 
-test('with a search on, the card lands after the visible card above the drop place (case 6)', async ({ page, request }) => {
+test('with a search on, the card lands after the visible card above the drop place (case 6)', async ({
+  page,
+  request,
+}) => {
   await openBoard(page);
   const all = await apiColumn(request, 'qualified');
   // Search by an organization with deals in both New and Qualified.
@@ -245,7 +260,9 @@ test('into Won with 10 showing, and after Show all (case 7)', async ({ page, req
   let full = ids(await apiColumn(request, 'won'));
   expect(full.indexOf(a)).toBe(10);
 
-  await column(page, 'won').getByRole('button', { name: /Show all/ }).click();
+  await column(page, 'won')
+    .getByRole('button', { name: /Show all/ })
+    .click();
   await expect(column(page, 'won').locator('[data-deal-id]')).toHaveCount(full.length);
   const b = ids(await apiColumn(request, 'negotiation'))[0];
   await dragCard(page, b, { stage: 'won', end: true });
@@ -283,7 +300,9 @@ test.describe('a move the server refuses (case 9)', () => {
     await openBoard(page);
     const start = ids(await apiColumn(request, 'new'));
     const name = (await deals(request)).find((d) => d.id === start[0])!.name;
-    await page.route('**/api/deals/*/move', (route) => route.fulfill({ status: 500, json: { detail: 'Something went wrong' } }));
+    await page.route('**/api/deals/*/move', (route) =>
+      route.fulfill({ status: 500, json: { detail: 'Something went wrong' } }),
+    );
     await dragCard(page, start[0], { stage: 'qualified', header: true });
     await expect(page.getByTestId('toast')).toHaveText(`Couldn't move ${name}. The board has been refreshed.`);
     await settled(page);
@@ -307,7 +326,9 @@ for (const width of [1280, 1024]) {
     await page.mouse.move(from.x + from.width / 2 + 12, from.y + from.height / 2 + 12, { steps: 3 });
     // Hold near the right edge until the board has scrolled to the end.
     await page.mouse.move(edge.x + edge.width - 10, from.y + 40, { steps: 15 });
-    await expect.poll(() => board.evaluate((b) => b.scrollLeft + b.clientWidth >= b.scrollWidth - 2), { timeout: 8000 }).toBe(true);
+    await expect
+      .poll(() => board.evaluate((b) => b.scrollLeft + b.clientWidth >= b.scrollWidth - 2), { timeout: 8000 })
+      .toBe(true);
     await dragCard(page, id, { stage: 'lost', header: true }, { release: false }).catch(() => {});
     await page.mouse.up();
     await settled(page);

@@ -14,7 +14,13 @@ export function SearchBox({
   return (
     <div className="search">
       <Search aria-hidden="true" />
-      <input type="search" value={value} placeholder={placeholder} aria-label={label} onChange={(e) => onChange(e.target.value)} />
+      <input
+        type="search"
+        value={value}
+        placeholder={placeholder}
+        aria-label={label}
+        onChange={(e) => onChange(e.target.value)}
+      />
     </div>
   );
 }

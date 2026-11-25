@@ -11,7 +11,11 @@ interface Row {
   name: string;
   value: number;
 }
-const rows: Row[] = Array.from({ length: 80 }, (_, i) => ({ id: i + 1, name: `Company ${String(i + 1).padStart(2, '0')}`, value: (i * 37) % 100 }));
+const rows: Row[] = Array.from({ length: 80 }, (_, i) => ({
+  id: i + 1,
+  name: `Company ${String(i + 1).padStart(2, '0')}`,
+  value: (i * 37) % 100,
+}));
 rows[4].name = 'Acme Rockets';
 const columns: ColumnDef<Row, unknown>[] = [
   { id: 'name', header: 'Name', accessorFn: (r) => r.name.toLowerCase(), cell: ({ row }) => row.original.name },
@@ -38,7 +42,10 @@ function Harness({ data = rows }: { data?: Row[] }) {
   );
 }
 
-const bodyNames = () => within(screen.getAllByRole('rowgroup')[1]).getAllByRole('row').map((r) => r.firstChild?.textContent);
+const bodyNames = () =>
+  within(screen.getAllByRole('rowgroup')[1])
+    .getAllByRole('row')
+    .map((r) => r.firstChild?.textContent);
 
 describe('DataTable (T1–T3, T6)', () => {
   it('searches ignoring case', async () => {
@@ -53,7 +60,10 @@ describe('DataTable (T1–T3, T6)', () => {
     const header = screen.getByRole('button', { name: 'Value' });
     await userEvent.click(header);
     expect(screen.getByRole('columnheader', { name: /Value/ })).toHaveAttribute('aria-sort', 'ascending');
-    const values = () => within(screen.getAllByRole('rowgroup')[1]).getAllByRole('row').map((r) => Number(r.lastChild?.textContent));
+    const values = () =>
+      within(screen.getAllByRole('rowgroup')[1])
+        .getAllByRole('row')
+        .map((r) => Number(r.lastChild?.textContent));
     expect(values()).toEqual([...values()].sort((a, b) => a - b));
     await userEvent.click(header);
     expect(screen.getByRole('columnheader', { name: /Value/ })).toHaveAttribute('aria-sort', 'descending');

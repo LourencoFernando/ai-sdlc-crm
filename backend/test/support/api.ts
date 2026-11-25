@@ -16,8 +16,16 @@ export function api(t: TestApp) {
     org: (body: object = {}) => post('/api/organizations', { name: 'Acme', industry: 'Software', ...body }),
     contact: (body: object = {}) => post('/api/contacts', { firstName: 'Dana', lastName: 'Reyes', ...body }),
     deal: (organizationId: number, body: object = {}) =>
-      post('/api/deals', { name: 'Acme renewal', organizationId, value: 10_000, closeDate: '2026-12-31', today: TODAY, ...body }),
-    activity: (body: object) => post('/api/activities', { kind: 'note', description: 'Spoke about pricing', occurredOn: TODAY, ...body }),
+      post('/api/deals', {
+        name: 'Acme renewal',
+        organizationId,
+        value: 10_000,
+        closeDate: '2026-12-31',
+        today: TODAY,
+        ...body,
+      }),
+    activity: (body: object) =>
+      post('/api/activities', { kind: 'note', description: 'Spoke about pricing', occurredOn: TODAY, ...body }),
     move: (id: number, stage: string, index: number) =>
       http().post(`/api/deals/${id}/move`).send({ stage, index, today: TODAY }),
     async column(stage: string): Promise<number[]> {

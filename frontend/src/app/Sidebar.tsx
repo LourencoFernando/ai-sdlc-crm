@@ -44,7 +44,12 @@ export function Sidebar({
         </Link>
       </div>
       <Tip show={collapsed} label="New deal">
-        <button type="button" className="btn btn-primary side-new" onClick={onNewDeal} aria-label={collapsed ? 'New deal' : undefined}>
+        <button
+          type="button"
+          className="btn btn-primary side-new"
+          onClick={onNewDeal}
+          aria-label={collapsed ? 'New deal' : undefined}
+        >
           <Plus aria-hidden="true" />
           <span className="side-text">New deal</span>
         </button>

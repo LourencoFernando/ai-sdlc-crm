@@ -46,7 +46,8 @@ export function OrganizationPage() {
             </Fact>
             <Fact label="Contacts">{org.contacts.length}</Fact>
             <Fact label="Open pipeline">
-              <Money value={open.reduce((a, d) => a + d.value, 0)} /> <span className="muted small">in {open.length} open deals</span>
+              <Money value={open.reduce((a, d) => a + d.value, 0)} />{' '}
+              <span className="muted small">in {open.length} open deals</span>
             </Fact>
           </div>
           {org.notes && <p className="notes">{org.notes}</p>}
@@ -103,7 +104,8 @@ export function OrganizationPage() {
                       {d.name}
                     </Link>
                     <span className="muted small">
-                      {d.contact?.name ?? 'No main contact'} · closes <DateText date={d.closeDate} late={isLate(d, today)} />
+                      {d.contact?.name ?? 'No main contact'} · closes{' '}
+                      <DateText date={d.closeDate} late={isLate(d, today)} />
                     </span>
                   </div>
                   <span className="cell-pills">

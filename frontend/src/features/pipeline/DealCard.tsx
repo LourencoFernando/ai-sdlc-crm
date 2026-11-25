@@ -11,7 +11,10 @@ type CardProps = { deal: Deal; today: string; compact?: boolean; overlay?: boole
 
 /** What a card shows (P3). Memoized, so a drag over many cards stays smooth. */
 export const DealCardView = memo(
-  forwardRef<HTMLDivElement, CardProps>(function DealCardView({ deal, today, compact, overlay, className = '', ...rest }, ref) {
+  forwardRef<HTMLDivElement, CardProps>(function DealCardView(
+    { deal, today, compact, overlay, className = '', ...rest },
+    ref,
+  ) {
     const late = isLate(deal, today);
     if (compact) {
       return (

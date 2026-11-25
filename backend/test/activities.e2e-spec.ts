@@ -17,11 +17,19 @@ describe('activities and timelines (A1–A3, A6)', () => {
   afterAll(() => t.close());
 
   it('needs a description, and a contact or a deal', async () => {
-    let res = await a.http().post('/api/activities').send({ kind: 'note', description: ' ', contactId: contact.id }).expect(422);
+    let res = await a
+      .http()
+      .post('/api/activities')
+      .send({ kind: 'note', description: ' ', contactId: contact.id })
+      .expect(422);
     expect(res.body.fields.description).toBe('Enter a description');
     res = await a.http().post('/api/activities').send({ kind: 'note', description: 'Orphan' }).expect(422);
     expect(res.body.fields.contactId).toBeDefined();
-    await a.http().post('/api/activities').send({ kind: 'stage_change', description: 'x', dealId: deal.id }).expect(422);
+    await a
+      .http()
+      .post('/api/activities')
+      .send({ kind: 'stage_change', description: 'x', dealId: deal.id })
+      .expect(422);
   });
 
   it("relates an activity logged on a deal to its main contact, unless that's turned off (A2)", async () => {
@@ -35,11 +43,21 @@ describe('activities and timelines (A1–A3, A6)', () => {
   });
 
   it('relates the main contact when a deal is chosen with no contact, as the dashboard form sends it (A2)', async () => {
-    const chosen = await a.activity({ dealId: deal.id, contactId: null, relateToMainContact: true, description: 'From the dashboard' });
+    const chosen = await a.activity({
+      dealId: deal.id,
+      contactId: null,
+      relateToMainContact: true,
+      description: 'From the dashboard',
+    });
     expect(chosen).toMatchObject({ deal: { id: deal.id }, contact: { id: contact.id } });
     const noFlag = await a.activity({ dealId: deal.id, contactId: null, description: 'No flag sent' });
     expect(noFlag.contact).toMatchObject({ id: contact.id });
-    const off = await a.activity({ dealId: deal.id, contactId: null, relateToMainContact: false, description: 'Turned off' });
+    const off = await a.activity({
+      dealId: deal.id,
+      contactId: null,
+      relateToMainContact: false,
+      description: 'Turned off',
+    });
     expect(off.contact).toBeNull();
   });
 
@@ -50,7 +68,12 @@ describe('activities and timelines (A1–A3, A6)', () => {
     await a.activity({ contactId: c.id, description: 'same day second', occurredOn: '2026-11-10' });
     await a.activity({ contactId: c.id, description: 'newest', occurredOn: '2026-11-19' });
     const res = await a.http().get(`/api/contacts/${c.id}/timeline`).expect(200);
-    expect(res.body.map((x: { description: string }) => x.description)).toEqual(['newest', 'same day second', 'same day first', 'old']);
+    expect(res.body.map((x: { description: string }) => x.description)).toEqual([
+      'newest',
+      'same day second',
+      'same day first',
+      'old',
+    ]);
   });
 
   it('marks a follow-up done and undone (A6)', async () => {
@@ -72,7 +95,11 @@ describe('activities and timelines (A1–A3, A6)', () => {
 
   it('edits and deletes an activity (A4)', async () => {
     const x = await a.activity({ contactId: contact.id, description: 'Typo' });
-    const res = await a.http().patch(`/api/activities/${x.id}`).send({ description: 'Fixed', kind: 'call' }).expect(200);
+    const res = await a
+      .http()
+      .patch(`/api/activities/${x.id}`)
+      .send({ description: 'Fixed', kind: 'call' })
+      .expect(200);
     expect(res.body).toMatchObject({ description: 'Fixed', kind: 'call' });
     await a.http().delete(`/api/activities/${x.id}`).expect(204);
     await a.http().patch(`/api/activities/${x.id}`).send({ description: 'Gone' }).expect(404);

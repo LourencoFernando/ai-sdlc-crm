@@ -18,7 +18,11 @@ describe('API errors', () => {
 
   it('gives 409 for a duplicate email, naming the contact who has it', async () => {
     await a.contact({ email: 'dana@acme.example' });
-    const res = await a.http().post('/api/contacts').send({ firstName: 'Other', lastName: 'Person', email: 'dana@acme.example' }).expect(409);
+    const res = await a
+      .http()
+      .post('/api/contacts')
+      .send({ firstName: 'Other', lastName: 'Person', email: 'dana@acme.example' })
+      .expect(409);
     expect(res.body.fields.email).toBe('Already used by Dana Reyes');
   });
 

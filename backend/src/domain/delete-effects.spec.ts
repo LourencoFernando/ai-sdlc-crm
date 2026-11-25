@@ -8,7 +8,9 @@ describe('deleting an organization (X1, X2)', () => {
 
   it('unlinks its contacts when it has no deals', () => {
     expect(organizationDeleteEffect({ deals: [], contactIds: [5, 6] })).toEqual({
-      blocked: false, blockingDeals: [], contactsToUnlink: [5, 6],
+      blocked: false,
+      blockingDeals: [],
+      contactsToUnlink: [5, 6],
     });
   });
 });
@@ -16,7 +18,11 @@ describe('deleting an organization (X1, X2)', () => {
 describe('deleting a contact (X3, X5)', () => {
   it('deletes its own activities, keeps those also on a deal, and unlinks its deals', () => {
     const e = contactDeleteEffect({
-      activities: [{ id: 1, dealId: null }, { id: 2, dealId: 9 }, { id: 3, dealId: null }],
+      activities: [
+        { id: 1, dealId: null },
+        { id: 2, dealId: 9 },
+        { id: 3, dealId: null },
+      ],
       dealIdsAsMainContact: [9, 10],
     });
     expect(e).toEqual({ activitiesToDelete: [1, 3], activitiesToKeep: [2], dealsToUnlink: [9, 10] });

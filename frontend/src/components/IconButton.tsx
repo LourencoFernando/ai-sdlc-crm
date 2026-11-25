@@ -9,7 +9,13 @@ export const IconButton = forwardRef<
   return (
     <Tooltip.Root>
       <Tooltip.Trigger asChild>
-        <button ref={ref} type="button" aria-label={label} className={`icon-btn ${danger ? 'danger' : ''} ${className}`} {...rest}>
+        <button
+          ref={ref}
+          type="button"
+          aria-label={label}
+          className={`icon-btn ${danger ? 'danger' : ''} ${className}`}
+          {...rest}
+        >
           {children}
         </button>
       </Tooltip.Trigger>

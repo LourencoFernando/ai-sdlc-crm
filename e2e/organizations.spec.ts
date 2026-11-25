@@ -58,7 +58,10 @@ test('create, search, sort, edit and delete an organization (T1–T6, X2)', asyn
   await expect(page.getByText('No organizations match your search')).toBeVisible();
 });
 
-test('an organization with deals cannot be deleted, and the dialog links to its deals (X1)', async ({ page, request }) => {
+test('an organization with deals cannot be deleted, and the dialog links to its deals (X1)', async ({
+  page,
+  request,
+}) => {
   const org = (await organizations(request)).find((o) => o.name === 'Orbitra Software')!;
   const itsDeals = (await deals(request)).filter((d) => d.organizationId === org.id);
   await page.goto(`/organizations/${org.id}`);

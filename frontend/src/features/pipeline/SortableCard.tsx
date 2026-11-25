@@ -13,7 +13,15 @@ import { isClickFromDrag } from './drag-click';
  * deal; Enter opens it from the keyboard and Space picks it up (P7). While dragged, its place
  * shows as a dashed Violet outline.
  */
-export const SortableCard = memo(function SortableCard({ deal, today, compact }: { deal: Deal; today: string; compact: boolean }) {
+export const SortableCard = memo(function SortableCard({
+  deal,
+  today,
+  compact,
+}: {
+  deal: Deal;
+  today: string;
+  compact: boolean;
+}) {
   const navigate = useNavigate();
   const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({ id: deal.id });
   const style = { transform: CSS.Translate.toString(transform), transition };

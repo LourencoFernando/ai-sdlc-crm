@@ -7,7 +7,10 @@ function addDays(date: string, days: number): string {
 }
 
 const figure = (page: import('@playwright/test').Page, label: string) =>
-  page.locator('.stat').filter({ has: page.getByText(label, { exact: true }) }).locator('.figure');
+  page
+    .locator('.stat')
+    .filter({ has: page.getByText(label, { exact: true }) })
+    .locator('.figure');
 
 test('the dashboard shows every panel with sample data (B1–B7)', async ({ page }) => {
   await page.goto('/');
@@ -26,7 +29,10 @@ test('the dashboard shows every panel with sample data (B1–B7)', async ({ page
   await expect(page).toHaveURL(/\/pipeline$/);
 });
 
-test('a follow-up logged with a date shows on the dashboard and leaves when marked done (B6, A6)', async ({ page, request }) => {
+test('a follow-up logged with a date shows on the dashboard and leaves when marked done (B6, A6)', async ({
+  page,
+  request,
+}) => {
   const contact = (await contacts(request))[0];
   await page.goto(`/contacts/${contact.id}`);
   await page.getByRole('button', { name: 'Log activity' }).click();
@@ -48,7 +54,10 @@ test('a follow-up logged with a date shows on the dashboard and leaves when mark
   await expect(page.getByRole('tab', { name: /Due soon · 8/ })).toBeVisible();
 });
 
-test('winning a deal changes the figures, adds a recent entry and a stage change on its timeline (B1, B7, B8, D7)', async ({ page, request }) => {
+test('winning a deal changes the figures, adds a recent entry and a stage change on its timeline (B1, B7, B8, D7)', async ({
+  page,
+  request,
+}) => {
   const deal = (await deals(request)).find((d) => d.stage === 'negotiation')!;
   await page.goto('/');
   const wonBefore = Number((await figure(page, 'Deals won').innerText()).replace(/\D/g, ''));

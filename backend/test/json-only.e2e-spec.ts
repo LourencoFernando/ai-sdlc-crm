@@ -13,7 +13,10 @@ describe('changes only as JSON', () => {
 
   it.each([
     ['application/x-www-form-urlencoded', 'name=Form+Org'],
-    ['multipart/form-data; boundary=x', '--x\r\nContent-Disposition: form-data; name="name"\r\n\r\nForm Org\r\n--x--\r\n'],
+    [
+      'multipart/form-data; boundary=x',
+      '--x\r\nContent-Disposition: form-data; name="name"\r\n\r\nForm Org\r\n--x--\r\n',
+    ],
     ['text/plain', '{"name":"Form Org"}'],
   ])('refuses a %s body with 415 and saves nothing', async (type, body) => {
     const res = await a.http().post('/api/organizations').set('Content-Type', type).send(body).expect(415);

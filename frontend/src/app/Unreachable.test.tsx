@@ -37,7 +37,10 @@ describe("can't reach Accountable (G9)", () => {
   });
 
   it('treats a proxy error with no JSON as unreachable', async () => {
-    vi.stubGlobal('fetch', vi.fn(async () => new Response('Bad gateway', { status: 502 })));
+    vi.stubGlobal(
+      'fetch',
+      vi.fn(async () => new Response('Bad gateway', { status: 502 })),
+    );
     renderApp(<Screen />);
     expect(await screen.findByRole('button', { name: 'Retry' })).toBeInTheDocument();
   });

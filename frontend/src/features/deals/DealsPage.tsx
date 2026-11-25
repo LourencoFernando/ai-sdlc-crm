@@ -30,7 +30,8 @@ export function DealsPage() {
 
   // Default order: stage, then board position.
   const rows = useMemo(
-    () => data && [...data].sort((a, b) => STAGES.indexOf(a.stage) - STAGES.indexOf(b.stage) || a.position - b.position),
+    () =>
+      data && [...data].sort((a, b) => STAGES.indexOf(a.stage) - STAGES.indexOf(b.stage) || a.position - b.position),
     [data],
   );
 
@@ -85,7 +86,13 @@ export function DealsPage() {
           </span>
         ),
       },
-      { id: 'value', header: 'Value', accessorKey: 'value', meta: { width: '10.5%', align: 'right' }, cell: ({ row }) => <Money value={row.original.value} /> },
+      {
+        id: 'value',
+        header: 'Value',
+        accessorKey: 'value',
+        meta: { width: '10.5%', align: 'right' },
+        cell: ({ row }) => <Money value={row.original.value} />,
+      },
       {
         id: 'probability',
         header: 'Probability',
@@ -136,7 +143,9 @@ export function DealsPage() {
     <div className="page">
       <PageHead
         title="Deals"
-        sub={data ? `${plural(data.length, 'deal')} · ${open.length} open${late ? ` · ${late} running late` : ''}` : ' '}
+        sub={
+          data ? `${plural(data.length, 'deal')} · ${open.length} open${late ? ` · ${late} running late` : ''}` : ' '
+        }
         actions={newButton}
       />
       <div className="toolbar">

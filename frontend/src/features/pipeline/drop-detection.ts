@@ -1,4 +1,9 @@
-import { closestCenter, type CollisionDetection, type KeyboardCoordinateGetter, type UniqueIdentifier } from '@dnd-kit/core';
+import {
+  closestCenter,
+  type CollisionDetection,
+  type KeyboardCoordinateGetter,
+  type UniqueIdentifier,
+} from '@dnd-kit/core';
 import { sortableKeyboardCoordinates } from '@dnd-kit/sortable';
 import { STAGES, type Stage } from '../../lib/stages';
 
@@ -32,7 +37,14 @@ export function createDropDetection(itemsOf: () => Record<Stage, UniqueIdentifie
     const containing = (match: (id: UniqueIdentifier) => boolean) =>
       all.find((c) => {
         const rect = args.droppableRects.get(c.id);
-        return match(c.id) && rect && point.x >= rect.left && point.x <= rect.right && point.y >= rect.top && point.y <= rect.bottom;
+        return (
+          match(c.id) &&
+          rect &&
+          point.x >= rect.left &&
+          point.x <= rect.right &&
+          point.y >= rect.top &&
+          point.y <= rect.bottom
+        );
       });
     const header = containing(isHeader);
     if (header) return [{ id: header.id, data: { droppableContainer: header, value: 0 } }];

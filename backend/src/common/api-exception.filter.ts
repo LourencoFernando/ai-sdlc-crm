@@ -24,7 +24,7 @@ export class ApiExceptionFilter implements ExceptionFilter {
         typeof body === 'string'
           ? body
           : Array.isArray((body as { message?: unknown }).message)
-            ? ((body as { message: string[] }).message).join(', ')
+            ? (body as { message: string[] }).message.join(', ')
             : String((body as { message?: unknown }).message ?? exception.message);
       res.status(status).json({ detail: status === HttpStatus.NOT_FOUND ? 'Not found' : message });
       return;
@@ -39,7 +39,7 @@ export class ApiExceptionFilter implements ExceptionFilter {
       return;
     }
 
-    this.logger.error(exception instanceof Error ? exception.stack ?? exception.message : String(exception));
+    this.logger.error(exception instanceof Error ? (exception.stack ?? exception.message) : String(exception));
     res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({ detail: 'Something went wrong' });
   }
 }

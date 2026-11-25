@@ -57,7 +57,9 @@ test('the status filter works together with search (C3)', async ({ page, request
   const one = customers[0];
   const term = one.lastName.toLowerCase();
   const matches = (c: (typeof all)[number]) =>
-    [`${c.firstName} ${c.lastName}`, c.email, c.organization?.name, c.jobTitle].some((f) => f?.toLowerCase().includes(term));
+    [`${c.firstName} ${c.lastName}`, c.email, c.organization?.name, c.jobTitle].some((f) =>
+      f?.toLowerCase().includes(term),
+    );
   await page.getByRole('searchbox', { name: 'Search contacts' }).fill(one.lastName);
   await expect(rows).toHaveCount(customers.filter(matches).length);
 
@@ -84,7 +86,10 @@ test('a duplicate or malformed email is refused (C1)', async ({ page, request })
   await expect(form.getByLabel('First name')).toHaveValue('Copy');
 });
 
-test("changing the organization of a deal's main contact asks first and unlinks the deal", async ({ page, request }) => {
+test("changing the organization of a deal's main contact asks first and unlinks the deal", async ({
+  page,
+  request,
+}) => {
   const deal = (await deals(request)).find((d) => d.contact)!;
   const other = (await organizations(request)).find((o) => o.id !== deal.organizationId)!;
   await page.goto(`/contacts/${deal.contactId}`);

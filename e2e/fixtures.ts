@@ -30,7 +30,11 @@ export const test = base.extend<{ guard: void; allowedErrors: RegExp[] }>({
         problems.push(`Console error: ${msg.text()}`);
       });
       page.on('response', (res) => {
-        if (res.status() >= 400 && ![409, 422].includes(res.status()) && !allowedErrors.some((re) => re.test(String(res.status())))) {
+        if (
+          res.status() >= 400 &&
+          ![409, 422].includes(res.status()) &&
+          !allowedErrors.some((re) => re.test(String(res.status())))
+        ) {
           problems.push(`Response ${res.status()} for ${res.request().method()} ${res.url()}`);
         }
       });
