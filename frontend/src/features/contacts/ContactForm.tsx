@@ -4,7 +4,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { Link } from 'react-router';
-import { Dialog, useRequestClose } from '../../components/Dialog';
+import { AUTOFOCUS, Dialog, useRequestClose } from '../../components/Dialog';
 import { Field } from '../../components/Field';
 import { Button } from '../../components/Button';
 import { Combobox } from '../../components/Combobox';
@@ -46,21 +46,37 @@ export function ContactForm({
 }) {
   const form = useForm<Values>({
     resolver: zodResolver(schema),
-    defaultValues: {
-      firstName: record?.firstName ?? '',
-      lastName: record?.lastName ?? '',
-      email: record?.email ?? '',
-      phone: record?.phone ?? '',
-      jobTitle: record?.jobTitle ?? '',
-      organizationId: record ? record.organizationId : (defaults?.organizationId ?? null),
-      status: record?.status ?? defaults?.status ?? 'lead',
-    },
+    defaultValues: record ? recordValues(record) : newContactValues(defaults),
   });
   return (
     <Dialog open onClose={onClose} title={record ? 'Edit contact' : 'New contact'} dirty={form.formState.isDirty}>
       <ContactFields form={form} record={record} onClose={onClose} />
     </Dialog>
   );
+}
+
+function recordValues(record: Contact): Values {
+  return {
+    firstName: record.firstName,
+    lastName: record.lastName,
+    email: record.email ?? '',
+    phone: record.phone ?? '',
+    jobTitle: record.jobTitle ?? '',
+    organizationId: record.organizationId,
+    status: record.status,
+  };
+}
+
+function newContactValues(defaults?: ContactDefaults): Values {
+  return {
+    firstName: '',
+    lastName: '',
+    email: '',
+    phone: '',
+    jobTitle: '',
+    organizationId: defaults?.organizationId ?? null,
+    status: defaults?.status ?? 'lead',
+  };
 }
 
 function ContactFields({
@@ -120,35 +136,17 @@ function ContactFields({
   const newOrgName = orgOptions.find((o) => o.value === getValues('organizationId'))?.label;
 
   if (unlink) {
-    const name = `${getValues('firstName')} ${getValues('lastName')}`.trim();
     return (
-      <div className="dialog-body">
-        <p>
-          {name} is the main contact on {unlink.length === 1 ? 'this deal' : `these ${unlink.length} deals`} at{' '}
-          {record?.organization?.name ?? 'their organization'}. Moving them {newOrgName ? `to ${newOrgName}` : 'out of it'}{' '}
-          leaves {unlink.length === 1 ? 'it' : 'them'} without a main contact:
-        </p>
-        <ul>
-          {unlink.map((d) => (
-            <li key={d.id}>
-              <Link to={`/deals/${d.id}`} onClick={onClose}>
-                {d.name}
-              </Link>
-            </li>
-          ))}
-        </ul>
-        {formError && (
-          <p className="form-error" role="alert">
-            {formError}
-          </p>
-        )}
-        <div className="dialog-actions">
-          <Button onClick={() => setUnlink(null)}>Back</Button>
-          <Button variant="primary" onClick={() => save(getValues(), true)}>
-            Save and remove from {unlink.length === 1 ? 'deal' : 'deals'}
-          </Button>
-        </div>
-      </div>
+      <UnlinkConfirm
+        contactName={`${getValues('firstName')} ${getValues('lastName')}`.trim()}
+        deals={unlink}
+        fromName={record?.organization?.name}
+        toName={newOrgName}
+        formError={formError}
+        onBack={() => setUnlink(null)}
+        onConfirm={() => save(getValues(), true)}
+        onLeave={onClose}
+      />
     );
   }
 
@@ -156,7 +154,7 @@ function ContactFields({
     <form onSubmit={submit} noValidate className="dialog-body">
       <div className="form-grid">
         <Field label="First name" error={formState.errors.firstName?.message}>
-          <input className="input" autoComplete="off" {...register('firstName')} autoFocus />
+          <input className="input" autoComplete="off" {...register('firstName')} {...AUTOFOCUS} />
         </Field>
         <Field label="Last name" error={formState.errors.lastName?.message}>
           <input className="input" autoComplete="off" {...register('lastName')} />
@@ -181,20 +179,20 @@ function ContactFields({
         </Field>
         <Field label="Organization" optional error={formState.errors.organizationId?.message} className="span-2">
           {(controlProps) => (
-          <Controller
-            control={control}
-            name="organizationId"
-            render={({ field }) => (
-              <Combobox
-                {...controlProps}
-                options={orgOptions}
-                value={field.value}
-                onChange={field.onChange}
-                placeholder="Search organizations"
-                noneLabel="No organization"
-              />
-            )}
-          />
+            <Controller
+              control={control}
+              name="organizationId"
+              render={({ field }) => (
+                <Combobox
+                  {...controlProps}
+                  options={orgOptions}
+                  value={field.value}
+                  onChange={field.onChange}
+                  placeholder="Search organizations"
+                  noneLabel="No organization"
+                />
+              )}
+            />
           )}
         </Field>
       </div>
@@ -210,5 +208,57 @@ function ContactFields({
         </Button>
       </div>
     </form>
+  );
+}
+
+/** Asks before a move to another organization leaves deals without this contact as their main contact (C5). */
+function UnlinkConfirm({
+  contactName,
+  deals,
+  fromName,
+  toName,
+  formError,
+  onBack,
+  onConfirm,
+  onLeave,
+}: {
+  contactName: string;
+  deals: Ref[];
+  fromName: string | undefined;
+  toName: string | undefined;
+  formError: string | null;
+  onBack: () => void;
+  onConfirm: () => void;
+  onLeave: () => void;
+}) {
+  const one = deals.length === 1;
+  return (
+    <div className="dialog-body">
+      <p>
+        {contactName} is the main contact on {one ? 'this deal' : `these ${deals.length} deals`} at{' '}
+        {fromName ?? 'their organization'}. Moving them {toName ? `to ${toName}` : 'out of it'} leaves{' '}
+        {one ? 'it' : 'them'} without a main contact:
+      </p>
+      <ul>
+        {deals.map((d) => (
+          <li key={d.id}>
+            <Link to={`/deals/${d.id}`} onClick={onLeave}>
+              {d.name}
+            </Link>
+          </li>
+        ))}
+      </ul>
+      {formError && (
+        <p className="form-error" role="alert">
+          {formError}
+        </p>
+      )}
+      <div className="dialog-actions">
+        <Button onClick={onBack}>Back</Button>
+        <Button variant="primary" onClick={onConfirm}>
+          Save and remove from {one ? 'deal' : 'deals'}
+        </Button>
+      </div>
+    </div>
   );
 }

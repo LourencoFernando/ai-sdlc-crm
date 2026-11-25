@@ -150,8 +150,11 @@ export function Combobox({
                 aria-selected={option.value === (value ?? -1)}
                 data-active={i === active}
                 onMouseEnter={() => setActive(i)}
-                onMouseDown={(e) => e.preventDefault()}
-                onClick={() => choose(option)}
+                // Chosen on press, keeping focus in the input; keyboard users choose with Enter there.
+                onMouseDown={(e) => {
+                  e.preventDefault();
+                  choose(option);
+                }}
               >
                 {option.label}
               </li>

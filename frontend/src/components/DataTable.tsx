@@ -77,12 +77,17 @@ export function DataTable<T extends { id: number }>({
   const [sorting, setSorting] = useState<SortingState>([]);
   const [pagination, setPagination] = useState({ pageIndex: 0, pageSize: PAGE_SIZES[0] });
 
-  const rows = useMemo(() => data.filter((row) => matchesSearch(searchFields(row), search)), [data, search, searchFields]);
+  const rows = useMemo(
+    () => data.filter((row) => matchesSearch(searchFields(row), search)),
+    [data, search, searchFields],
+  );
 
   useEffect(() => {
     setPagination((p) => ({ ...p, pageIndex: 0 }));
   }, [search]);
 
+  // TanStack Table can't be memoized by React Compiler, which the app doesn't use.
+  // eslint-disable-next-line react-hooks/incompatible-library
   const table = useReactTable({
     data: rows,
     columns,

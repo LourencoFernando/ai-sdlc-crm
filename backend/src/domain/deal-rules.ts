@@ -21,10 +21,7 @@ export interface StageChangeEntry {
 }
 
 /** A new deal takes its stage's probability unless one was set by hand (D2). */
-export function newDealState(
-  input: { stage?: Stage; probability?: number; closeDate: CalendarDate },
-  _today: CalendarDate,
-): DealState {
+export function newDealState(input: { stage?: Stage; probability?: number; closeDate: CalendarDate }): DealState {
   const stage = input.stage ?? 'new';
   return { stage, probability: input.probability ?? stageProbability(stage), closeDate: input.closeDate };
 }
@@ -55,7 +52,12 @@ export function applyDealChange(
   if (stageChanged && isClosed(stage) && !dateEdited) closeDate = today;
 
   const stageChange = stageChanged
-    ? { fromStage: current.stage, toStage: stage, occurredOn: today, description: stageChangeDescription(current.stage, stage) }
+    ? {
+        fromStage: current.stage,
+        toStage: stage,
+        occurredOn: today,
+        description: stageChangeDescription(current.stage, stage),
+      }
     : null;
 
   return { next: { stage, probability, closeDate }, stageChange };
