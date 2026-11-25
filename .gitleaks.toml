@@ -1,0 +1,15 @@
+# Default gitleaks rules. The allowlist covers the git-ignored local .env, which holds
+# local secrets on purpose, and installed or generated files that aren't our code.
+[extend]
+useDefault = true
+
+[allowlist]
+description = "Local .env and installed or generated files"
+paths = [
+  '''(^|/)\.env$''',
+  '''(^|/)node_modules/''',
+  '''(^|/)(build|dist|coverage)/''',
+  '''^backend/src/generated/''',
+  '''^(data|test-results|playwright-report)/''',
+  '''\.DS_Store$''',
+]

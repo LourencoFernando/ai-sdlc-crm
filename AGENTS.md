@@ -12,9 +12,13 @@ When a change alters what the product does, update `docs/spec.md` to match in th
 
 Update `docs/STATUS.md` when you finish a piece of work
 
-## Testing
+## Checks and testing
 
-Run `npm test` before you call a piece of work done, and fix anything that fails. It runs the backend (Jest and Supertest), frontend (Vitest) and end-to-end (Playwright, needs Google Chrome) tests, keeps going after a failing suite, prints a pass/fail summary and exits non-zero if any test failed. It starts the app itself, so nothing else needs to be running.
+Run `npm run check` before you call a piece of work done, and fix anything that fails without weakening a rule. If a rule doesn't suit the code, ask first. It runs Prettier, ESLint (recommended TypeScript, React Hooks and accessibility rules, and a cyclomatic complexity of at most 15 per function), tsc for the frontend and backend, gitleaks over the git history and the working tree, and `npm test`. It keeps going after a failing check, prints a pass/fail summary and exits non-zero if any check failed. It needs gitleaks installed.
+
+- `npm run check:quick`: the same checks without the end-to-end tests, for while you work.
+- `npm run format`: fixes the formatting.
+- `npm test`: the backend (Jest and Supertest), frontend (Vitest) and end-to-end (Playwright, needs Google Chrome) tests. The backend and frontend suites fail below 80% coverage of statements, branches, functions or lines. It starts the app itself, so nothing else needs to be running.
 
 ## Commits
 

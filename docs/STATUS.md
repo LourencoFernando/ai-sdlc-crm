@@ -8,6 +8,7 @@ You need [Node.js](https://nodejs.org) 24 or later (Node 26 is the target; the b
 2. Start: `npm run dev`. It prints "Accountable is running. Open http://localhost:5173 in your browser." The first start creates `data/accountable.db` and fills it with sample data.
 3. Reset to fresh sample data: `npm run seed`. It works while the app is running; refresh the browser afterwards.
 4. Run every test: `npm test` (backend Jest and Supertest, frontend Vitest, then Playwright in Chrome). The tests use databases of their own in the system's temp folder, so your data is never touched.
+5. Run every check: `npm run check` (Prettier, ESLint, tsc, gitleaks and `npm test` with 80% unit coverage); `npm run check:quick` skips the end-to-end tests, and `npm run format` fixes the formatting. gitleaks must be installed (`brew install gitleaks` on a Mac).
 
 The data lives in `data/accountable.db`. Set `ACCOUNTABLE_DB` to use another file.
 
@@ -55,3 +56,4 @@ The data lives in `data/accountable.db`. Set `ACCOUNTABLE_DB` to use another fil
 
   `npm test` passes: 151 backend, 68 frontend and 42 end-to-end tests.
 - 2026-11-25: Reorganized the docs for future changes. `docs/intent.md` and `docs/plan.md` moved to `docs/changes/mvp/`. `docs/spec.md` now describes the whole product as it stands, with the problem statement, and is the authority. `AGENTS.md` says to read the spec first and only the current branch's `docs/changes/<branch name>/` folder, and `docs/REVIEW.md` flags code the spec doesn't describe. No code changed.
+- 2026-11-25: Added `npm run check`, `npm run check:quick` and `npm run format`: Prettier, ESLint (recommended TypeScript, React Hooks and jsx-a11y rules, complexity at most 15), tsc, gitleaks over the history and working tree (the local `.env` allowed), and `npm test` with an 80% coverage gate on the backend and frontend unit suites. Formatted the code, split the functions over the complexity limit, fixed the accessibility and hooks findings, and added frontend unit tests (coverage from 44% to 98% of statements). The one `react-hooks/incompatible-library` warning on TanStack Table is disabled on its line, as agreed. All checks pass: 151 backend, 253 frontend and 42 end-to-end tests.

@@ -15,13 +15,24 @@
     "seed": "npm run seed -w backend",
     "test": "node scripts/test.mjs",
     "test:e2e": "npm run build -w backend && playwright test",
-    "typecheck": "npm run typecheck -w backend && npm run typecheck -w frontend"
+    "typecheck": "npm run typecheck -w backend && npm run typecheck -w frontend",
+    "check": "node scripts/check.mjs",
+    "check:quick": "node scripts/check.mjs --quick",
+    "format": "prettier --write ."
   },
   "devDependencies": {
+    "@eslint/js": "9.39.5",
     "@playwright/test": "1.65.0",
     "@types/node": "24.19.2",
     "concurrently": "10.0.6",
-    "typescript": "5.9.3"
+    "eslint": "9.39.5",
+    "eslint-config-prettier": "10.1.8",
+    "eslint-plugin-jsx-a11y": "6.10.2",
+    "eslint-plugin-react-hooks": "7.1.1",
+    "globals": "17.14.0",
+    "prettier": "3.9.10",
+    "typescript": "5.9.3",
+    "typescript-eslint": "8.72.2"
   },
   "overrides": {
     "multer": "2.5.0",
