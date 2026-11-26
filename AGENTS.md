@@ -23,3 +23,9 @@ Run `npm run check` before you call a piece of work done, and fix anything that 
 ## Commits
 
 Write short, objective commit messages: a subject line of 72 characters or fewer saying what changed. Add a body of one or two lines only when the reason isn't clear from the diff.
+
+## Hooks
+
+- A lefthook pre-commit hook (`lefthook.yml`, installed by `npm install`) formats the staged files and adds the fixes to the commit, then runs ESLint on them, tsc and gitleaks over the staged changes. It skips the tests.
+- A Claude Code Stop hook (`.claude/hooks/check-on-stop.mjs`) runs `npm run check:quick` when you finish a turn and sends any failure back once. Fix it rather than stopping again.
+- A Claude Code PreToolUse hook (`.claude/hooks/protect-env.mjs`) blocks edits to any `.env` file. Ask the user to change it.

@@ -30,6 +30,7 @@
     "eslint-plugin-jsx-a11y": "6.10.2",
     "eslint-plugin-react-hooks": "7.1.1",
     "globals": "17.14.0",
+    "lefthook": "2.2.2",
     "prettier": "3.9.10",
     "typescript": "5.9.3",
     "typescript-eslint": "8.72.2"
@@ -44,6 +45,7 @@
     "better-sqlite3@12.11.1": true,
     "prisma@7.10.1": true,
     "@prisma/engines@7.10.1": true,
-    "@parcel/watcher": false
+    "@parcel/watcher": false,
+    "lefthook@2.2.2": true
   }
 }

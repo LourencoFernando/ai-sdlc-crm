@@ -32,7 +32,7 @@ export default tseslint.config(
     languageOptions: { globals: globals.browser },
   },
   {
-    files: ['backend/**/*.{ts,js}', 'e2e/**/*.ts', 'scripts/**/*.mjs', '*.{ts,mjs,js}'],
+    files: ['backend/**/*.{ts,js}', 'e2e/**/*.ts', 'scripts/**/*.mjs', '.claude/hooks/*.mjs', '*.{ts,mjs,js}'],
     languageOptions: { globals: globals.node },
   },
   {

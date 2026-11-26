@@ -1,0 +1,22 @@
+# Git hooks, installed by `npm install` (lefthook's postinstall runs `lefthook install`).
+# The pre-commit hook formats the staged files and adds the fixes to the commit, then
+# lints them, type-checks the project and scans the staged changes for secrets.
+# It skips the tests to stay quick; `npm run check` runs everything.
+pre-commit:
+  piped: true
+  jobs:
+    - name: format
+      glob: '*.{ts,tsx,js,mjs,cjs,json,css,html,yml,yaml}'
+      run: npx prettier --write --ignore-unknown {staged_files}
+      stage_fixed: true
+
+    - name: lint
+      glob: '*.{ts,tsx,js,mjs,cjs}'
+      run: npx eslint --max-warnings 0 --no-warn-ignored {staged_files}
+
+    - name: types
+      glob: '*.{ts,tsx}'
+      run: npm run typecheck
+
+    - name: gitleaks
+      run: gitleaks git --pre-commit --staged --redact --no-banner
