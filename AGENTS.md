@@ -12,6 +12,8 @@ When a change alters what the product does, update `docs/spec.md` to match in th
 
 Update `docs/STATUS.md` when you finish a piece of work
 
+At Deploy, after the review fixes and before the merge, follow `docs/IMPROVE.md`.
+
 ## Checks and testing
 
 Run `npm run check` before you call a piece of work done, and fix anything that fails without weakening a rule. If a rule doesn't suit the code, ask first. It runs Prettier, ESLint (recommended TypeScript, React Hooks and accessibility rules, and a cyclomatic complexity of at most 15 per function), tsc for the frontend and backend, gitleaks over the git history and the working tree, and `npm test`. It keeps going after a failing check, prints a pass/fail summary and exits non-zero if any check failed. It needs gitleaks installed.
