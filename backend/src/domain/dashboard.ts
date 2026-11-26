@@ -56,13 +56,12 @@ export function buildDashboard(input: {
 
   const wonIn = (month: string) => won.filter((d) => monthKey(d.closeDate) === month);
 
-  const followUps = input.activities
-    .map((a) => ({ ...a, status: followUpStatus(a, today) }))
-    .filter((a) => a.status === 'overdue' || a.status === 'due_soon');
   const byDate = (a: DashboardActivity, b: DashboardActivity) =>
     a.followUpOn! < b.followUpOn! ? -1 : a.followUpOn! > b.followUpOn! ? 1 : a.id - b.id;
-  const overdue = followUps.filter((a) => a.status === 'overdue').sort(byDate);
-  const dueSoon = followUps.filter((a) => a.status === 'due_soon').sort(byDate);
+  const followUpsWith = (status: string) =>
+    input.activities.filter((a) => followUpStatus(a, today) === status).sort(byDate);
+  const overdue = followUpsWith('overdue');
+  const dueSoon = followUpsWith('due_soon');
 
   const headline = {
     wonThisMonth: { value: sum(wonIn(thisMonth).map((d) => d.value)), count: wonIn(thisMonth).length },
@@ -104,7 +103,6 @@ export function buildDashboard(input: {
     };
   });
 
-  const strip = ({ status: _s, ...a }: DashboardActivity & { status?: unknown }) => a;
   const recent = [...input.recent].sort(newestFirst).slice(0, 10);
 
   return {
@@ -114,7 +112,7 @@ export function buildDashboard(input: {
     yearTotals,
     funnel,
     pipelineByStage,
-    followUps: { overdue: overdue.map(strip), dueSoon: dueSoon.map(strip) },
+    followUps: { overdue, dueSoon },
     recent,
   };
 }

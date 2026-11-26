@@ -39,7 +39,8 @@ export default defineConfig({
   workers: 1,
   retries: 0,
   forbidOnly: true,
-  reporter: [['list']],
+  // CI also writes an HTML report, which the workflow uploads when a run fails.
+  reporter: process.env.CI ? [['list'], ['html', { open: 'never' }]] : [['list']],
   timeout: 30_000,
   expect: { timeout: 5_000 },
   use: {

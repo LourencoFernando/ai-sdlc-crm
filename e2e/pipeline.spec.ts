@@ -54,7 +54,8 @@ test('board search filters cards but not totals (P8)', async ({ page }) => {
   const total = await page.getByRole('definition').first().innerText();
   await page.getByRole('searchbox', { name: 'Search deals on the board' }).fill('orbitra');
   for (const stage of ['new', 'qualified', 'proposal', 'negotiation'] as const) {
-    for (const text of await column(page, stage).locator('.deal-card-org').allInnerTexts()) expect(text).toBe('Orbitra Software');
+    for (const text of await column(page, stage).locator('.deal-card-org').allInnerTexts())
+      expect(text).toBe('Orbitra Software');
   }
   await expect(page.getByRole('definition').first()).toHaveText(total);
 });

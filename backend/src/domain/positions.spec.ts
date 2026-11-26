@@ -4,8 +4,14 @@ describe('moving a card (P4)', () => {
   const col = [1, 2, 3, 4];
 
   it('moves within a column, up and down, to the top and the end', () => {
-    expect(planMove({ from: col, to: col, sameColumn: true }, 3, 1)).toMatchObject({ from: [1, 3, 2, 4], changed: true });
-    expect(planMove({ from: col, to: col, sameColumn: true }, 1, 2)).toMatchObject({ from: [2, 3, 1, 4], changed: true });
+    expect(planMove({ from: col, to: col, sameColumn: true }, 3, 1)).toMatchObject({
+      from: [1, 3, 2, 4],
+      changed: true,
+    });
+    expect(planMove({ from: col, to: col, sameColumn: true }, 1, 2)).toMatchObject({
+      from: [2, 3, 1, 4],
+      changed: true,
+    });
     expect(planMove({ from: col, to: col, sameColumn: true }, 4, 0)).toMatchObject({ from: [4, 1, 2, 3] });
     expect(planMove({ from: col, to: col, sameColumn: true }, 1, 3)).toMatchObject({ from: [2, 3, 4, 1] });
   });
@@ -18,7 +24,11 @@ describe('moving a card (P4)', () => {
 
   it('moves to the top, middle and end of another column, and to an empty one', () => {
     const other = [7, 8, 9];
-    expect(planMove({ from: col, to: other, sameColumn: false }, 2, 0)).toEqual({ from: [1, 3, 4], to: [2, 7, 8, 9], changed: true });
+    expect(planMove({ from: col, to: other, sameColumn: false }, 2, 0)).toEqual({
+      from: [1, 3, 4],
+      to: [2, 7, 8, 9],
+      changed: true,
+    });
     expect(planMove({ from: col, to: other, sameColumn: false }, 2, 1).to).toEqual([7, 2, 8, 9]);
     expect(planMove({ from: col, to: other, sameColumn: false }, 2, 3).to).toEqual([7, 8, 9, 2]);
     expect(planMove({ from: col, to: [], sameColumn: false }, 2, 0).to).toEqual([2]);

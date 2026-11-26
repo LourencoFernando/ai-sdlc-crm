@@ -11,11 +11,19 @@ describe('contacts (C1, C3)', () => {
   afterAll(() => t.close());
 
   it('checks the email and keeps it unique ignoring case', async () => {
-    let res = await a.http().post('/api/contacts').send({ firstName: 'A', lastName: 'B', email: 'not-an-email' }).expect(422);
+    let res = await a
+      .http()
+      .post('/api/contacts')
+      .send({ firstName: 'A', lastName: 'B', email: 'not-an-email' })
+      .expect(422);
     expect(res.body.fields.email).toBe('Enter a valid email address');
     const c = await a.contact({ email: ' Dana@Fleet.example ' });
     expect(c.email).toBe('dana@fleet.example');
-    res = await a.http().post('/api/contacts').send({ firstName: 'X', lastName: 'Y', email: 'DANA@fleet.example' }).expect(409);
+    res = await a
+      .http()
+      .post('/api/contacts')
+      .send({ firstName: 'X', lastName: 'Y', email: 'DANA@fleet.example' })
+      .expect(409);
     expect(res.body.fields.email).toBe('Already used by Dana Reyes');
     // Saving the same contact with its own email is fine.
     await a.http().patch(`/api/contacts/${c.id}`).send({ email: 'dana@fleet.example' }).expect(200);
@@ -65,11 +73,20 @@ describe("changing a contact's organization", () => {
     const d1 = await a.deal(acme.id, { name: 'Renewal', contactId: c.id });
     const d2 = await a.deal(acme.id, { name: 'Expansion', contactId: c.id });
 
-    const preview = await a.http().get(`/api/contacts/${c.id}/organization-change-preview?organizationId=${other.id}`).expect(200);
-    expect(preview.body.deals).toEqual([{ id: d2.id, name: 'Expansion' }, { id: d1.id, name: 'Renewal' }]);
+    const preview = await a
+      .http()
+      .get(`/api/contacts/${c.id}/organization-change-preview?organizationId=${other.id}`)
+      .expect(200);
+    expect(preview.body.deals).toEqual([
+      { id: d2.id, name: 'Expansion' },
+      { id: d1.id, name: 'Renewal' },
+    ]);
     const toNone = await a.http().get(`/api/contacts/${c.id}/organization-change-preview?organizationId=`).expect(200);
     expect(toNone.body.deals).toHaveLength(2);
-    const same = await a.http().get(`/api/contacts/${c.id}/organization-change-preview?organizationId=${acme.id}`).expect(200);
+    const same = await a
+      .http()
+      .get(`/api/contacts/${c.id}/organization-change-preview?organizationId=${acme.id}`)
+      .expect(200);
     expect(same.body.deals).toEqual([]);
 
     const refused = await a.http().patch(`/api/contacts/${c.id}`).send({ organizationId: other.id }).expect(409);

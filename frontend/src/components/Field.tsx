@@ -30,16 +30,20 @@ export function Field({
     'aria-invalid': error ? true : undefined,
     'aria-describedby': error ? errorId : undefined,
   };
-  const control = typeof children === 'function'
-    ? children(props)
-    : isValidElement(children)
-      ? cloneElement(
-          children,
-          typeof children.type === 'function'
-            ? ({ ...props, invalid: Boolean(error), describedBy: error ? errorId : undefined } as Record<string, unknown>)
-            : ({ ...props } as Record<string, unknown>),
-        )
-    : children;
+  const control =
+    typeof children === 'function'
+      ? children(props)
+      : isValidElement(children)
+        ? cloneElement(
+            children,
+            typeof children.type === 'function'
+              ? ({ ...props, invalid: Boolean(error), describedBy: error ? errorId : undefined } as Record<
+                  string,
+                  unknown
+                >)
+              : ({ ...props } as Record<string, unknown>),
+          )
+        : children;
   return (
     <div className={`field ${className}`}>
       <label className="field-label" htmlFor={id}>

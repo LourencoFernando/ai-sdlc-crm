@@ -28,7 +28,7 @@ export function FollowUpPill({ activity, today }: { activity: Activity; today: s
 }
 
 /** Marks a follow-up done, or not done again (A6). */
-export function FollowUpCheckbox({ activity }: { activity: Activity }) {
+export function FollowUpCheckbox({ activity, id }: { activity: Activity; id?: string }) {
   const client = useQueryClient();
   const toast = useToast();
   const [pending, setPending] = useState<boolean | null>(null);
@@ -49,6 +49,7 @@ export function FollowUpCheckbox({ activity }: { activity: Activity }) {
 
   return (
     <input
+      id={id}
       type="checkbox"
       className="checkbox"
       checked={checked}

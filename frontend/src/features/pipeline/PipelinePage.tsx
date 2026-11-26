@@ -21,7 +21,9 @@ export function PipelinePage() {
   const enqueue = useMoveQueue();
   // Saving moves or reloading the board; tests wait for this to clear.
   const busy =
-    useIsMutating({ predicate: (m) => m.options.scope?.id === 'pipeline-moves' }) + useIsFetching({ queryKey: keys.deals }) > 0;
+    useIsMutating({ predicate: (m) => m.options.scope?.id === 'pipeline-moves' }) +
+      useIsFetching({ queryKey: keys.deals }) >
+    0;
   const today = todayLocal();
   const totals = useMemo(() => (deals ? openTotals(deals, today) : null), [deals, today]);
   const probabilityOf = useCallback((stage: Stage) => stageProbability(meta, stage), [meta]);
@@ -51,7 +53,14 @@ export function PipelinePage() {
         )}
       </div>
       {deals && meta ? (
-        <Board deals={deals} search={search} today={today} probabilityOf={probabilityOf} onMove={enqueue} onAddDeal={addDeal} />
+        <Board
+          deals={deals}
+          search={search}
+          today={today}
+          probabilityOf={probabilityOf}
+          onMove={enqueue}
+          onAddDeal={addDeal}
+        />
       ) : (
         <div className="board" aria-busy="true" aria-label="Loading">
           {Array.from({ length: 6 }, (_, i) => (

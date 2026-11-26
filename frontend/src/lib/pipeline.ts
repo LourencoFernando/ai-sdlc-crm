@@ -28,7 +28,11 @@ export interface Totals {
 
 export function columnTotals(cards: Deal[]): Totals {
   return cards.reduce(
-    (t, d) => ({ count: t.count + 1, value: t.value + d.value, expected: t.expected + (d.value * d.probability) / 100 }),
+    (t, d) => ({
+      count: t.count + 1,
+      value: t.value + d.value,
+      expected: t.expected + (d.value * d.probability) / 100,
+    }),
     { count: 0, value: 0, expected: 0 },
   );
 }

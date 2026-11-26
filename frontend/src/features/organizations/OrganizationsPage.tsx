@@ -38,8 +38,14 @@ export function OrganizationsPage() {
           </Link>
         ),
       },
-      { id: 'industry',
-        meta: { width: '16%' }, header: 'Industry', accessorFn: (o) => o.industry ?? undefined, cell: ({ row }) => row.original.industry ?? empty, sortUndefined: 'last' },
+      {
+        id: 'industry',
+        meta: { width: '16%' },
+        header: 'Industry',
+        accessorFn: (o) => o.industry ?? undefined,
+        cell: ({ row }) => row.original.industry ?? empty,
+        sortUndefined: 'last',
+      },
       {
         id: 'website',
         meta: { width: '18%' },
@@ -84,11 +90,20 @@ export function OrganizationsPage() {
     <div className="page">
       <PageHead
         title="Organizations"
-        sub={data ? `${plural(data.length, 'organization')} · ${plural(new Set(data.map((o) => o.industry).filter(Boolean)).size, 'industry', 'industries')}` : ' '}
+        sub={
+          data
+            ? `${plural(data.length, 'organization')} · ${plural(new Set(data.map((o) => o.industry).filter(Boolean)).size, 'industry', 'industries')}`
+            : ' '
+        }
         actions={newButton}
       />
       <div className="toolbar">
-        <SearchBox value={search} onChange={setSearch} placeholder="Search organizations" label="Search organizations" />
+        <SearchBox
+          value={search}
+          onChange={setSearch}
+          placeholder="Search organizations"
+          label="Search organizations"
+        />
       </div>
       {data ? (
         <DataTable

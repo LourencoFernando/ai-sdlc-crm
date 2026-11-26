@@ -30,12 +30,14 @@ export class DealsService {
 
   /** A new deal takes its stage's probability (D2) and goes to the top of its column (P6). */
   async create(dto: CreateDealDto) {
-    const today = resolveToday(dto.today);
-    const { today: _t, ...data } = dto;
+    resolveToday(dto.today); // refuses a malformed today, like every request that sends one
+    const data = withoutToday(dto);
     const id = await this.prisma.$transaction(async (tx) => {
       await this.checkLinks(tx, data.organizationId, data.contactId ?? null);
-      const state = newDealState(data, today);
-      const deal = await tx.deal.create({ data: { ...data, ...state, contactId: data.contactId ?? null, position: 0 } });
+      const state = newDealState(data);
+      const deal = await tx.deal.create({
+        data: { ...data, ...state, contactId: data.contactId ?? null, position: 0 },
+      });
       await this.writeOrder(tx, deal.stage as Stage, (ids) => insertAtTop(ids, deal.id));
       return deal.id;
     });
@@ -45,7 +47,7 @@ export class DealsService {
   /** A save that changes the stage applies D2, D3 and D7, and puts the deal at the top of its new column. */
   async update(id: number, dto: UpdateDealDto) {
     const today = resolveToday(dto.today);
-    const { today: _t, ...data } = dto;
+    const data = withoutToday(dto);
     await this.prisma.$transaction(async (tx) => {
       const current = await tx.deal.findUnique({ where: { id } });
       if (!current) throw ApiError.notFound('Deal');
@@ -172,4 +174,11 @@ export class DealsService {
   private async mustExist(id: number): Promise<void> {
     if (!(await this.prisma.deal.findUnique({ where: { id }, select: { id: true } }))) throw ApiError.notFound('Deal');
   }
+}
+
+/** The deal's own fields: `today` only tells the rules what day it is. */
+function withoutToday<T extends { today?: string }>(dto: T): Omit<T, 'today'> {
+  const fields = { ...dto };
+  delete fields.today;
+  return fields;
 }

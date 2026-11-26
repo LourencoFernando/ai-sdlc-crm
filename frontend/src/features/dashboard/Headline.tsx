@@ -24,7 +24,9 @@ export function Headline({ data }: { data: Dashboard }) {
           <p className="label">Won this month</p>
           <Figure value={headline.wonThisMonth.value} currency />
           <p className={`stat-note ${diff >= 0 ? 'up' : 'down'}`}>
-            {diff === 0 ? `The same as ${lastMonth}` : `${formatMoney(Math.abs(diff))} ${diff > 0 ? 'more' : 'less'} than ${lastMonth}`}
+            {diff === 0
+              ? `The same as ${lastMonth}`
+              : `${formatMoney(Math.abs(diff))} ${diff > 0 ? 'more' : 'less'} than ${lastMonth}`}
           </p>
         </div>
         <div className="stat">
@@ -52,7 +54,9 @@ export function Headline({ data }: { data: Dashboard }) {
         </div>
         <div
           className="stage-blocks"
-          style={{ gridTemplateColumns: data.pipelineByStage.map((s) => `minmax(132px, ${Math.max(s.share, 4)}fr)`).join(' ') }}
+          style={{
+            gridTemplateColumns: data.pipelineByStage.map((s) => `minmax(132px, ${Math.max(s.share, 4)}fr)`).join(' '),
+          }}
         >
           {data.pipelineByStage.map((s) => (
             <Link
@@ -79,9 +83,21 @@ export function Headline({ data }: { data: Dashboard }) {
   );
 }
 
-const MONTH_NAMES = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
+const MONTH_NAMES = [
+  'January',
+  'February',
+  'March',
+  'April',
+  'May',
+  'June',
+  'July',
+  'August',
+  'September',
+  'October',
+  'November',
+  'December',
+];
 function formatMonthLong(month: string | undefined): string {
   if (!month) return 'last month';
   return MONTH_NAMES[Number(month.slice(5, 7)) - 1] ?? formatMonth(month);
 }
-

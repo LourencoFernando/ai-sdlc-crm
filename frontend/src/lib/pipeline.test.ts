@@ -19,16 +19,32 @@ let nextId = 1;
 function deal(stage: Stage, position: number, value = 10_000, extra: Partial<Deal> = {}): Deal {
   const id = nextId++;
   return {
-    id, name: `Deal ${id}`, organizationId: 1, organization: { id: 1, name: 'Acme' }, contactId: null, contact: null,
-    stage, value, probability: probs[stage], closeDate: '2026-12-31', position, createdAt: '', updatedAt: '', ...extra,
+    id,
+    name: `Deal ${id}`,
+    organizationId: 1,
+    organization: { id: 1, name: 'Acme' },
+    contactId: null,
+    contact: null,
+    stage,
+    value,
+    probability: probs[stage],
+    closeDate: '2026-12-31',
+    position,
+    createdAt: '',
+    updatedAt: '',
+    ...extra,
   };
 }
 
 function sample() {
   nextId = 1;
   return [
-    deal('new', 0), deal('new', 1), deal('new', 2), deal('new', 3), // 1..4
-    deal('qualified', 0, 20_000), deal('qualified', 1, 20_000), // 5, 6
+    deal('new', 0),
+    deal('new', 1),
+    deal('new', 2),
+    deal('new', 3), // 1..4
+    deal('qualified', 0, 20_000),
+    deal('qualified', 1, 20_000), // 5, 6
     deal('won', 0, 50_000, { closeDate: '2026-11-02' }), // 7
     deal('lost', 0, 8_000), // 8
   ];

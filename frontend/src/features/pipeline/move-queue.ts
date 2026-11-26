@@ -28,7 +28,10 @@ export function useMoveQueue() {
   const pending = useRef(0);
   const failed = useRef(false);
 
-  const stopReloads = useCallback(() => client.cancelQueries({ queryKey: keys.deals }, { revert: false, silent: true }), [client]);
+  const stopReloads = useCallback(
+    () => client.cancelQueries({ queryKey: keys.deals }, { revert: false, silent: true }),
+    [client],
+  );
 
   const mutation = useMutation({
     scope: { id: 'pipeline-moves' },

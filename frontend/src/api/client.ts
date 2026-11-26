@@ -41,7 +41,12 @@ export async function request<T>(method: string, path: string, body?: unknown): 
   const data = isJson ? await res.json() : undefined;
   if (!res.ok) {
     const b = (data ?? {}) as Record<string, unknown>;
-    throw new ApiError(res.status, String(b.detail ?? 'Something went wrong'), (b.fields as Record<string, string>) ?? {}, b);
+    throw new ApiError(
+      res.status,
+      String(b.detail ?? 'Something went wrong'),
+      (b.fields as Record<string, string>) ?? {},
+      b,
+    );
   }
   return data as T;
 }

@@ -16,9 +16,24 @@ const rects = new Map<UniqueIdentifier, ClientRect>([
   ['column:qualified', rect(300, 0, 280, 800)],
   ['header:qualified', rect(300, 0, 280, 100)],
 ]);
-const items: Record<Stage, UniqueIdentifier[]> = { new: [1, 2], qualified: [], proposal: [], negotiation: [], won: [], lost: [] };
+const items: Record<Stage, UniqueIdentifier[]> = {
+  new: [1, 2],
+  qualified: [],
+  proposal: [],
+  negotiation: [],
+  won: [],
+  lost: [],
+};
 const containers = [...rects.keys()].map(
-  (id) => ({ id, rect: { current: rects.get(id)! }, key: String(id), data: { current: {} }, disabled: false, node: { current: null } }) as unknown as DroppableContainer,
+  (id) =>
+    ({
+      id,
+      rect: { current: rects.get(id)! },
+      key: String(id),
+      data: { current: {} },
+      disabled: false,
+      node: { current: null },
+    }) as unknown as DroppableContainer,
 );
 const detect = createDropDetection(() => items);
 

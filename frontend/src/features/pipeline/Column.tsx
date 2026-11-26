@@ -39,7 +39,12 @@ export const Column = memo(function Column({
   const share = totals.value > 0 ? (totals.expected / totals.value) * 100 : 0;
 
   return (
-    <section ref={body.setNodeRef} className={`column ${compact ? 'compact' : ''}`} aria-label={STAGE_LABEL[stage]} data-stage={stage}>
+    <section
+      ref={body.setNodeRef}
+      className={`column ${compact ? 'compact' : ''}`}
+      aria-label={STAGE_LABEL[stage]}
+      data-stage={stage}
+    >
       <header
         ref={header.setNodeRef}
         className={`column-head stage-${stage}`}

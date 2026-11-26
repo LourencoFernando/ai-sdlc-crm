@@ -23,9 +23,7 @@ export const dealListInclude = {
   contact: { select: { id: true, firstName: true, lastName: true } },
 } as const;
 
-export function toDealView<
-  T extends { contact: { id: number; firstName: string; lastName: string } | null },
->(d: T) {
+export function toDealView<T extends { contact: { id: number; firstName: string; lastName: string } | null }>(d: T) {
   return {
     ...d,
     contact: d.contact ? { id: d.contact.id, name: `${d.contact.firstName} ${d.contact.lastName}` } : null,

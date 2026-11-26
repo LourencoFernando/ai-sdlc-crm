@@ -52,7 +52,9 @@ export function FormsProvider({ children }: { children: ReactNode }) {
     <FormsContext.Provider value={api}>
       {children}
       {meta && open?.kind === 'organization' && <OrganizationForm record={open.record} onClose={close} />}
-      {meta && open?.kind === 'contact' && <ContactForm record={open.record} defaults={open.defaults} onClose={close} />}
+      {meta && open?.kind === 'contact' && (
+        <ContactForm record={open.record} defaults={open.defaults} onClose={close} />
+      )}
       {meta && open?.kind === 'deal' && <DealForm record={open.record} defaults={open.defaults} onClose={close} />}
       {meta && open?.kind === 'activity' && <ActivityForm record={open.record} target={open.target} onClose={close} />}
       {open?.kind === 'delete' && <DeleteDialog request={open.request} onClose={close} />}

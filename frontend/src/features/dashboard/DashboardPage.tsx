@@ -17,7 +17,11 @@ import './dashboard.css';
 /** How sales are going at a glance, worked out from the data each time it loads (B1–B8). */
 export function DashboardPage() {
   const today = todayLocal();
-  const { data } = useQuery({ queryKey: [...keys.dashboard, today], queryFn: () => api.dashboard(today), staleTime: 0 });
+  const { data } = useQuery({
+    queryKey: [...keys.dashboard, today],
+    queryFn: () => api.dashboard(today),
+    staleTime: 0,
+  });
   const forms = useForms();
   const sub = data
     ? `${formatLongDate(today)} · ${plural(data.headline.overdueFollowUps, 'follow-up')} overdue and ${plural(data.headline.lateDeals, 'deal')} running late`

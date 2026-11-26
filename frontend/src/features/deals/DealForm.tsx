@@ -3,7 +3,7 @@ import { Controller, useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
-import { Dialog, useRequestClose } from '../../components/Dialog';
+import { AUTOFOCUS, Dialog, useRequestClose } from '../../components/Dialog';
 import { Field } from '../../components/Field';
 import { Button } from '../../components/Button';
 import { Combobox } from '../../components/Combobox';
@@ -21,7 +21,10 @@ const PROBABILITY_MESSAGE = 'Enter a probability from 0 to 100';
 
 const schema = z.object({
   name: z.string().trim().min(1, 'Enter a name'),
-  organizationId: z.number({ message: 'Choose an organization' }).nullable().refine((v) => v !== null, 'Choose an organization'),
+  organizationId: z
+    .number({ message: 'Choose an organization' })
+    .nullable()
+    .refine((v) => v !== null, 'Choose an organization'),
   contactId: z.number().nullable(),
   stage: z.enum(STAGES),
   value: z
@@ -43,26 +46,51 @@ export interface DealDefaults {
   contactId?: number | null;
 }
 
-export function DealForm({ record, defaults, onClose }: { record?: Deal; defaults?: DealDefaults; onClose: () => void }) {
+export function DealForm({
+  record,
+  defaults,
+  onClose,
+}: {
+  record?: Deal;
+  defaults?: DealDefaults;
+  onClose: () => void;
+}) {
   const { data: meta } = useMeta();
-  const stage = record?.stage ?? defaults?.stage ?? 'new';
   const form = useForm<Values, unknown, Parsed>({
     resolver: zodResolver(schema),
-    defaultValues: {
-      name: record?.name ?? '',
-      organizationId: record?.organizationId ?? defaults?.organizationId ?? null,
-      contactId: record ? record.contactId : (defaults?.contactId ?? null),
-      stage,
-      value: record ? String(record.value) : '',
-      probability: String(record?.probability ?? stageProbability(meta, stage)),
-      closeDate: record?.closeDate ?? addDays(todayLocal(), 30),
-    },
+    defaultValues: record ? recordValues(record) : newDealValues(meta, defaults),
   });
   return (
     <Dialog open onClose={onClose} title={record ? 'Edit deal' : 'New deal'} dirty={form.formState.isDirty}>
       <DealFields form={form} record={record} onClose={onClose} />
     </Dialog>
   );
+}
+
+function recordValues(record: Deal): Values {
+  return {
+    name: record.name,
+    organizationId: record.organizationId,
+    contactId: record.contactId,
+    stage: record.stage,
+    value: String(record.value),
+    probability: String(record.probability),
+    closeDate: record.closeDate,
+  };
+}
+
+/** A new deal takes its stage's usual probability (D2) and closes in 30 days. */
+function newDealValues(meta: Parameters<typeof stageProbability>[0], defaults?: DealDefaults): Values {
+  const stage = defaults?.stage ?? 'new';
+  return {
+    name: '',
+    organizationId: defaults?.organizationId ?? null,
+    contactId: defaults?.contactId ?? null,
+    stage,
+    value: '',
+    probability: String(stageProbability(meta, stage)),
+    closeDate: addDays(todayLocal(), 30),
+  };
 }
 
 function DealFields({
@@ -115,26 +143,26 @@ function DealFields({
     <form onSubmit={submit} noValidate className="dialog-body">
       <div className="form-grid">
         <Field label="Name" error={formState.errors.name?.message} className="span-2">
-          <input className="input" autoComplete="off" {...register('name')} autoFocus />
+          <input className="input" autoComplete="off" {...register('name')} {...AUTOFOCUS} />
         </Field>
         <Field label="Organization" error={formState.errors.organizationId?.message}>
           {(controlProps) => (
-          <Controller
-            control={control}
-            name="organizationId"
-            render={({ field }) => (
-              <Combobox
-                {...controlProps}
-                options={orgOptions}
-                value={field.value}
-                onChange={(v) => {
-                  if (v !== field.value) setValue('contactId', null, { shouldDirty: true });
-                  field.onChange(v);
-                }}
-                placeholder="Search organizations"
-              />
-            )}
-          />
+            <Controller
+              control={control}
+              name="organizationId"
+              render={({ field }) => (
+                <Combobox
+                  {...controlProps}
+                  options={orgOptions}
+                  value={field.value}
+                  onChange={(v) => {
+                    if (v !== field.value) setValue('contactId', null, { shouldDirty: true });
+                    field.onChange(v);
+                  }}
+                  placeholder="Search organizations"
+                />
+              )}
+            />
           )}
         </Field>
         <Field
@@ -144,27 +172,29 @@ function DealFields({
           hint={organizationId === null ? 'Choose the organization first' : undefined}
         >
           {(controlProps) => (
-          <Controller
-            control={control}
-            name="contactId"
-            render={({ field }) => (
-              <select
-                {...controlProps}
-                className="select"
-                disabled={organizationId === null}
-                value={field.value ?? ''}
-                onChange={(e) => field.onChange(e.target.value === '' ? null : Number(e.target.value))}
-                onBlur={field.onBlur}
-              >
-                <option value="">{orgContacts.length || organizationId === null ? 'No main contact' : `No contacts at ${orgName}`}</option>
-                {orgContacts.map((c) => (
-                  <option key={c.id} value={c.id}>
-                    {c.firstName} {c.lastName}
+            <Controller
+              control={control}
+              name="contactId"
+              render={({ field }) => (
+                <select
+                  {...controlProps}
+                  className="select"
+                  disabled={organizationId === null}
+                  value={field.value ?? ''}
+                  onChange={(e) => field.onChange(e.target.value === '' ? null : Number(e.target.value))}
+                  onBlur={field.onBlur}
+                >
+                  <option value="">
+                    {orgContacts.length || organizationId === null ? 'No main contact' : `No contacts at ${orgName}`}
                   </option>
-                ))}
-              </select>
-            )}
-          />
+                  {orgContacts.map((c) => (
+                    <option key={c.id} value={c.id}>
+                      {c.firstName} {c.lastName}
+                    </option>
+                  ))}
+                </select>
+              )}
+            />
           )}
         </Field>
         <Field label="Stage" error={formState.errors.stage?.message}>

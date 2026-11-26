@@ -3,7 +3,7 @@ import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { useQueryClient } from '@tanstack/react-query';
-import { Dialog, useRequestClose } from '../../components/Dialog';
+import { AUTOFOCUS, Dialog, useRequestClose } from '../../components/Dialog';
 import { Field } from '../../components/Field';
 import { Button } from '../../components/Button';
 import { api } from '../../api/endpoints';
@@ -32,7 +32,12 @@ export function OrganizationForm({ record, onClose }: { record?: Organization; o
     },
   });
   return (
-    <Dialog open onClose={onClose} title={record ? 'Edit organization' : 'New organization'} dirty={form.formState.isDirty}>
+    <Dialog
+      open
+      onClose={onClose}
+      title={record ? 'Edit organization' : 'New organization'}
+      dirty={form.formState.isDirty}
+    >
       <OrganizationFields form={form} record={record} onClose={onClose} />
     </Dialog>
   );
@@ -76,7 +81,7 @@ function OrganizationFields({
     <form onSubmit={submit} noValidate className="dialog-body">
       <div className="form-grid">
         <Field label="Name" error={formState.errors.name?.message} className="span-2">
-          <input className="input" {...register('name')} autoFocus />
+          <input className="input" {...register('name')} {...AUTOFOCUS} />
         </Field>
         <Field label="Website" optional error={formState.errors.website?.message}>
           <input className="input" placeholder="https://" {...register('website')} />

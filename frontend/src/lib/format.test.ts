@@ -1,5 +1,13 @@
 import { describe, expect, it } from 'vitest';
-import { followUpLabel, formatDate, formatMoney, formatMoneyShort, formatPercent, initials, relativeDay } from './format';
+import {
+  followUpLabel,
+  formatDate,
+  formatMoney,
+  formatMoneyShort,
+  formatPercent,
+  initials,
+  relativeDay,
+} from './format';
 
 describe('formatting', () => {
   it('shows money in whole US dollars with the currency', () => {

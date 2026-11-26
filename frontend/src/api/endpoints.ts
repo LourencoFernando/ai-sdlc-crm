@@ -60,8 +60,10 @@ export const api = {
   organizations: () => request<OrganizationRow[]>('GET', '/organizations'),
   organization: (id: number) => request<OrganizationDetail>('GET', `/organizations/${id}`),
   createOrganization: (body: OrganizationInput) => request<Organization>('POST', '/organizations', body),
-  updateOrganization: (id: number, body: Partial<OrganizationInput>) => request<Organization>('PATCH', `/organizations/${id}`, body),
-  organizationDeletePreview: (id: number) => request<OrganizationDeletePreview>('GET', `/organizations/${id}/delete-preview`),
+  updateOrganization: (id: number, body: Partial<OrganizationInput>) =>
+    request<Organization>('PATCH', `/organizations/${id}`, body),
+  organizationDeletePreview: (id: number) =>
+    request<OrganizationDeletePreview>('GET', `/organizations/${id}/delete-preview`),
   deleteOrganization: (id: number) => request<void>('DELETE', `/organizations/${id}`),
 
   contacts: () => request<Contact[]>('GET', '/contacts'),
@@ -70,7 +72,10 @@ export const api = {
   updateContact: (id: number, body: Partial<ContactInput>) => request<Contact>('PATCH', `/contacts/${id}`, body),
   contactDeletePreview: (id: number) => request<ContactDeletePreview>('GET', `/contacts/${id}/delete-preview`),
   organizationChangePreview: (id: number, organizationId: number | null) =>
-    request<{ deals: Ref[] }>('GET', `/contacts/${id}/organization-change-preview?organizationId=${organizationId ?? ''}`),
+    request<{ deals: Ref[] }>(
+      'GET',
+      `/contacts/${id}/organization-change-preview?organizationId=${organizationId ?? ''}`,
+    ),
   deleteContact: (id: number) => request<void>('DELETE', `/contacts/${id}`),
   contactTimeline: (id: number) => request<Activity[]>('GET', `/contacts/${id}/timeline`),
 

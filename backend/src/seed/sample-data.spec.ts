@@ -46,8 +46,12 @@ function checks(today: string) {
       expect(closed.some((d) => d.stage === 'lost')).toBe(true);
     }
     // Won this month is never empty, even on the 1st.
-    expect(data.deals.some((d) => d.stage === 'won' && monthKey(d.closeDate) === monthKey(today) && d.closeDate <= today)).toBe(true);
-    expect(data.deals.filter((d) => d.stage === 'won' || d.stage === 'lost').every((d) => d.closeDate <= today)).toBe(true);
+    expect(
+      data.deals.some((d) => d.stage === 'won' && monthKey(d.closeDate) === monthKey(today) && d.closeDate <= today),
+    ).toBe(true);
+    expect(data.deals.filter((d) => d.stage === 'won' || d.stage === 'lost').every((d) => d.closeDate <= today)).toBe(
+      true,
+    );
   });
 
   it('has 3 to 5 late deals, and the other open deals close within 4 months (S2)', () => {
@@ -93,7 +97,10 @@ function checks(today: string) {
 
   it('gives each column positions from 0 with no gaps', () => {
     for (const stage of STAGE_KEYS as Stage[]) {
-      const positions = data.deals.filter((d) => d.stage === stage).map((d) => d.position).sort((a, b) => a - b);
+      const positions = data.deals
+        .filter((d) => d.stage === stage)
+        .map((d) => d.position)
+        .sort((a, b) => a - b);
       expect(positions).toEqual(positions.map((_, i) => i));
     }
   });

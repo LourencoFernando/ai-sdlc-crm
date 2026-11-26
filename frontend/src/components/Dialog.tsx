@@ -1,4 +1,4 @@
-import { createContext, useContext, useEffect, useState, type ReactNode } from 'react';
+import { createContext, useContext, useEffect, useRef, useState, type ReactNode } from 'react';
 import { AlertDialog, Dialog as RDialog } from 'radix-ui';
 import { X } from 'lucide-react';
 
@@ -8,6 +8,9 @@ const CloseContext = createContext<() => void>(() => {});
 export function useRequestClose(): () => void {
   return useContext(CloseContext);
 }
+
+/** Put on the control that should get focus when the dialog opens, instead of the first focusable one. */
+export const AUTOFOCUS = { 'data-autofocus': true } as const;
 
 /**
  * A centered dialog. With `dirty`, closing by Cancel, Escape, the close button or the backdrop
@@ -29,6 +32,7 @@ export function Dialog({
   children: ReactNode;
 }) {
   const [confirming, setConfirming] = useState(false);
+  const contentRef = useRef<HTMLDivElement>(null);
   const requestClose = () => (dirty ? setConfirming(true) : onClose());
 
   useEffect(() => {
@@ -45,7 +49,12 @@ export function Dialog({
     <RDialog.Root open={open} onOpenChange={(o) => !o && requestClose()}>
       <RDialog.Portal>
         <RDialog.Overlay className="dialog-backdrop" />
-        <RDialog.Content className={`dialog ${size ?? ''}`} aria-describedby={undefined}>
+        <RDialog.Content
+          ref={contentRef}
+          className={`dialog ${size ?? ''}`}
+          aria-describedby={undefined}
+          onOpenAutoFocus={(e) => focusAutofocusControl(e, contentRef.current)}
+        >
           <div className="dialog-head">
             <RDialog.Title className="dialog-title">{title}</RDialog.Title>
             <button type="button" className="icon-btn" aria-label="Close" onClick={requestClose}>
@@ -78,4 +87,11 @@ export function Dialog({
       </AlertDialog.Root>
     </RDialog.Root>
   );
+}
+
+function focusAutofocusControl(event: Event, content: HTMLElement | null) {
+  const control = content?.querySelector<HTMLElement>('[data-autofocus]');
+  if (!control) return;
+  event.preventDefault();
+  control.focus();
 }

@@ -11,7 +11,12 @@ describe('GET /api/meta', () => {
   it('returns the six stages in order with their probabilities, and the industries', async () => {
     const res = await request(t.app.getHttpServer()).get('/api/meta').expect(200);
     expect(res.body.stages.map((s: { key: string }) => s.key)).toEqual([
-      'new', 'qualified', 'proposal', 'negotiation', 'won', 'lost',
+      'new',
+      'qualified',
+      'proposal',
+      'negotiation',
+      'won',
+      'lost',
     ]);
     expect(res.body.stages.map((s: { probability: number }) => s.probability)).toEqual([10, 25, 50, 75, 100, 0]);
     expect(res.body.industries).toContain('Software');

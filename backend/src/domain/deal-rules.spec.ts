@@ -4,17 +4,19 @@ const today = '2026-11-20';
 
 describe('a new deal (D2)', () => {
   it('takes its stage probability', () => {
-    expect(newDealState({ stage: 'proposal', closeDate: '2026-12-01' }, today)).toEqual({
-      stage: 'proposal', probability: 50, closeDate: '2026-12-01',
+    expect(newDealState({ stage: 'proposal', closeDate: '2026-12-01' })).toEqual({
+      stage: 'proposal',
+      probability: 50,
+      closeDate: '2026-12-01',
     });
   });
 
   it('keeps a probability set by hand', () => {
-    expect(newDealState({ stage: 'proposal', probability: 40, closeDate: '2026-12-01' }, today).probability).toBe(40);
+    expect(newDealState({ stage: 'proposal', probability: 40, closeDate: '2026-12-01' }).probability).toBe(40);
   });
 
   it('defaults to New', () => {
-    expect(newDealState({ closeDate: '2026-12-01' }, today).stage).toBe('new');
+    expect(newDealState({ closeDate: '2026-12-01' }).stage).toBe('new');
   });
 });
 
@@ -40,7 +42,9 @@ describe('changing a deal (D2, D3, D7)', () => {
   it('adds one stage-change entry dated today', () => {
     const r = applyDealChange(current, { stage: 'negotiation' }, today);
     expect(r.stageChange).toEqual({
-      fromStage: 'proposal', toStage: 'negotiation', occurredOn: today,
+      fromStage: 'proposal',
+      toStage: 'negotiation',
+      occurredOn: today,
       description: 'Moved from Proposal to Negotiation',
     });
   });
@@ -50,8 +54,16 @@ describe('changing a deal (D2, D3, D7)', () => {
   });
 
   it('sets the close date to today on Won or Lost', () => {
-    expect(applyDealChange(current, { stage: 'won' }, today).next).toEqual({ stage: 'won', probability: 100, closeDate: today });
-    expect(applyDealChange(current, { stage: 'lost' }, today).next).toEqual({ stage: 'lost', probability: 0, closeDate: today });
+    expect(applyDealChange(current, { stage: 'won' }, today).next).toEqual({
+      stage: 'won',
+      probability: 100,
+      closeDate: today,
+    });
+    expect(applyDealChange(current, { stage: 'lost' }, today).next).toEqual({
+      stage: 'lost',
+      probability: 0,
+      closeDate: today,
+    });
   });
 
   it('sets today even when the form sends back the old close date', () => {
@@ -59,7 +71,9 @@ describe('changing a deal (D2, D3, D7)', () => {
   });
 
   it('keeps a close date the user changed in the same save', () => {
-    expect(applyDealChange(current, { stage: 'won', closeDate: '2026-11-18' }, today).next.closeDate).toBe('2026-11-18');
+    expect(applyDealChange(current, { stage: 'won', closeDate: '2026-11-18' }, today).next.closeDate).toBe(
+      '2026-11-18',
+    );
   });
 
   it('keeps an edited close date after closing', () => {

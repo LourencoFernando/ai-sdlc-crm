@@ -103,7 +103,14 @@ describe('deal form', () => {
     await userEvent.click(screen.getByRole('button', { name: 'Add deal' }));
     await waitFor(() => expect(onClose).toHaveBeenCalled());
     const post = calls.find((c) => c.method === 'POST' && c.path === '/deals')!;
-    expect(post.body).toMatchObject({ name: 'Fleet telematics', organizationId: 1, contactId: null, stage: 'new', value: 45000, probability: 10 });
+    expect(post.body).toMatchObject({
+      name: 'Fleet telematics',
+      organizationId: 1,
+      contactId: null,
+      stage: 'new',
+      value: 45000,
+      probability: 10,
+    });
     expect((post.body as Deal & { today: string }).today).toMatch(/^\d{4}-\d{2}-\d{2}$/);
   });
 });
@@ -120,7 +127,10 @@ describe('contact form', () => {
   });
 
   it('shows the backend’s duplicate email message under the field', async () => {
-    saveAnswer = () => ({ status: 409, body: { detail: 'Already used by Dana Reyes', fields: { email: 'Already used by Dana Reyes' } } });
+    saveAnswer = () => ({
+      status: 409,
+      body: { detail: 'Already used by Dana Reyes', fields: { email: 'Already used by Dana Reyes' } },
+    });
     renderApp(<Open form="contact" onClose={vi.fn()} />);
     await screen.findByRole('dialog', { name: 'New contact' });
     await userEvent.type(screen.getByLabelText('First name'), 'Other');
@@ -188,7 +198,9 @@ describe('a failed save (G9)', () => {
     await screen.findByRole('dialog', { name: 'New organization' });
     await userEvent.type(screen.getByLabelText('Name'), 'Northgate Legal');
     await userEvent.click(screen.getByRole('button', { name: 'Add organization' }));
-    expect(await screen.findByRole('alert')).toHaveTextContent("Your changes weren't saved. Can't reach Accountable. Check that it's running.");
+    expect(await screen.findByRole('alert')).toHaveTextContent(
+      "Your changes weren't saved. Can't reach Accountable. Check that it's running.",
+    );
     expect(screen.getByLabelText('Name')).toHaveValue('Northgate Legal');
     expect(onClose).not.toHaveBeenCalled();
   });
@@ -196,9 +208,19 @@ describe('a failed save (G9)', () => {
 
 describe('logging an activity from the dashboard (A2)', () => {
   const deal = {
-    id: 5, name: 'Fleet telematics', organizationId: 1, organization: { id: 1, name: 'Acme' }, contactId: 10,
-    contact: { id: 10, name: 'Dana Reyes' }, stage: 'proposal', value: 45000, probability: 50, closeDate: '2026-12-01',
-    position: 0, createdAt: '2026-11-01T00:00:00Z', updatedAt: '2026-11-01T00:00:00Z',
+    id: 5,
+    name: 'Fleet telematics',
+    organizationId: 1,
+    organization: { id: 1, name: 'Acme' },
+    contactId: 10,
+    contact: { id: 10, name: 'Dana Reyes' },
+    stage: 'proposal',
+    value: 45000,
+    probability: 50,
+    closeDate: '2026-12-01',
+    position: 0,
+    createdAt: '2026-11-01T00:00:00Z',
+    updatedAt: '2026-11-01T00:00:00Z',
   };
 
   async function logOnDeal(untick: boolean) {

@@ -12,18 +12,50 @@ describe('dashboard (B1–B8)', () => {
     a = api(t);
     const org = await a.org();
     const c = await a.contact({ organizationId: org.id });
-    open = await a.deal(org.id, { name: 'Open proposal', stage: 'proposal', value: 40_000, closeDate: '2026-12-10', contactId: c.id });
+    open = await a.deal(org.id, {
+      name: 'Open proposal',
+      stage: 'proposal',
+      value: 40_000,
+      closeDate: '2026-12-10',
+      contactId: c.id,
+    });
     await a.deal(org.id, { name: 'Late one', stage: 'new', value: 10_000, closeDate: '2026-11-19' });
     await a.deal(org.id, { name: 'Won this month', stage: 'won', value: 30_000, closeDate: '2026-11-02' });
     await a.deal(org.id, { name: 'Won last month', stage: 'won', value: 12_000, closeDate: '2026-10-31' });
     await a.deal(org.id, { name: 'Won too long ago', stage: 'won', value: 50_000, closeDate: '2025-11-30' });
     await a.deal(org.id, { name: 'Lost in May', stage: 'lost', value: 8_000, closeDate: '2026-05-04' });
-    await a.activity({ contactId: c.id, description: 'Overdue older', followUpOn: '2026-11-01', occurredOn: '2026-10-25' });
-    await a.activity({ contactId: c.id, description: 'Overdue newer', followUpOn: '2026-11-18', occurredOn: '2026-10-26' });
-    await a.activity({ dealId: open.id, description: 'Due in a week', followUpOn: '2026-11-27', occurredOn: '2026-10-27' });
-    await a.activity({ contactId: c.id, description: 'Due tomorrow', followUpOn: '2026-11-21', occurredOn: '2026-10-28' });
+    await a.activity({
+      contactId: c.id,
+      description: 'Overdue older',
+      followUpOn: '2026-11-01',
+      occurredOn: '2026-10-25',
+    });
+    await a.activity({
+      contactId: c.id,
+      description: 'Overdue newer',
+      followUpOn: '2026-11-18',
+      occurredOn: '2026-10-26',
+    });
+    await a.activity({
+      dealId: open.id,
+      description: 'Due in a week',
+      followUpOn: '2026-11-27',
+      occurredOn: '2026-10-27',
+    });
+    await a.activity({
+      contactId: c.id,
+      description: 'Due tomorrow',
+      followUpOn: '2026-11-21',
+      occurredOn: '2026-10-28',
+    });
     await a.activity({ contactId: c.id, description: 'Not yet', followUpOn: '2026-11-28', occurredOn: '2026-10-29' });
-    await a.activity({ contactId: c.id, description: 'Done already', followUpOn: '2026-11-02', done: true, occurredOn: '2026-10-30' });
+    await a.activity({
+      contactId: c.id,
+      description: 'Done already',
+      followUpOn: '2026-11-02',
+      done: true,
+      occurredOn: '2026-10-30',
+    });
   });
   afterAll(() => t.close());
 
@@ -45,7 +77,12 @@ describe('dashboard (B1–B8)', () => {
     const d = await get();
     expect(d.months).toHaveLength(12);
     expect(d.months[0].month).toBe('2025-12');
-    expect(d.months.find((m: { month: string }) => m.month === '2026-05')).toEqual({ month: '2026-05', revenueWon: 0, won: 0, lost: 1 });
+    expect(d.months.find((m: { month: string }) => m.month === '2026-05')).toEqual({
+      month: '2026-05',
+      revenueWon: 0,
+      won: 0,
+      lost: 1,
+    });
     expect(d.months[11]).toEqual({ month: '2026-11', revenueWon: 30_000, won: 1, lost: 0 });
     expect(d.yearTotals).toEqual({ revenueWon: 42_000, won: 2 });
   });
@@ -55,15 +92,28 @@ describe('dashboard (B1–B8)', () => {
     const won = 30_000 + 12_000 + 50_000;
     expect(d.funnel[0]).toEqual({ stage: 'new', value: 50_000 + won, count: 5, keptShare: null });
     expect(d.funnel[2]).toEqual({ stage: 'proposal', value: 40_000 + won, count: 4, keptShare: 100 });
-    expect(d.funnel[3]).toMatchObject({ stage: 'negotiation', value: won, keptShare: Math.round((won / (40_000 + won)) * 100) });
+    expect(d.funnel[3]).toMatchObject({
+      stage: 'negotiation',
+      value: won,
+      keptShare: Math.round((won / (40_000 + won)) * 100),
+    });
     expect(d.pipelineByStage.map((s: { share: number }) => s.share)).toEqual([20, 0, 80, 0]);
   });
 
   it('lists follow-ups overdue oldest first and due soon soonest first, 7 days ahead included (B6)', async () => {
     const d = await get();
-    expect(d.followUps.overdue.map((f: { description: string }) => f.description)).toEqual(['Overdue older', 'Overdue newer']);
-    expect(d.followUps.dueSoon.map((f: { description: string }) => f.description)).toEqual(['Due tomorrow', 'Due in a week']);
-    expect(d.followUps.dueSoon[1]).toMatchObject({ deal: { id: open.id, name: 'Open proposal' }, contact: { name: 'Dana Reyes' } });
+    expect(d.followUps.overdue.map((f: { description: string }) => f.description)).toEqual([
+      'Overdue older',
+      'Overdue newer',
+    ]);
+    expect(d.followUps.dueSoon.map((f: { description: string }) => f.description)).toEqual([
+      'Due tomorrow',
+      'Due in a week',
+    ]);
+    expect(d.followUps.dueSoon[1]).toMatchObject({
+      deal: { id: open.id, name: 'Open proposal' },
+      contact: { name: 'Dana Reyes' },
+    });
   });
 
   it('gives the 10 newest activities (B7)', async () => {

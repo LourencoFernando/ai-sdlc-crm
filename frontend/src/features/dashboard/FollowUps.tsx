@@ -19,10 +19,22 @@ export function FollowUps({ data }: { data: Dashboard }) {
         </h2>
       </div>
       <div className="segmented" role="tablist" aria-label="Follow-ups">
-        <button type="button" role="tab" className="segment" aria-selected={tab === 'overdue'} onClick={() => setTab('overdue')}>
+        <button
+          type="button"
+          role="tab"
+          className="segment"
+          aria-selected={tab === 'overdue'}
+          onClick={() => setTab('overdue')}
+        >
           Overdue · {overdue.length}
         </button>
-        <button type="button" role="tab" className="segment" aria-selected={tab === 'dueSoon'} onClick={() => setTab('dueSoon')}>
+        <button
+          type="button"
+          role="tab"
+          className="segment"
+          aria-selected={tab === 'dueSoon'}
+          onClick={() => setTab('dueSoon')}
+        >
           Due soon · {dueSoon.length}
         </button>
       </div>
@@ -41,7 +53,9 @@ export function FollowUps({ data }: { data: Dashboard }) {
 }
 
 function FollowUpCard({ activity, today }: { activity: Activity; today: string }) {
-  const link = activity.deal ? { to: `/deals/${activity.deal.id}`, name: activity.deal.name } : activity.contact && { to: `/contacts/${activity.contact.id}`, name: activity.contact.name };
+  const link = activity.deal
+    ? { to: `/deals/${activity.deal.id}`, name: activity.deal.name }
+    : activity.contact && { to: `/contacts/${activity.contact.id}`, name: activity.contact.name };
   return (
     <li className="follow-up-card">
       <FollowUpCheckbox activity={activity} />

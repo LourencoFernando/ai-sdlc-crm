@@ -47,7 +47,11 @@ export function DealPage() {
               <Link to={`/organizations/${deal.organization.id}`}>{deal.organization.name}</Link>
             </Fact>
             <Fact label="Main contact">
-              {deal.contact ? <Link to={`/contacts/${deal.contact.id}`}>{deal.contact.name}</Link> : <span className="muted">No main contact</span>}
+              {deal.contact ? (
+                <Link to={`/contacts/${deal.contact.id}`}>{deal.contact.name}</Link>
+              ) : (
+                <span className="muted">No main contact</span>
+              )}
             </Fact>
             <Fact label="Value">
               <Money value={deal.value} />
@@ -105,7 +109,9 @@ export function DealPage() {
             <Button
               size="sm"
               variant="primary"
-              onClick={() => forms.openActivity({ target: { deal: { id: deal.id, name: deal.name, contact: deal.contact } } })}
+              onClick={() =>
+                forms.openActivity({ target: { deal: { id: deal.id, name: deal.name, contact: deal.contact } } })
+              }
             >
               <Plus aria-hidden="true" /> Log activity
             </Button>

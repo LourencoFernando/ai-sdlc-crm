@@ -38,7 +38,9 @@ export function Timeline({ activities, today, on }: { activities: Activity[]; to
             <div className="timeline-body">
               <p className="timeline-text">{a.description}</p>
               <p className="timeline-meta">
-                <time dateTime={a.occurredOn}>{relativeDay(a.occurredOn, today) ?? formatDate(a.occurredOn, today)}</time>
+                <time dateTime={a.occurredOn}>
+                  {relativeDay(a.occurredOn, today) ?? formatDate(a.occurredOn, today)}
+                </time>
                 {other && (
                   <>
                     <span aria-hidden="true">·</span>
@@ -48,8 +50,8 @@ export function Timeline({ activities, today, on }: { activities: Activity[]; to
               </p>
               {a.followUpOn && (
                 <div className="timeline-follow">
-                  <label className="checkbox-row small">
-                    <FollowUpCheckbox activity={a} />
+                  <label className="checkbox-row small" htmlFor={`follow-up-${a.id}`}>
+                    <FollowUpCheckbox activity={a} id={`follow-up-${a.id}`} />
                     Follow-up
                   </label>
                   <FollowUpPill activity={a} today={today} />

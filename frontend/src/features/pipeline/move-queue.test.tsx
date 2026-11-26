@@ -10,8 +10,19 @@ import { useMoveQueue, type Move } from './move-queue';
 
 function deal(id: number, stage: Deal['stage'], position: number): Deal {
   return {
-    id, name: `Deal ${id}`, organizationId: 1, organization: { id: 1, name: 'Acme' }, contactId: null, contact: null,
-    stage, value: 1000, probability: 10, closeDate: '2026-12-01', position, createdAt: '', updatedAt: '',
+    id,
+    name: `Deal ${id}`,
+    organizationId: 1,
+    organization: { id: 1, name: 'Acme' },
+    contactId: null,
+    contact: null,
+    stage,
+    value: 1000,
+    probability: 10,
+    closeDate: '2026-12-01',
+    position,
+    createdAt: '',
+    updatedAt: '',
   };
 }
 
@@ -56,7 +67,13 @@ function setup(initial: Deal[]) {
   return { client, enqueue: result.current };
 }
 
-const move = (id: number, stage: Deal['stage'], index: number): Move => ({ id, name: `Deal ${id}`, stage, index, today: '2026-11-20' });
+const move = (id: number, stage: Deal['stage'], index: number): Move => ({
+  id,
+  name: `Deal ${id}`,
+  stage,
+  index,
+  today: '2026-11-20',
+});
 const cached = (client: ReturnType<typeof createQueryClient>) => client.getQueryData<Deal[]>(keys.deals)!;
 
 afterEach(() => vi.unstubAllGlobals());

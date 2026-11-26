@@ -19,9 +19,7 @@ export function repoRoot(): string {
  */
 export function databasePath(): string {
   const configured = process.env.ACCOUNTABLE_DB;
-  const file = configured
-    ? path.resolve(repoRoot(), configured)
-    : path.join(repoRoot(), 'data', 'accountable.db');
+  const file = configured ? path.resolve(repoRoot(), configured) : path.join(repoRoot(), 'data', 'accountable.db');
   fs.mkdirSync(path.dirname(file), { recursive: true });
   return file;
 }

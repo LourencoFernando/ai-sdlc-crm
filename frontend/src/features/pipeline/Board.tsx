@@ -1,4 +1,4 @@
-import { useCallback, useMemo, useRef, useState } from 'react';
+import { useCallback, useLayoutEffect, useMemo, useRef, useState } from 'react';
 import {
   DndContext,
   DragOverlay,
@@ -7,18 +7,35 @@ import {
   PointerSensor,
   useSensor,
   useSensors,
+  type Announcements,
+  type CollisionDetection,
   type DragEndEvent,
   type DragOverEvent,
   type DragStartEvent,
+  type KeyboardCoordinateGetter,
   type UniqueIdentifier,
 } from '@dnd-kit/core';
 import { arrayMove } from '@dnd-kit/sortable';
 import type { Deal } from '../../api/types';
-import { buildBoard, columnTotals, fullIndexFromVisible, matchesCard, moveCard, visibleCards } from '../../lib/pipeline';
+import {
+  buildBoard,
+  columnTotals,
+  fullIndexFromVisible,
+  matchesCard,
+  moveCard,
+  visibleCards,
+} from '../../lib/pipeline';
 import { STAGES, type Stage } from '../../lib/stages';
 import { Column } from './Column';
 import { DealCardView } from './DealCard';
-import { createDropDetection, createKeyboardCoordinates, insertIndex, isColumn, isHeader, stageOfDroppable } from './drop-detection';
+import {
+  createDropDetection,
+  createKeyboardCoordinates,
+  insertIndex,
+  isColumn,
+  isHeader,
+  stageOfDroppable,
+} from './drop-detection';
 import { createAnnouncements, screenReaderInstructions } from './announcements';
 import type { Move } from './move-queue';
 import { noteDragEnd, noteDragStart } from './drag-click';
@@ -66,7 +83,9 @@ export function Board({
     [dragItems, visible],
   );
   const itemsRef = useRef(items);
-  itemsRef.current = items;
+  useLayoutEffect(() => {
+    itemsRef.current = items;
+  }, [items]);
   const where = useRef<{ stage: Stage; position: number; of: number } | null>(null);
 
   const containerOf = useCallback((id: UniqueIdentifier, from: Items = itemsRef.current): Stage | null => {
@@ -75,7 +94,11 @@ export function Board({
     return STAGES.find((s) => from[s].includes(Number(id))) ?? null;
   }, []);
 
-  const keyboardCoordinates = useMemo(() => createKeyboardCoordinates(() => itemsRef.current), []);
+  // dnd-kit calls these during a drag, so they read the latest items and drop place from refs then.
+  const keyboardCoordinates = useCallback<KeyboardCoordinateGetter>(
+    (event, args) => createKeyboardCoordinates(() => itemsRef.current)(event, args),
+    [],
+  );
   const sensors = useSensors(
     useSensor(PointerSensor, { activationConstraint: { distance: 6 } }),
     useSensor(KeyboardSensor, {
@@ -83,18 +106,25 @@ export function Board({
       keyboardCodes: { start: ['Space'], cancel: ['Escape'], end: ['Space'] },
     }),
   );
-  const detection = useMemo(() => createDropDetection(() => itemsRef.current), []);
-  const announcements = useMemo(
-    () =>
-      createAnnouncements(
+  const detection = useCallback<CollisionDetection>((args) => createDropDetection(() => itemsRef.current)(args), []);
+  const announcements = useMemo<Announcements>(() => {
+    // Made on first use, so it keeps its last announced place for the rest of the drag.
+    let made: Announcements | null = null;
+    const announcer = () =>
+      (made ??= createAnnouncements(
         (id) => {
           const d = byId.get(id);
           return d && { name: d.name, stage: d.stage };
         },
         () => where.current,
-      ),
-    [byId],
-  );
+      ));
+    return {
+      onDragStart: (event) => announcer().onDragStart(event),
+      onDragOver: (event) => announcer().onDragOver(event),
+      onDragEnd: (event) => announcer().onDragEnd(event),
+      onDragCancel: (event) => announcer().onDragCancel(event),
+    };
+  }, [byId]);
 
   function noteWhere(list: Items, id: number) {
     const stage = containerOf(id, list);

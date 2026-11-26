@@ -62,7 +62,12 @@ async function targetPoint(page: Page, target: Target, id: number) {
 }
 
 /** Drags a card with real mouse steps: press, move past 6px, travel, settle, release. */
-export async function dragCard(page: Page, id: number, target: Target, options: { release?: boolean } = {}): Promise<void> {
+export async function dragCard(
+  page: Page,
+  id: number,
+  target: Target,
+  options: { release?: boolean } = {},
+): Promise<void> {
   const from = await center(card(page, id));
   await page.mouse.move(from.x, from.y);
   await page.mouse.down();

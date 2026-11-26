@@ -42,7 +42,12 @@ export function formatMonth(month: string): string {
 
 export function formatLongDate(date: CalendarDate): string {
   const [y, m, d] = date.split('-').map(Number);
-  return new Date(y, m - 1, d).toLocaleDateString('en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
+  return new Date(y, m - 1, d).toLocaleDateString('en-US', {
+    weekday: 'long',
+    year: 'numeric',
+    month: 'long',
+    day: 'numeric',
+  });
 }
 
 /** "Today", "Tomorrow", "Yesterday", or null when a plain date reads better. */

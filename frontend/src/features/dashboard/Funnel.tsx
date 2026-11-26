@@ -59,7 +59,10 @@ export function Funnel({ data }: { data: Dashboard }) {
           ))}
         </ol>
       </div>
-      <p className="panel-note">Each step counts the deals at that stage or beyond. The percentage is the value kept from the step before. Lost is left out.</p>
+      <p className="panel-note">
+        Each step counts the deals at that stage or beyond. The percentage is the value kept from the step before. Lost
+        is left out.
+      </p>
     </section>
   );
 }

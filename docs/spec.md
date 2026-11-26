@@ -1,29 +1,25 @@
-# Spec: the Accountable MVP
+# Spec: Accountable
 
-This spec turns `docs/intent.md` into requirements and a design. The stack is in `docs/TECH_STACK.md`, and the look follows the brand skill (`.claude/skills/brand/`). Where this spec and the intent disagree, the intent wins, and the spec should be fixed.
+This spec describes Accountable as it stands today: what it does, the rules it follows and how it's built. It is the authority on how the product behaves. The stack is in `docs/TECH_STACK.md`, and the look follows the brand skill (`.claude/skills/brand/`).
 
-## Concerns
+Each change to the product has its own folder, `docs/changes/<branch name>/`, with an `intent.md` (why and what) and a `plan.md` (how). A change that alters what the product does updates this spec in the same branch, so the spec always matches the code.
 
-### Decided
+## Problem
 
-- **Scale.** The brand's design reference is now set for a data-heavy app: a 14px body, a 28px page title, 40px headline figures, 40px controls and 48px table rows. Display sizes and wide marketing gaps are gone.
-- **Red for problems.** The brand now has an Alert red `#c4314b`, with Alert Wash `#feecef` for pills, used only for late, overdue, errors and delete.
-- **Contrast.** The brand now has Violet Deep `#4b4bd6` for violet text and links, keeps Iron for placeholders and disabled icons only, and has chart colors that are all at least 3:1 on white. Every pair is listed in the reference's Contrast section.
-- **Offline font.** Poppins is bundled from npm (`@fontsource/poppins`), so nothing is loaded from the web.
-- **Reopening a won or lost deal.** It keeps its close date, and is late only if that date has passed. The user can edit it.
-- **A contact who changes organization while being a deal's main contact.** Saving asks first, says which deals will lose this contact as their main contact, and then unlinks them. The form gets the list from the organization-change preview, and the PATCH carries `confirmUnlink: true`. Without it, the backend refuses with 409 and the same list.
-- **Stage-change entries** are system entries. They can't be edited or deleted on their own, and they are deleted with their deal.
-- **The blocked organization delete** lists the deals that block it, each linking to the deal so the user can reassign or delete it.
-- **"Today" and dates.** Every date is a calendar date with no time zone, and "today" is the date on the computer running the browser. The frontend sends today's date with requests that depend on it (creating or saving a deal, moving a card, the dashboard figures), so the backend and the browser always agree.
-- **Sample data dates** are built relative to the day the seed runs, so "due soon" and "running late" never go stale.
-- **Tables search, sort and page in the browser.** Each list endpoint returns every row, which is fine for a few thousand. If the data grows past about 10,000 rows, move these to the server.
+A small business keeps track of its customers and sales in spreadsheets, inboxes and people's heads. Nobody can see at a glance which companies we deal with, who our contacts are, what's in the sales pipeline, what happened last with a customer or what needs doing next.
 
-- **Mockups.** The "pipeline first" design is the chosen one. Its mockups are in `docs/mockups/2-pipeline-first/` (dashboard, pipeline and contacts), and the Screens section below describes them. Where a mockup and this spec disagree, the spec wins.
-- **Navigation** is a collapsible sidebar, not a top bar. Content uses the full width beside it.
-- **Outlines.** Panels and cards have a 1px outline instead of a soft shadow, so their edges read clearly.
-- **Logo.** The logo is a flat Violet ring with the wordmark. There are no gradients anywhere.
+## The product
 
-There are no open concerns.
+Accountable is a business management system: a sales CRM that will grow into a full Business OS, including ERP. Today it is a complete sales CRM for one person, running on their own computer: a private Salesforce that does the everyday CRM essentials really well, and feels sharp, modern and professional.
+
+- **Users.** One salesperson, using Accountable on their own computer every day. The rest of the sales team joins later.
+- **Other systems.** None. Accountable runs locally and needs no internet connection.
+- **Sections.** Dashboard (the landing page), Organizations, Contacts, Deals and Pipeline.
+- **Records.** Organizations (the companies we do business with), contacts (the people we deal with, including leads and customers; a lead is a contact with the lead status), deals (potential sales) and activities (notes, calls and emails with a contact or deal, optionally with a follow-up).
+
+### Not in Accountable yet
+
+Sign-in, user accounts or several users; a record of who did what; access from beyond the computer it runs on; a dark mode or a layout for phones; AI features; email, calendar or phone integrations; currencies other than US dollars; reports beyond the dashboard; tags or custom fields; changing the pipeline stages; importing or exporting data.
 
 ## Requirements
 
@@ -32,7 +28,7 @@ Each requirement has an ID, so tests and reviews can refer to it.
 ### General
 
 - **G1** `npm run dev` starts the backend and frontend together on Mac, Linux and Windows. It prints the address to open, and the app opens on the Dashboard.
-- **G2** The app needs no internet connection: no fonts, scripts or data come from outside.
+- **G2** The app needs no internet connection: no fonts, scripts or data come from outside. Poppins is bundled from npm (`@fontsource/poppins`).
 - **G3** Every change is saved to the SQLite database as soon as it's made, and survives a browser refresh and an app restart.
 - **G4** `npm run seed` replaces all data with fresh sample data. The app fills a new, empty database with sample data by itself.
 - **G5** `npm test` runs the frontend, backend and end-to-end tests against a database of their own and fails if any test fails.
@@ -40,6 +36,7 @@ Each requirement has an ID, so tests and reviews can refer to it.
 - **G7** Money is in US dollars and always shown with its currency (see [Formatting](#formatting)).
 - **G8** There are no errors in the browser's console during normal use.
 - **G9** If the frontend can't reach the backend, the page says "Can't reach Accountable. Check that it's running." with a Retry button, instead of showing empty or broken screens. A failed save keeps what the user typed and says the change wasn't saved.
+- **G10** Every date is a calendar date with no time zone, and "today" is the date on the computer running the browser. The frontend sends today's date with requests that depend on it (creating or saving a deal, moving a card, the dashboard figures), so the backend and the browser always agree.
 
 ### Tables (Organizations, Contacts, Deals)
 
@@ -58,16 +55,17 @@ Each requirement has an ID, so tests and reviews can refer to it.
 
 ### Contacts
 
-- **C1** Fields: first name and last name (required), email (optional, but valid and unique when given), phone, job title, organization (optional, searchable select), status (Lead, Qualified or Customer; new contacts default to Lead).
+- **C1** Fields: first name and last name (required), email (optional, but valid and unique when given), phone, job title, organization (optional, searchable select), status (Lead, Qualified or Customer; new contacts default to Lead). The status changes only when someone edits it: winning a deal doesn't make its contact a customer.
 - **C2** Table columns: Name, Organization, Job title, Email, Phone, Status. Search covers name, email, organization and job title.
 - **C3** A status filter above the table: All, Leads, Qualified, Customers, each with its count. It works together with search.
 - **C4** Contact page: the details, a link to the organization, the deals where this contact is the main contact, and the timeline.
+- **C5** Moving a contact to another organization (or to none) while it's the main contact of deals asks first, says which deals will lose this contact as their main contact, and then unlinks them. The form gets the list from the organization-change preview, and the PATCH carries `confirmUnlink: true`. Without it, the backend refuses with 409 and the same list.
 
 ### Deals
 
 - **D1** Fields: name (required), organization (required), main contact (optional; the list only offers contacts of the chosen organization, and clears if the organization changes), stage, value (USD, 0 or more, whole dollars), probability (0–100, whole percent), expected or actual close date (required).
-- **D2** A new deal takes its stage's usual probability. Changing the stage, on the form or on the board, sets the probability to the new stage's usual one. A probability edited by hand is kept until the stage next changes. When one save changes both the stage and the probability, the probability sent wins, because the form has already filled in the new stage's probability and the user may have changed it.
-- **D3** Moving to Won or Lost sets the close date to today. It can be edited afterwards.
+- **D2** Each stage has a usual probability of close: New 10%, Qualified 25%, Proposal 50%, Negotiation 75%, Won 100% and Lost 0%. A new deal takes its stage's usual probability. Changing the stage, on the form or on the board, sets the probability to the new stage's usual one. A probability edited by hand is kept until the stage next changes. When one save changes both the stage and the probability, the probability sent wins, because the form has already filled in the new stage's probability and the user may have changed it.
+- **D3** Moving to Won or Lost sets the close date to today. It can be edited afterwards. Won and Lost deals are no longer open. A won or lost deal that is reopened keeps its close date, which the user can edit.
 - **D4** A deal is **late** when it's open (not Won or Lost) and its close date is before today. A late deal shows a red "Late" pill in the table and on its pipeline card, and its close date is in Alert red.
 - **D5** Table columns: Name, Organization, Main contact, Stage, Value, Probability, Expected revenue (value × probability), Close date. Search covers name, organization and contact.
 - **D6** Deal page: the details, links to the organization and main contact, and the timeline.
@@ -103,10 +101,11 @@ Drag and drop is the heart of the board, so it's specified in detail.
 - **A4** Activities can be edited and deleted from the timeline. Deleting asks first.
 - **A5** A follow-up is **due soon** when its date is from today to 7 days ahead, and **overdue** when its date is before today, until it's marked done. A done follow-up shows as done and leaves the dashboard.
 - **A6** A follow-up can be marked done with a checkbox on the dashboard or on the timeline, and the mark can be undone from the timeline.
+- **A7** Stage-change entries are system entries. They can't be edited or deleted on their own, and they are deleted with their deal.
 
 ### Deleting
 
-- **X1** An organization with deals can't be deleted. The dialog says so, lists the deals with links, and only offers Close.
+- **X1** An organization with deals can't be deleted. The dialog says so, lists the deals with links so the user can reassign or delete them, and only offers Close.
 - **X2** Deleting an organization with no deals unlinks its contacts. The dialog says "Its 4 contacts will be kept without an organization."
 - **X3** Deleting a contact deletes its activities and unlinks it from the deals where it's the main contact. The dialog gives both counts.
 - **X4** Deleting a deal deletes its activities and stage-change entries. The dialog gives the count.
@@ -134,7 +133,7 @@ Drag and drop is the heart of the board, so it's specified in detail.
 - **S1** About 25 organizations across at least 8 industries, 80 contacts (about half leads, a quarter qualified, a quarter customers, a few without an organization), 60 deals and 200 activities.
 - **S2** Deals at every stage: won and lost spread over the last 12 months, so every month on the charts has data; open deals closing over the next 4 months; and 3 to 5 open deals running late.
 - **S3** Activities spread over the past year, with about 8 follow-ups due soon, 5 overdue and some done. Each deal that isn't New has stage-change entries that match its stage.
-- **S4** Names, companies, values and descriptions read as realistic B2B sales. Every date is relative to the day the seed runs (see Concerns).
+- **S4** Names, companies, values and descriptions read as realistic B2B sales. Every date is relative to the day the seed runs, so "due soon" and "running late" never go stale.
 
 ## Design: system
 
@@ -147,6 +146,7 @@ browser ── React app (Vite, frontend/) ──JSON over HTTP──▶ NestJS 
 - In development, Vite serves the frontend and proxies `/api` to NestJS, so the browser sees one address.
 - The backend owns every rule: probabilities, close dates, stage-change entries, delete effects and validation. The frontend repeats a few of them only to update the screen straight away (P5) and to show form errors early.
 - The backend listens on 127.0.0.1 only. It answers only requests addressed to `localhost`, `127.0.0.1` or `[::1]` (403 otherwise), so a web page can't reach the data through DNS rebinding, and it accepts changes only as JSON (415 otherwise), so a web page on another site can't post a plain form to it.
+- Tables search, sort and page in the browser. Each list endpoint returns every row, which is fine for a few thousand. If the data grows past about 10,000 rows, these move to the server.
 - The database file is `data/accountable.db`, which git ignores. The tests set `ACCOUNTABLE_DB` to a temporary file. The schema lives in `backend/prisma/schema.prisma`, and `prisma migrate deploy` creates and updates the database before the backend starts.
 
 ### Libraries
@@ -215,16 +215,19 @@ Routes: `/` Dashboard, `/organizations` and `/organizations/:id`, `/contacts` an
 
 ## Design: look and feel
 
-The look follows the brand skill and its `DESIGN.md`. The brand's Avoid and Tone sections take priority over `DESIGN.md`.
+The look follows the brand skill and its `DESIGN.md`, which take priority over any general design guidance. The brand's Avoid and Tone sections take priority over `DESIGN.md`.
+
+The mockups are in `docs/mockups/2-pipeline-first/` (dashboard, pipeline and contacts), and the Screens section below describes them. Where a mockup and this spec disagree, the spec wins.
 
 ### Brand reference
 
 Colors, type, sizes, radii, shadows, components, chart styling and the stage and status colors all come from the brand reference, `.claude/skills/brand/DESIGN.md`. `frontend/src/styles/tokens.css` is a copy of its CSS custom properties, and components use the tokens, never raw values. In short:
 
-- **Surfaces:** a Cloud `#f5f6f8` canvas with white panels (24px radius) and white pipeline cards (16px radius), each with a 1px Border `#c3c7d6` outline on all sides.
-- **Type:** Poppins throughout; 14px body and table cells, 18px panel titles, 28px page titles, 40px weight 300 headline figures; tabular figures for numbers.
+- **Surfaces:** a Cloud `#f5f6f8` canvas with white panels (24px radius) and white pipeline cards (16px radius), each with a 1px Border `#c3c7d6` outline on all sides instead of a soft shadow.
+- **Type and sizes:** set for a data-heavy app. Poppins throughout; 14px body and table cells, 18px panel titles, 28px page titles, 40px weight 300 headline figures; tabular figures for numbers; 40px controls and 48px table rows.
 - **Actions:** violet pill buttons, 40px high, or 32px in toolbars, table rows and pipeline columns. Delete confirmations use the Alert pill.
-- **Meaning by color:** each stage and status has a pastel pill and a chart color, per the reference's stage and status table. Late and overdue use Alert.
+- **Meaning by color:** each stage and status has a pastel pill and a chart color, per the reference's stage and status table. Alert red `#c4314b`, with Alert Wash `#feecef` for pills, is used only for late, overdue, errors and delete.
+- **Contrast:** Violet Deep `#4b4bd6` for violet text and links; Iron only for placeholders and disabled icons; chart colors all at least 3:1 on white.
 - **Avoid:** no border on one edge of a panel (late deals get a pill, not a stripe), no edge line on the sidebar or across the top of the page, and no gradient fills anywhere. The logo is a solid Violet ring beside the wordmark in Ink.
 
 ### Layout
@@ -281,8 +284,8 @@ Colors, type, sizes, radii, shadows, components, chart styling and the stage and
 
 ## Testing
 
-- **Backend (Jest and Supertest):** each rule in the Rules section of the intent, the probability and close-date rules, positions after a move, delete effects and previews, validation, and the dashboard figures against a small known data set.
+- **Backend (Jest and Supertest):** the rules in this spec (links, probabilities, close dates, contact status, follow-ups, deleting, form checks), positions after a move, delete effects and previews, validation, and the dashboard figures against a small known data set.
 - **Frontend (Vitest):** formatting, date helpers (due soon, overdue, late), the optimistic totals on the board, and form validation.
-- **End to end (Playwright, installed Chrome):** the app starts on the dashboard with sample data; create, search, sort, edit and delete on each table; the contact status filter; collapsing the sidebar and finding it collapsed after a refresh; searching the board; drag and drop as listed in `docs/plan.md` (between and within columns, to an empty column, cancelling, with a search on, quick moves, a failed save, and refresh); a new deal from a column; logging an activity with a follow-up and marking it done from the dashboard; winning a deal and seeing the dashboard change; the blocked organization delete; and no console errors on any screen.
+- **End to end (Playwright, installed Chrome):** the app starts on the dashboard with sample data; create, search, sort, edit and delete on each table; the contact status filter; collapsing the sidebar and finding it collapsed after a refresh; searching the board; drag and drop (between and within columns, to an empty column, cancelling, with a search on, quick moves, a failed save, and refresh); a new deal from a column; logging an activity with a follow-up and marking it done from the dashboard; winning a deal and seeing the dashboard change; the blocked organization delete; and no console errors on any screen.
 - **Resetting between end-to-end tests:** when the backend runs with `ACCOUNTABLE_TEST=1`, it adds `POST /api/test/reset`, which reseeds the database. It doesn't exist otherwise.
-- **By eye (success criterion 8):** before it's called done, someone uses every section and action in a real browser and checks each screen against this design.
+- **By eye:** passing tests is necessary but not enough. Before a change that touches the screens is called done, someone uses the affected sections and actions in a real browser, the way a salesperson would, checks each screen against this design, and sees no errors in the console.

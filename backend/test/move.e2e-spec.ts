@@ -23,7 +23,10 @@ describe('moving deals (P4, P6, P13)', () => {
 
   const positionsOf = async (stage: string) => {
     const res = await a.http().get('/api/deals');
-    return res.body.filter((d: { stage: string }) => d.stage === stage).map((d: { position: number }) => d.position).sort((x: number, y: number) => x - y);
+    return res.body
+      .filter((d: { stage: string }) => d.stage === stage)
+      .map((d: { position: number }) => d.position)
+      .sort((x: number, y: number) => x - y);
   };
   const stageChanges = async () => {
     const all = await Promise.all([...n, ...q].map((id) => a.http().get(`/api/deals/${id}/timeline`)));
@@ -113,7 +116,11 @@ describe('moving deals (P4, P6, P13)', () => {
 
   it('refuses an unknown deal or stage and changes nothing', async () => {
     await a.http().post('/api/deals/9999/move').send({ stage: 'new', index: 0, today: TODAY }).expect(404);
-    const res = await a.http().post(`/api/deals/${n[0]}/move`).send({ stage: 'archived', index: 0, today: TODAY }).expect(422);
+    const res = await a
+      .http()
+      .post(`/api/deals/${n[0]}/move`)
+      .send({ stage: 'archived', index: 0, today: TODAY })
+      .expect(422);
     expect(res.body.fields.stage).toBeDefined();
     await a.http().post(`/api/deals/${n[0]}/move`).send({ stage: 'new', index: -1, today: TODAY }).expect(422);
     expect(await a.column('new')).toEqual(n);

@@ -74,12 +74,30 @@ export function ContactsPage() {
             <span className="empty-value">No organization</span>
           ),
       },
-      { id: 'jobTitle',
-        meta: { width: '17%' }, header: 'Job title', accessorFn: (c) => c.jobTitle?.toLowerCase(), sortUndefined: 'last', cell: ({ row }) => row.original.jobTitle ?? empty },
-      { id: 'email',
-        meta: { width: '18%' }, header: 'Email', accessorFn: (c) => c.email ?? undefined, sortUndefined: 'last', cell: ({ row }) => row.original.email ?? empty },
-      { id: 'phone',
-        meta: { width: '12%' }, header: 'Phone', accessorFn: (c) => c.phone ?? undefined, sortUndefined: 'last', cell: ({ row }) => <span className="num">{row.original.phone ?? empty}</span> },
+      {
+        id: 'jobTitle',
+        meta: { width: '17%' },
+        header: 'Job title',
+        accessorFn: (c) => c.jobTitle?.toLowerCase(),
+        sortUndefined: 'last',
+        cell: ({ row }) => row.original.jobTitle ?? empty,
+      },
+      {
+        id: 'email',
+        meta: { width: '18%' },
+        header: 'Email',
+        accessorFn: (c) => c.email ?? undefined,
+        sortUndefined: 'last',
+        cell: ({ row }) => row.original.email ?? empty,
+      },
+      {
+        id: 'phone',
+        meta: { width: '12%' },
+        header: 'Phone',
+        accessorFn: (c) => c.phone ?? undefined,
+        sortUndefined: 'last',
+        cell: ({ row }) => <span className="num">{row.original.phone ?? empty}</span>,
+      },
       {
         id: 'status',
         meta: { width: '10%' },
@@ -121,7 +139,13 @@ export function ContactsPage() {
         <SearchBox value={search} onChange={setSearch} placeholder="Search contacts" label="Search contacts" />
         <div className="toggles" role="group" aria-label="Filter by status">
           {FILTERS.map((f) => (
-            <button key={f.key} type="button" className="toggle" aria-pressed={status === f.key} onClick={() => setStatus(f.key)}>
+            <button
+              key={f.key}
+              type="button"
+              className="toggle"
+              aria-pressed={status === f.key}
+              onClick={() => setStatus(f.key)}
+            >
               {f.label} <span className="count num">{counts[f.key]}</span>
             </button>
           ))}

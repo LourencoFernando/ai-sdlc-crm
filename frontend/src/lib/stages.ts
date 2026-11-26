@@ -28,7 +28,11 @@ export function isOpenStage(stage: string): boolean {
 
 export const CONTACT_STATUSES = ['lead', 'qualified', 'customer'] as const;
 export type ContactStatus = (typeof CONTACT_STATUSES)[number];
-export const STATUS_LABEL: Record<ContactStatus, string> = { lead: 'Lead', qualified: 'Qualified', customer: 'Customer' };
+export const STATUS_LABEL: Record<ContactStatus, string> = {
+  lead: 'Lead',
+  qualified: 'Qualified',
+  customer: 'Customer',
+};
 
 export const ACTIVITY_KINDS = ['note', 'call', 'email'] as const;
 export type ActivityKind = (typeof ACTIVITY_KINDS)[number];
