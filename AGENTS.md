@@ -29,3 +29,4 @@ Write short, objective commit messages: a subject line of 72 characters or fewer
 - A lefthook pre-commit hook (`lefthook.yml`, installed by `npm install`) formats the staged files and adds the fixes to the commit, then runs ESLint on them, tsc and gitleaks over the staged changes. It skips the tests.
 - A Claude Code Stop hook (`.claude/hooks/check-on-stop.mjs`) runs `npm run check:quick` when you finish a turn and sends any failure back once. Fix it rather than stopping again.
 - A Claude Code PreToolUse hook (`.claude/hooks/protect-env.mjs`) blocks edits to any `.env` file. Ask the user to change it.
+- GitHub Actions (`.github/workflows/ci.yml`) runs one `check` job on every push: gitleaks over the history and working tree first, then `npm run check` with the runner's Google Chrome. A failed run uploads the Playwright report.
