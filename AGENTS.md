@@ -22,6 +22,10 @@ Run `npm run check` before you call a piece of work done, and fix anything that 
 - `npm run format`: fixes the formatting.
 - `npm test`: the backend (Jest and Supertest), frontend (Vitest) and end-to-end (Playwright, needs Google Chrome) tests. The backend and frontend suites fail below 80% coverage of statements, branches, functions or lines. It starts the app itself, so nothing else needs to be running.
 
+## Screenshots
+
+To capture a whole page, set the viewport to the page's full height and take a plain screenshot, once the sidebar's transition has ended. A `fullPage` capture draws the fixed sidebar only as tall as the window, so it stops partway down.
+
 ## Commits
 
 Write short, objective commit messages: a subject line of 72 characters or fewer saying what changed. Add a body of one or two lines only when the reason isn't clear from the diff.
