@@ -3,6 +3,16 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <script>
+      // Sets the saved mode before the first paint, so dark mode never flashes light (G11).
+      // Same key and values as src/app/theme-state.ts.
+      try {
+        document.documentElement.dataset.theme =
+          localStorage.getItem('accountable.theme') === 'dark' ? 'dark' : 'light';
+      } catch {
+        document.documentElement.dataset.theme = 'light';
+      }
+    </script>
     <link
       rel="icon"
       href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Ccircle cx='12' cy='12' r='9.5' fill='none' stroke='%236161ff' stroke-width='5'/%3E%3C/svg%3E"

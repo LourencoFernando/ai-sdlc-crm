@@ -180,6 +180,7 @@ textarea {
   gap: 2px;
 }
 .side-link,
+.side-mode,
 .side-toggle {
   height: 40px;
   display: flex;
@@ -197,6 +198,7 @@ textarea {
   text-align: left;
 }
 .side-link svg,
+.side-mode svg,
 .side-toggle svg,
 .side-new svg {
   width: 18px;
@@ -204,6 +206,7 @@ textarea {
   flex: none;
 }
 .side-link:hover,
+.side-mode:hover,
 .side-toggle:hover {
   text-decoration: none;
   background: var(--color-canvas);
@@ -212,8 +215,42 @@ textarea {
   color: var(--color-violet-text);
   background: var(--color-periwinkle-wash);
 }
-.side-toggle {
+.side-mode {
   margin-top: auto;
+}
+.side-mode .side-text:not(.switch) {
+  flex: 1;
+}
+.side-mode[aria-checked='true'] svg {
+  color: var(--color-violet-text);
+}
+/* The pill switch: a white knob on a faint track when off, slid onto a Violet track when on. */
+.switch {
+  display: block;
+  position: relative;
+  width: 30px;
+  height: 18px;
+  border-radius: 9px;
+  background: var(--color-text-faint);
+  flex: none;
+  transition: background 0.15s ease;
+}
+.switch::after {
+  content: '';
+  position: absolute;
+  top: 3px;
+  left: 3px;
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  background: var(--color-on-fill);
+  transition: transform 0.15s ease;
+}
+.side-mode[aria-checked='true'] .switch {
+  background: var(--color-violet);
+}
+.side-mode[aria-checked='true'] .switch::after {
+  transform: translateX(12px);
 }
 .side-toggle svg {
   transition: transform 0.2s ease;
@@ -234,6 +271,7 @@ textarea {
   width: 48px;
 }
 .app[data-sidebar='collapsed'] .side-link,
+.app[data-sidebar='collapsed'] .side-mode,
 .app[data-sidebar='collapsed'] .side-toggle {
   justify-content: center;
   padding: 0;

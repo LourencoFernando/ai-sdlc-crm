@@ -69,6 +69,8 @@ const LIGHT_PAIRS: [string, string, number][] = [
   ['alert', 'surface', 4.5],
   ['alert', 'alert-wash', 4.5],
   ['on-inverse', 'inverse', 4.5],
+  // The Dark mode switch: its white knob on the off track.
+  ['on-fill', 'text-faint', 3],
   ...CHARTS.map((c): [string, string, number] => [c, 'surface', 3]),
 ];
 
@@ -85,6 +87,7 @@ const DARK_PAIRS: [string, string, number][] = [
   ['on-fill', 'violet-hover', 4.5],
   ['on-fill', 'alert-fill', 4.5],
   ['on-inverse', 'inverse', 4.5],
+  ['on-fill', 'text-faint', 3],
   ['alert', 'surface', 4.5],
   ['alert', 'surface-raised', 4.5],
   ['alert', 'alert-wash', 4.5],
