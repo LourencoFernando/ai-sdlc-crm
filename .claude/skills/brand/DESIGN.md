@@ -196,7 +196,7 @@ The one typeface, used everywhere. A geometric sans with friendly rounded termin
 | lifted | `rgba(0, 0, 0, 0.15) 0px 5px 45px 0px` | `--shadow-lifted` | A pipeline card being dragged, a hovered card |
 | overlay | `rgba(0, 0, 0, 0.15) 0px 4px 40px 0px` | `--shadow-overlay` | Dialogs, menus, tooltips |
 
-In dark mode the same tokens are deeper, because a pale shadow disappears on a dark canvas: soft `rgba(0, 0, 0, 0.35) 0px 2px 48px 0px`, lifted `rgba(0, 0, 0, 0.55) 0px 5px 45px 0px`, overlay `rgba(0, 0, 0, 0.5) 0px 4px 40px 0px`. Floating things also sit on the raised surface, so they stand apart by color as well as shadow.
+In dark mode the same tokens are deeper, because a pale shadow disappears on a dark canvas: soft `rgba(0, 0, 0, 0.35) 0px 2px 48px 0px`, lifted `rgba(0, 0, 0, 0.55) 0px 5px 45px 0px`, overlay `rgba(0, 0, 0, 0.5) 0px 4px 40px 0px, #3b3e4f 0px 0px 0px 1px`. The overlay adds a 1px ring in the Border color, because a dialog or list on top of another raised surface would otherwise have no visible edge. Floating things also sit on the raised surface, so they stand apart by color as well as shadow.
 
 ### Layout
 
@@ -515,7 +515,7 @@ The system is **flat and outlined**: Surface panels and cards on a slightly dark
 
   --shadow-soft: rgba(0, 0, 0, 0.35) 0px 2px 48px 0px;
   --shadow-lifted: rgba(0, 0, 0, 0.55) 0px 5px 45px 0px;
-  --shadow-overlay: rgba(0, 0, 0, 0.5) 0px 4px 40px 0px;
+  --shadow-overlay: rgba(0, 0, 0, 0.5) 0px 4px 40px 0px, #3b3e4f 0px 0px 0px 1px;
 
   color-scheme: dark;
 }
