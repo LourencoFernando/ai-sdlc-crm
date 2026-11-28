@@ -242,7 +242,7 @@ In short:
 ### Layout
 
 - A surface sidebar, fixed on the left and 240px wide, holds the Accountable logo, a primary "New deal" button, then Dashboard, Organizations, Contacts, Deals and Pipeline, each with an icon. The current section is shown in Violet text with a Periwinkle Wash pill behind it. A "Collapse menu" button at the bottom shrinks it to 72px, showing icons only with tooltips; the choice is remembered per browser.
-- Just above "Collapse menu" sits the "Dark mode" switch: a row styled like the section links, with a Lucide moon icon, the words "Dark mode" and a small pill switch on the right (Faint text track when off; Violet track with a white knob when on, and the moon turns Violet text). It switches the whole app at once, without reloading the page or losing anything typed into an open form. When the sidebar is collapsed it shows only the moon, with a "Dark mode" tooltip, still violet when on.
+- Just above "Collapse menu" sits the "Dark mode" switch: a row styled like the section links, with a Lucide moon icon, the words "Dark mode" and a small pill switch on the right (Faint text track when off; Violet track with a white knob when on, and the moon turns Violet text). It switches the whole app at once, without reloading the page. When the sidebar is collapsed it shows only the moon, with a "Dark mode" tooltip, still violet when on.
 - Content fills the width beside the sidebar, with 32px side padding. Pipeline columns grow to fill the width and the board scrolls sideways if they don't fit.
 - Every page starts with its title on the left and its main action (a violet pill) on the right.
 
