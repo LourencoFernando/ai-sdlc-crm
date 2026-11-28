@@ -19,7 +19,7 @@ Accountable is a business management system: a sales CRM that will grow into a f
 
 ### Not in Accountable yet
 
-Sign-in, user accounts or several users; a record of who did what; access from beyond the computer it runs on; a dark mode or a layout for phones; AI features; email, calendar or phone integrations; currencies other than US dollars; reports beyond the dashboard; tags or custom fields; changing the pipeline stages; importing or exporting data.
+Sign-in, user accounts or several users; a record of who did what; access from beyond the computer it runs on; following the device's own dark mode setting; a layout for phones; AI features; email, calendar or phone integrations; currencies other than US dollars; reports beyond the dashboard; tags or custom fields; changing the pipeline stages; importing or exporting data.
 
 ## Requirements
 
@@ -32,11 +32,12 @@ Each requirement has an ID, so tests and reviews can refer to it.
 - **G3** Every change is saved to the SQLite database as soon as it's made, and survives a browser refresh and an app restart.
 - **G4** `npm run seed` replaces all data with fresh sample data. The app fills a new, empty database with sample data by itself.
 - **G5** `npm test` runs the frontend, backend and end-to-end tests against a database of their own and fails if any test fails.
-- **G6** There is no sign-in, dark mode or phone layout. The layout works from 1280px wide and still works at 1024px.
+- **G6** There is no sign-in or phone layout. The layout works from 1280px wide and still works at 1024px.
 - **G7** Money is in US dollars and always shown with its currency (see [Formatting](#formatting)).
 - **G8** There are no errors in the browser's console during normal use.
 - **G9** If the frontend can't reach the backend, the page says "Can't reach Accountable. Check that it's running." with a Retry button, instead of showing empty or broken screens. A failed save keeps what the user typed and says the change wasn't saved.
 - **G10** Every date is a calendar date with no time zone, and "today" is the date on the computer running the browser. The frontend sends today's date with requests that depend on it (creating or saving a deal, moving a card, the dashboard figures), so the backend and the browser always agree.
+- **G11** The app has a light mode and a dark mode, switched with the "Dark mode" switch in the sidebar (see [Layout](#layout)). Light mode is the default, whatever the device's own setting. The choice is remembered per browser, survives a refresh and an app restart, and is applied before the page first appears, so a page in dark mode never flashes light while it loads. Every section, dialog, menu, tooltip, message, chart and loading placeholder follows the mode (see [Dark mode](#dark-mode)).
 
 ### Tables (Organizations, Contacts, Deals)
 
@@ -146,6 +147,7 @@ browser ── React app (Vite, frontend/) ──JSON over HTTP──▶ NestJS 
 - In development, Vite serves the frontend and proxies `/api` to NestJS, so the browser sees one address.
 - The backend owns every rule: probabilities, close dates, stage-change entries, delete effects and validation. The frontend repeats a few of them only to update the screen straight away (P5) and to show form errors early.
 - The backend listens on 127.0.0.1 only. It answers only requests addressed to `localhost`, `127.0.0.1` or `[::1]` (403 otherwise), so a web page can't reach the data through DNS rebinding, and it accepts changes only as JSON (415 otherwise), so a web page on another site can't post a plain form to it.
+- The mode is a `data-theme` attribute on the `<html>` element (`light` or `dark`). A small inline script in `index.html` reads the saved choice from the browser's storage and sets it before the app's styles and scripts load; with nothing saved, or storage unavailable, the mode is light. The switch changes the attribute and saves the choice.
 - Tables search, sort and page in the browser. Each list endpoint returns every row, which is fine for a few thousand. If the data grows past about 10,000 rows, these move to the server.
 - The database file is `data/accountable.db`, which git ignores. The tests set `ACCOUNTABLE_DB` to a temporary file. The schema lives in `backend/prisma/schema.prisma`, and `prisma migrate deploy` creates and updates the database before the backend starts.
 
@@ -203,12 +205,12 @@ Everything is under `/api` and uses JSON. Field names in requests and responses 
 
 ```
 frontend/src/
-  app/          router, layout, navigation, query client
+  app/          router, layout, navigation, query client, the remembered sidebar and mode
   api/          one typed client function per endpoint
   features/     dashboard/, organizations/, contacts/, deals/, pipeline/, activities/
   components/   Button, Dialog, ConfirmDelete, DataTable, StatusPill, Money, DateText, EmptyState…
   lib/          formatting, dates (today, due soon, late), stage colors
-  styles/       tokens.css (the brand tokens), global.css
+  styles/       tokens.css (the brand tokens, light and dark), global.css
 ```
 
 Routes: `/` Dashboard, `/organizations` and `/organizations/:id`, `/contacts` and `/contacts/:id`, `/deals` and `/deals/:id`, `/pipeline`.
@@ -217,37 +219,45 @@ Routes: `/` Dashboard, `/organizations` and `/organizations/:id`, `/contacts` an
 
 The look follows the brand skill and its `DESIGN.md`, which take priority over any general design guidance. The brand's Avoid and Tone sections take priority over `DESIGN.md`.
 
-The mockups are in `docs/mockups/2-pipeline-first/` (dashboard, pipeline and contacts), and the Screens section below describes them. Where a mockup and this spec disagree, the spec wins.
+The mockups are in `docs/mockups/2-pipeline-first/` (dashboard, pipeline and contacts, light mode) and `docs/mockups/3-dark-mode/` (the same screens with the token names and the Dark mode switch, dark by default; `?theme=light` shows light mode), and the Screens section below describes them. Where a mockup and this spec disagree, the spec wins.
 
 ### Brand reference
 
-Colors, type, sizes, radii, shadows, components, chart styling and the stage and status colors all come from the brand reference, `.claude/skills/brand/DESIGN.md`. `frontend/src/styles/tokens.css` is a copy of its CSS custom properties, and components use the tokens, never raw values. In short:
+Colors, type, sizes, radii, shadows, components, chart styling and the stage and status colors all come from the brand reference, `.claude/skills/brand/DESIGN.md`, for both modes. `frontend/src/styles/tokens.css` is a copy of its CSS custom properties: the light values on `:root` and the dark values on `:root[data-theme="dark"]`, which redefines the same tokens and nothing else.
 
-- **Surfaces:** a Cloud `#f5f6f8` canvas with white panels (24px radius) and white pipeline cards (16px radius), each with a 1px Border `#c3c7d6` outline on all sides instead of a soft shadow.
+Components use the tokens, never raw values. No color, including a see-through one such as the dialog backdrop or a hover darkening, is written anywhere else, and no component chooses a color by mode, so switching the mode only switches which values the tokens hold. There are two kinds of color token:
+
+- **Role tokens**, named for what they do, so the name stays true in both modes: `--color-text`, `--color-text-muted`, `--color-text-faint`, `--color-canvas`, `--color-surface`, `--color-surface-raised`, `--color-surface-hover`, `--color-border` and its variants, `--color-divider`, `--color-violet-text`, `--color-on-fill`, `--color-inverse`, `--color-backdrop` and others in the reference.
+- **Hue tokens**, named for their hue, with a value for each mode: the pastels (`--color-mint`, `--color-sky`, `--color-lavender`…), the chart colors (`--color-ocean`, `--color-forest`…), Violet and Alert.
+
+In short:
+
+- **Surfaces:** a canvas (light `#f5f6f8`, dark `#14151b`) with surface panels (24px radius) and pipeline cards (16px radius), each with a 1px Border outline on all sides instead of a soft shadow. Dialogs, menus and chart tooltips sit on the raised surface.
 - **Type and sizes:** set for a data-heavy app. Poppins throughout; 14px body and table cells, 18px panel titles, 28px page titles, 40px weight 300 headline figures; tabular figures for numbers; 40px controls and 48px table rows.
-- **Actions:** violet pill buttons, 40px high, or 32px in toolbars, table rows and pipeline columns. Delete confirmations use the Alert pill.
-- **Meaning by color:** each stage and status has a pastel pill and a chart color, per the reference's stage and status table. Alert red `#c4314b`, with Alert Wash `#feecef` for pills, is used only for late, overdue, errors and delete.
-- **Contrast:** Violet Deep `#4b4bd6` for violet text and links; Iron only for placeholders and disabled icons; chart colors all at least 3:1 on white.
-- **Avoid:** no border on one edge of a panel (late deals get a pill, not a stripe), no edge line on the sidebar or across the top of the page, and no gradient fills anywhere. The logo is a solid Violet ring beside the wordmark in Ink.
+- **Actions:** violet pill buttons, 40px high, or 32px in toolbars, table rows and pipeline columns, with white text in both modes. Delete confirmations use the Alert fill pill.
+- **Meaning by color:** each stage and status has a pastel pill and a chart color, per the reference's stage and status table. In dark mode each pastel is a deep tint of the same hue. Alert, with Alert Wash for pills, is used only for late, overdue, errors and delete.
+- **Contrast:** Violet text for violet text and links; faint text only for placeholders and disabled icons; chart colors all at least 3:1 on the surface.
+- **Avoid:** no border on one edge of a panel (late deals get a pill, not a stripe), no edge line on the sidebar or across the top of the page, and no gradient fills anywhere. The logo is a solid Violet ring beside the wordmark in the text color.
 
 ### Layout
 
-- A white sidebar, fixed on the left and 240px wide, holds the Accountable logo, a primary "New deal" button, then Dashboard, Organizations, Contacts, Deals and Pipeline, each with an icon. The current section is shown in Violet Deep with a Periwinkle Wash pill behind it. A "Collapse menu" button at the bottom shrinks it to 72px, showing icons only with tooltips; the choice is remembered per browser.
+- A surface sidebar, fixed on the left and 240px wide, holds the Accountable logo, a primary "New deal" button, then Dashboard, Organizations, Contacts, Deals and Pipeline, each with an icon. The current section is shown in Violet text with a Periwinkle Wash pill behind it. A "Collapse menu" button at the bottom shrinks it to 72px, showing icons only with tooltips; the choice is remembered per browser.
+- Just above "Collapse menu" sits the "Dark mode" switch: a row styled like the section links, with a Lucide moon icon, the words "Dark mode" and a small pill switch on the right (Border input track when off; Violet track with a white knob when on, and the moon turns Violet text). It switches the whole app at once, without reloading the page or losing anything typed into an open form. When the sidebar is collapsed it shows only the moon, with a "Dark mode" tooltip, still violet when on.
 - Content fills the width beside the sidebar, with 32px side padding. Pipeline columns grow to fill the width and the board scrolls sideways if they don't fit.
 - Every page starts with its title on the left and its main action (a violet pill) on the right.
 
 ### Screens
 
 **Dashboard** (mockup: `dashboard.html`). The page title, today's date and the overdue and late line (B1), with "Log activity" on the right.
-- First row: one wide panel. On the left, the four headline figures in a 2 × 2 grid, each with a small Slate label, the figure in weight 300 and a line below, such as "USD 4,600 more than October" in Forest, or in Alert when it's lower. On the right, Pipeline by stage (B5): blocks in each stage's pastel with a dot in its chart color, and a line saying Won and Lost are not counted.
-- Second row: a "Last 12 months" panel, two thirds wide, with Revenue won (line chart) above Deals won and lost (grouped bars, Forest and Slate). Beside it, the Follow-ups panel (B6) on a Lavender background with a Lavender-tinted outline, its tabs as a segmented control, and each follow-up on a white card.
+- First row: one wide panel. On the left, the four headline figures in a 2 × 2 grid, each with a small muted label, the figure in weight 300 and a line below, such as "USD 4,600 more than October" in Forest, or in Alert when it's lower. On the right, Pipeline by stage (B5): blocks in each stage's pastel with a dot in its chart color, and a line saying Won and Lost are not counted.
+- Second row: a "Last 12 months" panel, two thirds wide, with Revenue won (line chart) above Deals won and lost (grouped bars, Forest and muted text). Beside it, the Follow-ups panel (B6) on a Lavender background with a Lavender border outline, its tabs as a segmented control, and each follow-up on a surface card.
 - Third row, side by side: the Sales funnel as tapering steps in the stage chart colors, with stage names on the left and values on the right; and Recent activity, each entry with its pastel badge, description, link and date.
 - Charts follow the reference's Charts section.
 
 **Tables** (mockup: `contacts.html`). The page title with a short count below it ("80 contacts · 19 customers") and the "New …" button on the right.
-- Above the panel, the toolbar: the search box (pill, 320px wide, with a search icon and outline), then on Contacts the status filter as outlined pill toggles with counts; the selected one is Violet Deep on Periwinkle Wash.
-- One white outlined panel holds the table. Headings in Slate, label weight; the sorted one in Ink with a Violet Deep arrow. Rows 48px with a Shadow Dust line between them, Periwinkle on hover.
-- The first column shows the name in label weight, with a 32px initials avatar on Contacts. Linked records (such as the organization) are Violet Deep links that open that record. Empty values show "—" in Slate, and a contact with no organization shows "No organization".
+- Above the panel, the toolbar: the search box (pill, 320px wide, with a search icon and outline), then on Contacts the status filter as outlined pill toggles with counts; the selected one is Violet text on Periwinkle Wash.
+- One outlined surface panel holds the table. Headings in muted text, label weight; the sorted one in the text color with a Violet text arrow. Rows 48px with a divider line between them, the hover surface on hover.
+- The first column shows the name in label weight, with a 32px initials avatar on Contacts. Linked records (such as the organization) are Violet text links that open that record. Empty values show "—" in muted text, and a contact with no organization shows "No organization".
 - Status and stage show as pills. Row actions are icon buttons (pencil, bin) with tooltips, on every row, faint until the row is hovered.
 - The panel's footer shows "Showing 1–25 of 80" on the left, and "Rows per page" with the page buttons on the right.
 
@@ -256,17 +266,30 @@ Colors, type, sizes, radii, shadows, components, chart styling and the stage and
 **Timeline.** A vertical list with a type icon in a round pastel badge for each entry: note (Lavender), call (Mint), email (Sky), stage change (Periwinkle Wash, arrow icon). Follow-ups show their date and label beside a checkbox. Edit and Delete are in a small menu on each entry; stage changes have none.
 
 **Pipeline** (mockup: `pipeline.html`). Below the title, a toolbar with the search box (P8) on the left and the open totals on the right (P2).
-- Six columns on the Cloud canvas. The four open ones are at least 280px wide and grow to fill the width. Won and Lost are narrower (P9).
-- Each column starts with a header card in its stage's pastel (Lost is white with an outline) showing the stage name, count, total value and "Expected USD …". On open columns, a thin bar shows expected revenue as a share of the value, in the stage's chart color. Won says "All time" and Lost says "Not counted in totals".
-- Cards are white, 16px radius, outlined. Each shows the name, the organization, the value and probability, a thin probability bar in the stage's chart color, the close date with a calendar icon, and the contact's initials. A late card has a Late pill at the top right and its date in Alert.
+- Six columns on the canvas. The four open ones are at least 280px wide and grow to fill the width. Won and Lost are narrower (P9).
+- Each column starts with a header card in its stage's pastel (Lost is the surface color with an outline) showing the stage name, count, total value and "Expected USD …". On open columns, a thin bar shows expected revenue as a share of the value, in the stage's chart color. Won says "All time" and Lost says "Not counted in totals".
+- Cards are surface-colored, 16px radius, outlined. Each shows the name, the organization, the value and probability, a thin probability bar in the stage's chart color, the close date with a calendar icon, and the contact's initials. A late card has a Late pill at the top right and its date in Alert.
 - Open columns end with a dashed-outline "Add deal" button.
 - A card being dragged lifts with `--shadow-lifted` and a slight tilt, and the drop place shows as a dashed Violet outline.
 
-**Dialogs.** Forms and confirmations open in a centered white dialog with a 24px radius, `--shadow-overlay`, a dimmed backdrop, and Cancel (outlined pill) and the main action (filled pill) bottom right. A delete confirmation uses an Alert-colored "Delete" button and lists the effects as plain sentences.
+**Dialogs.** Forms and confirmations open in a centered dialog on the raised surface with a 24px radius, `--shadow-overlay`, a dimmed backdrop, and Cancel (outlined pill) and the main action (filled pill) bottom right. A delete confirmation uses an Alert fill "Delete" button and lists the effects as plain sentences.
 
 **Unsaved changes.** Closing a form that has changes, with Cancel, Escape, the close button or a click on the backdrop, asks "Discard your changes?" with "Keep editing" (outlined pill, focused) and "Discard" (Alert pill). A form with no changes closes straight away. Leaving the page or refreshing with a form open and changed shows the browser's own leave warning.
 
-**Feedback.** Saving shows a short message in the corner ("Deal saved"), with no exclamation marks. Form errors appear under their field in Alert red. Loading shows soft gray placeholders in the shape of the content.
+**Feedback.** Saving shows a short message in the corner ("Deal saved"), with no exclamation marks. Form errors appear under their field in Alert red. Saved messages and tooltips use the inverse colors. Loading shows soft placeholders in the divider color, in the shape of the content.
+
+### Dark mode
+
+The design above holds in both modes: dark mode keeps the same layout, sizes, type, radii, components and Avoid rules, and changes only the values the color tokens hold. The values and their checked contrast pairs are in the brand reference, and `docs/mockups/3-dark-mode/` shows them on the dashboard, pipeline and contacts. Light mode looks exactly as it did before dark mode was added, apart from the switch.
+
+- **Surfaces:** a near-black blue-gray canvas `#14151b`, with panels, cards and the sidebar one step lighter (`#1d1e27`) and dialogs, menus and chart tooltips a step lighter again (`#262834`). Each keeps its 1px outline (`#3b3e4f`) on all sides. The sidebar is told apart from the canvas by its color, with no edge line.
+- **Text:** near-white `#e7e8ef` for primary text and `#a4a8bb` for muted text. Neither mode uses pure black or pure white for text.
+- **Violet:** primary buttons stay filled Violet `#6161ff` with white text. Violet text, links, the current navigation item, avatar initials and the focus ring use a lighter violet, `#a9a9ff`.
+- **Meaning by color:** each pastel becomes a deep tint of its hue, with near-white text, so a Proposal pill, a Mint call badge or the Lavender follow-ups panel is still recognisable without glare. Alert text and marks become `#ff7088`, on a deep Alert Wash for pills; Delete buttons keep the `#c4314b` fill with white text.
+- **Charts:** the chart colors are brighter versions of the same hues (Ocean, Ultra Violet, Ember, Forest), all at least 3:1 on the dark surface. Gridlines, axis labels, points and tooltips use the same tokens as in light mode, so they follow the mode.
+- **Shadows and backdrop:** the shadow tokens are deeper, so dragged cards, menus, dialogs and toasts keep a visible lift, and the dialog backdrop is black at 60%.
+- **Browser controls:** the tokens set the page's color scheme, so scrollbars, checkboxes and other native controls follow the mode.
+- **Logo:** the ring stays solid Violet and the wordmark uses the text color.
 
 ### Formatting
 
@@ -277,8 +300,9 @@ Colors, type, sizes, radii, shadows, components, chart styling and the stage and
 
 ### Accessibility
 
-- Text meets 4.5:1 contrast and chart marks 3:1, using only the pairs in the reference's Contrast section.
-- Every control can be used with the keyboard, focus shows as a 2px Violet Deep ring, and the pipeline supports keyboard moves (P7).
+- In both modes, text meets 4.5:1 contrast and chart marks 3:1, using only the pairs in the reference's Contrast section for that mode.
+- The "Dark mode" control is a switch with that accessible name that reports whether it is on, and Space or Enter turns it on or off.
+- Every control can be used with the keyboard, focus shows as a 2px Violet text ring, and the pipeline supports keyboard moves (P7).
 - The collapsed sidebar keeps an accessible name and a tooltip on every icon, and its toggle reports whether it's expanded.
 - Status is never shown by color alone: pills carry words, and charts have labels.
 
@@ -286,6 +310,6 @@ Colors, type, sizes, radii, shadows, components, chart styling and the stage and
 
 - **Backend (Jest and Supertest):** the rules in this spec (links, probabilities, close dates, contact status, follow-ups, deleting, form checks), positions after a move, delete effects and previews, validation, and the dashboard figures against a small known data set.
 - **Frontend (Vitest):** formatting, date helpers (due soon, overdue, late), the optimistic totals on the board, and form validation.
-- **End to end (Playwright, installed Chrome):** the app starts on the dashboard with sample data; create, search, sort, edit and delete on each table; the contact status filter; collapsing the sidebar and finding it collapsed after a refresh; searching the board; drag and drop (between and within columns, to an empty column, cancelling, with a search on, quick moves, a failed save, and refresh); a new deal from a column; logging an activity with a follow-up and marking it done from the dashboard; winning a deal and seeing the dashboard change; the blocked organization delete; and no console errors on any screen.
+- **End to end (Playwright, installed Chrome):** the app starts on the dashboard with sample data; create, search, sort, edit and delete on each table; the contact status filter; collapsing the sidebar and finding it collapsed after a refresh; turning dark mode on and off, and finding it still on after a refresh; searching the board; drag and drop (between and within columns, to an empty column, cancelling, with a search on, quick moves, a failed save, and refresh); a new deal from a column; logging an activity with a follow-up and marking it done from the dashboard; winning a deal and seeing the dashboard change; the blocked organization delete; and no console errors on any screen.
 - **Resetting between end-to-end tests:** when the backend runs with `ACCOUNTABLE_TEST=1`, it adds `POST /api/test/reset`, which reseeds the database. It doesn't exist otherwise.
-- **By eye:** passing tests is necessary but not enough. Before a change that touches the screens is called done, someone uses the affected sections and actions in a real browser, the way a salesperson would, checks each screen against this design, and sees no errors in the console.
+- **By eye:** passing tests is necessary but not enough. Before a change that touches the screens is called done, someone uses the affected sections and actions in a real browser, the way a salesperson would, checks each screen against this design in both light and dark mode, and sees no errors in the console.

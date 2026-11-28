@@ -1,0 +1,108 @@
+<!doctype html>
+<html lang="en" data-theme="dark">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Dashboard · Dark mode</title>
+<link rel="icon" href="data:,">
+<link rel="stylesheet" href="base.css">
+<style>
+  .grid { display: grid; gap: var(--panel-gap); margin-bottom: var(--panel-gap); }
+  .hero { display: grid; grid-template-columns: minmax(320px, 1fr) minmax(0, 2fr); gap: 32px; }
+  .figs { display: grid; grid-template-columns: 1fr 1fr; gap: 24px 20px; align-content: start; }
+  .figs .figure { font-size: 30px; margin-top: 4px; }
+  .figs .sub { font-size: var(--text-caption); margin-top: 2px; }
+  .ribbon-head { display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 12px; }
+  .ribbon { display: flex; gap: 8px; height: 168px; }
+  .tile { border-radius: var(--radius-card); padding: 16px; display: flex; flex-direction: column; justify-content: space-between; min-width: 0; }
+  .tile .n { font-weight: 500; white-space: nowrap; }
+  .tile .v { white-space: nowrap; font-size: 22px; font-weight: 400; letter-spacing: -0.01em; }
+  .tile .e { font-size: var(--text-caption); }
+  .tile .dot { width: 8px; height: 8px; border-radius: 50%; display: inline-block; margin-right: 6px; vertical-align: 1px; }
+  .ribbon-foot { display: flex; gap: 8px; margin-top: 10px; font-size: var(--text-caption); color: var(--color-text-muted); }
+
+  .row-2-1 { grid-template-columns: 2fr 1fr; }
+  .row-1-1 { grid-template-columns: 1fr 1fr; }
+  .chart-label { display: flex; justify-content: space-between; align-items: center; margin: 4px 0 4px; }
+  .bordered .fu { background: var(--color-lavender); border-color: var(--color-lavender-border); }
+  .fu .item { background: var(--color-surface); border: 1px solid var(--color-lavender-border); border-radius: 14px; padding: 12px 14px; display: flex; gap: 10px; align-items: flex-start; }
+  .fu .list { display: grid; gap: 8px; }
+  .item-title { font-weight: 500; line-height: 1.4; font-size: var(--text-body-sm); }
+  .item-meta { color: var(--color-text-muted); font-size: var(--text-caption); margin-top: 2px; }
+  .seg { display: inline-flex; background: var(--color-inset-on-pastel); border-radius: var(--radius-button); padding: 3px; gap: 2px; margin-bottom: 14px; }
+  .seg span { padding: 4px 12px; border-radius: var(--radius-button); font-size: var(--text-body-sm); font-weight: 500; color: var(--color-text-muted); }
+  .seg .on { background: var(--color-surface); color: var(--color-text) }
+
+  .timeline { display: grid; }
+  .t-item { display: grid; grid-template-columns: 32px 1fr auto; gap: 12px; padding: 10px 0; align-items: start; }
+</style>
+</head>
+<body class="bordered">
+<div id="app"></div>
+<script src="mock.js"></script>
+<script>
+const pastel = { new: "var(--color-sky)", qualified: "var(--color-periwinkle-wash)", proposal: "var(--color-lavender)", negotiation: "var(--color-apricot-wash)", won: "var(--color-mint)" };
+const tiles = OPEN_KEYS.map((k) => { const s = STAGES.find((x) => x.key === k), t = stageTotals(k);
+  return `<div class="tile" style="flex:${t.value};background:${pastel[k]}"><div class="n"><span class="dot" style="background:${s.chart}"></span>${s.name}</div>
+  <div><div class="v num">${usdShort(t.value)}</div><div class="e num">${t.count} deals · expected ${usdShort(t.expected)}</div></div></div>`; }).join("");
+
+// Funnel as stacked tapering shapes
+const steps = funnelSteps(), fmax = steps[0].value, FW = 280, rowH = 40, gapY = 6;
+let fsvg = "";
+const LX = 100; // room for stage names on the left
+steps.forEach((s, i) => {
+  const w = (s.value / fmax) * FW, nw = i < steps.length - 1 ? (steps[i + 1].value / fmax) * FW : w * 0.92;
+  const y = i * (rowH + gapY), x1 = LX + (FW - w) / 2, x2 = LX + (FW - nw) / 2, c = STAGES.find((x) => x.key === s.key).chart;
+  fsvg += `<path d="M${x1},${y} H${x1 + w} L${x2 + nw},${y + rowH} H${x2} Z" style="fill:${c}"/>`;
+  fsvg += `<text x="0" y="${y + rowH / 2 + 5}" style="fill:var(--color-text);font-weight:500;font-size:13px">${s.name}</text>`;
+  fsvg += `<text x="${LX + FW + 16}" y="${y + rowH / 2 - 3}" style="fill:var(--color-text);font-weight:500;font-size:13px">${usdShort(s.value)}</text>`;
+  fsvg += `<text x="${LX + FW + 16}" y="${y + rowH / 2 + 13}" style="font-size:12px">${s.count} deals${i > 0 ? " · " + Math.round((s.value / steps[i - 1].value) * 100) + "%" : ""}</text>`;
+});
+const funnelSvg = `<svg viewBox="0 0 ${LX + FW + 110} ${steps.length * (rowH + gapY)}">${fsvg}</svg>`;
+
+const fuItem = (f, overdue) => `<div class="item"><span class="check" style="margin-top:2px"></span><div style="flex:1"><div class="item-title">${f[1]}</div><div class="item-meta" style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-top:6px"><span class="pill ${overdue ? "pill-overdue" : "pill-soon"}">${f[4]}</span><a href="#">${f[2]}</a></div></div></div>`;
+const recent = RECENT.slice(0, 6).map((r) => `<div class="t-item">${badge(r[0])}<div><div class="item-title" style="font-size:14px">${r[1]}</div><div class="item-meta"><a href="#">${r[2]}</a></div></div><div class="muted small">${r[3]}</div></div>`).join("");
+
+document.getElementById("app").innerHTML = `
+${sidebar("Dashboard")}
+<main class="page">
+  <div class="page-head"><div><h1 class="page-title">Dashboard</h1><div class="page-sub">Friday, November 20, 2026 · ${FOLLOW_UPS.overdue.length} follow-ups overdue and ${LATE_COUNT} deals running late</div></div>
+    <button class="btn btn-outline">${ICON.plus}Log activity</button></div>
+
+  <section class="panel hero" style="margin-bottom:24px">
+    <div class="figs">
+      <div><div class="label">Won this month</div><div class="figure">${usdFig(WON_REVENUE[11])}</div><div class="sub up">USD 4,600 more than October</div></div>
+      <div><div class="label">Deals won</div><div class="figure">${WON_COUNT[11]}</div><div class="sub muted">this month</div></div>
+      <div><div class="label">Open pipeline</div><div class="figure">${usdFig(OPEN.value)}</div><div class="sub muted">${OPEN.count} open deals</div></div>
+      <div><div class="label">Expected revenue</div><div class="figure">${usdFig(OPEN.expected)}</div><div class="sub muted">value × probability</div></div>
+    </div>
+    <div>
+      <div class="ribbon-head"><h2 class="panel-title">Open pipeline by stage</h2><a class="small" href="#">Open board</a></div>
+      <div class="ribbon">${tiles}</div>
+      <div class="ribbon-foot">Each block's width is its share of the open value. Won and Lost are not counted.</div>
+    </div>
+  </section>
+
+  <section class="grid row-2-1">
+    <div class="panel">
+      <div class="panel-head"><h2 class="panel-title">Last 12 months</h2><span class="panel-note">${usd(sum(WON_REVENUE))} won from ${sum(WON_COUNT)} deals</span></div>
+      <div class="chart-label"><span class="label">Revenue won</span></div>
+      <div class="chart">${lineChart({ values: WON_REVENUE, W: 720, H: 250 })}</div>
+      <div class="chart-label" style="margin-top:16px"><span class="label">Deals won and lost</span><div class="legend"><span><i style="background:var(--color-forest)"></i>Won</span><span><i style="background:var(--color-text-muted)"></i>Lost</span></div></div>
+      <div class="chart">${groupedBars({ series: [{ values: WON_COUNT, color: "var(--color-forest)" }, { values: LOST_COUNT, color: "var(--color-text-muted)" }], W: 720, H: 170, barW: 12, gap: 3 })}</div>
+    </div>
+    <div class="panel fu">
+      <div class="panel-head"><h2 class="panel-title">Follow-ups</h2></div>
+      <div class="seg"><span class="on">Overdue · ${FOLLOW_UPS.overdue.length}</span><span>Due soon · ${FOLLOW_UPS.soon.length}</span></div>
+      <div class="list">${FOLLOW_UPS.overdue.map((f) => fuItem(f, true)).join("")}</div>
+    </div>
+  </section>
+
+  <section class="grid row-1-1">
+    <div class="panel"><div class="panel-head"><h2 class="panel-title">Sales funnel</h2><span class="panel-note">Value reaching each stage</span></div><div class="chart">${funnelSvg}</div></div>
+    <div class="panel"><div class="panel-head"><h2 class="panel-title">Recent activity</h2><a class="small" href="#">Show more</a></div><div class="timeline">${recent}</div></div>
+  </section>
+</main>`;
+</script>
+</body>
+</html>
