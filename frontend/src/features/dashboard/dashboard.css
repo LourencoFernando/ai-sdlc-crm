@@ -54,7 +54,7 @@
   min-width: 0;
   border-radius: var(--radius-card);
   padding: var(--spacing-16);
-  color: var(--color-ink);
+  color: var(--color-text);
   overflow: hidden;
 }
 .stage-block:hover {
@@ -106,7 +106,7 @@
 .chart .chart-label {
   font-size: 12px;
   font-weight: var(--font-weight-medium);
-  fill: var(--color-ink);
+  fill: var(--color-text);
   font-family: var(--font-poppins);
 }
 .chart svg {
@@ -117,7 +117,7 @@
   display: flex;
   gap: var(--spacing-16);
   font-size: var(--text-caption);
-  color: var(--color-slate);
+  color: var(--color-text-muted);
 }
 .legend span {
   display: inline-flex;
@@ -132,7 +132,7 @@
   border-radius: 3px;
 }
 .chart-tooltip {
-  background: var(--color-snow);
+  background: var(--color-surface-raised);
   border-radius: var(--radius-menu);
   box-shadow: var(--shadow-overlay);
   padding: 8px 12px;
@@ -143,10 +143,10 @@
 
 .follow-ups {
   background: var(--color-lavender);
-  border-color: #dccbe9;
+  border-color: var(--color-lavender-border);
 }
 .follow-ups .segmented {
-  background: rgb(255 255 255 / 0.55);
+  background: var(--color-inset-on-pastel);
   margin-bottom: var(--spacing-16);
 }
 .follow-ups .segment {
@@ -162,7 +162,7 @@
   gap: var(--spacing-8);
 }
 .follow-up-card {
-  background: var(--color-snow);
+  background: var(--color-surface);
   border: 1px solid var(--color-border);
   border-radius: var(--radius-card);
   padding: var(--spacing-12) var(--spacing-16);

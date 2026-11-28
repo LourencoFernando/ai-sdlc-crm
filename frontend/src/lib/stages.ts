@@ -19,7 +19,7 @@ export const STAGE_COLOR: Record<Stage, { pastel: string; chart: string }> = {
   proposal: { pastel: 'var(--color-lavender)', chart: 'var(--color-ultra-violet)' },
   negotiation: { pastel: 'var(--color-apricot-wash)', chart: 'var(--color-ember)' },
   won: { pastel: 'var(--color-mint)', chart: 'var(--color-forest)' },
-  lost: { pastel: 'var(--color-snow)', chart: 'var(--color-slate)' },
+  lost: { pastel: 'var(--color-surface)', chart: 'var(--color-text-muted)' },
 };
 
 export function isOpenStage(stage: string): boolean {
