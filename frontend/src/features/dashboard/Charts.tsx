@@ -13,7 +13,7 @@ import {
 import type { Dashboard } from '../../api/types';
 import { formatMoney, formatMoneyShort, formatMonth, plural } from '../../lib/format';
 
-const axis = { fontSize: 12, fill: 'var(--color-slate)', fontFamily: 'var(--font-poppins)' };
+const axis = { fontSize: 12, fill: 'var(--color-text-muted)', fontFamily: 'var(--font-poppins)' };
 
 /**
  * Ticks from 0 in 4 to 6 even steps that cover `max`, each step a round 1, 2, 2.5 or 5 times a
@@ -79,7 +79,7 @@ export function LastTwelveMonths({ data }: { data: Dashboard }) {
       >
         <ResponsiveContainer width="100%" height={240}>
           <AreaChart data={months} margin={{ top: 16, right: 16, bottom: 0, left: 8 }}>
-            <CartesianGrid vertical={false} stroke="var(--color-shadow-dust)" />
+            <CartesianGrid vertical={false} stroke="var(--color-divider)" />
             <XAxis
               dataKey="month"
               tickFormatter={formatMonth}
@@ -108,7 +108,7 @@ export function LastTwelveMonths({ data }: { data: Dashboard }) {
               strokeWidth={2.5}
               fill="var(--color-violet)"
               fillOpacity={0.07}
-              dot={{ r: 3, fill: 'var(--color-snow)', stroke: 'var(--color-violet)', strokeWidth: 2 }}
+              dot={{ r: 3, fill: 'var(--color-surface)', stroke: 'var(--color-violet)', strokeWidth: 2 }}
               activeDot={{ r: 5 }}
               isAnimationActive={false}
             >
@@ -134,7 +134,7 @@ export function LastTwelveMonths({ data }: { data: Dashboard }) {
             Won
           </span>
           <span>
-            <i style={{ background: 'var(--color-slate)' }} aria-hidden="true" />
+            <i style={{ background: 'var(--color-text-muted)' }} aria-hidden="true" />
             Lost
           </span>
         </p>
@@ -142,7 +142,7 @@ export function LastTwelveMonths({ data }: { data: Dashboard }) {
       <div className="chart" role="img" aria-label="Deals won and lost per month">
         <ResponsiveContainer width="100%" height={170}>
           <BarChart data={months} margin={{ top: 8, right: 16, bottom: 0, left: 8 }} barGap={3} barCategoryGap="28%">
-            <CartesianGrid vertical={false} stroke="var(--color-shadow-dust)" />
+            <CartesianGrid vertical={false} stroke="var(--color-divider)" />
             <XAxis
               dataKey="month"
               tickFormatter={formatMonth}
@@ -153,7 +153,7 @@ export function LastTwelveMonths({ data }: { data: Dashboard }) {
               tickMargin={10}
             />
             <YAxis allowDecimals={false} tick={axis} axisLine={false} tickLine={false} width={72} />
-            <Tooltip content={<ChartTooltip />} cursor={{ fill: 'var(--color-periwinkle)', opacity: 0.5 }} />
+            <Tooltip content={<ChartTooltip />} cursor={{ fill: 'var(--color-surface-hover)', opacity: 0.5 }} />
             <Bar
               dataKey="won"
               name="Won"
@@ -165,7 +165,7 @@ export function LastTwelveMonths({ data }: { data: Dashboard }) {
             <Bar
               dataKey="lost"
               name="Lost"
-              fill="var(--color-slate)"
+              fill="var(--color-text-muted)"
               radius={[6, 6, 0, 0]}
               maxBarSize={14}
               isAnimationActive={false}

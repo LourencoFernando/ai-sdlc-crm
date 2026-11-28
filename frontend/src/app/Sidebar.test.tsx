@@ -3,13 +3,21 @@ import userEvent from '@testing-library/user-event';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import { Sidebar } from './Sidebar';
 import { readCollapsed, useSidebarCollapsed, writeCollapsed } from './sidebar-state';
+import { readTheme, useTheme, writeTheme } from './theme-state';
 import { renderApp } from '../test/render';
 
 function Harness() {
   const [collapsed, toggle] = useSidebarCollapsed();
+  const [theme, toggleTheme] = useTheme();
   return (
-    <div data-sidebar={collapsed ? 'collapsed' : 'expanded'} data-testid="app">
-      <Sidebar collapsed={collapsed} onToggle={toggle} onNewDeal={() => {}} />
+    <div className="app" data-sidebar={collapsed ? 'collapsed' : 'expanded'} data-testid="app">
+      <Sidebar
+        collapsed={collapsed}
+        onToggle={toggle}
+        onNewDeal={() => {}}
+        dark={theme === 'dark'}
+        onToggleDark={toggleTheme}
+      />
     </div>
   );
 }
@@ -18,6 +26,7 @@ describe('sidebar', () => {
   afterEach(() => {
     vi.restoreAllMocks();
     localStorage.clear();
+    delete document.documentElement.dataset.theme;
   });
 
   it('saves the collapsed state and reports whether it is expanded', async () => {
@@ -61,5 +70,54 @@ describe('sidebar', () => {
     renderApp(<Harness />, { path: '/contacts' });
     expect(screen.getByRole('link', { name: 'Contacts' })).toHaveAttribute('aria-current', 'page');
     expect(screen.getByRole('link', { name: 'Deals' })).not.toHaveAttribute('aria-current');
+  });
+
+  describe('dark mode switch', () => {
+    it('sits just above Collapse menu and is off by default', () => {
+      renderApp(<Harness />);
+      const dark = screen.getByRole('switch', { name: 'Dark mode' });
+      expect(dark).toHaveAttribute('aria-checked', 'false');
+      expect(dark.nextElementSibling).toBe(screen.getByRole('button', { name: 'Collapse menu' }));
+    });
+
+    it('turns dark mode on and off with a click, and saves the choice', async () => {
+      renderApp(<Harness />);
+      const dark = screen.getByRole('switch', { name: 'Dark mode' });
+      await userEvent.click(dark);
+      expect(dark).toHaveAttribute('aria-checked', 'true');
+      expect(document.documentElement).toHaveAttribute('data-theme', 'dark');
+      expect(readTheme()).toBe('dark');
+
+      await userEvent.click(dark);
+      expect(dark).toHaveAttribute('aria-checked', 'false');
+      expect(document.documentElement).toHaveAttribute('data-theme', 'light');
+      expect(readTheme()).toBe('light');
+    });
+
+    it('works from the keyboard with Space and Enter', async () => {
+      renderApp(<Harness />);
+      const dark = screen.getByRole('switch', { name: 'Dark mode' });
+      dark.focus();
+      await userEvent.keyboard(' ');
+      expect(dark).toHaveAttribute('aria-checked', 'true');
+      await userEvent.keyboard('{Enter}');
+      expect(dark).toHaveAttribute('aria-checked', 'false');
+    });
+
+    it('starts on when dark mode was saved', () => {
+      writeTheme('dark');
+      renderApp(<Harness />);
+      expect(screen.getByRole('switch', { name: 'Dark mode' })).toHaveAttribute('aria-checked', 'true');
+    });
+
+    it('keeps its name and shows a tooltip when the sidebar is collapsed', async () => {
+      writeCollapsed(true);
+      renderApp(<Harness />);
+      const dark = screen.getByRole('switch', { name: 'Dark mode' });
+      await userEvent.hover(dark);
+      expect(await screen.findByRole('tooltip', { name: 'Dark mode' })).toBeInTheDocument();
+      await userEvent.click(dark);
+      expect(dark).toHaveAttribute('aria-checked', 'true');
+    });
   });
 });

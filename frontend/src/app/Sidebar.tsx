@@ -1,6 +1,6 @@
 import { NavLink, Link } from 'react-router';
 import { Tooltip } from 'radix-ui';
-import { Briefcase, Building2, LayoutDashboard, PanelLeftClose, Plus, SquareKanban, Users } from 'lucide-react';
+import { Briefcase, Building2, LayoutDashboard, Moon, PanelLeftClose, Plus, SquareKanban, Users } from 'lucide-react';
 import type { ReactNode } from 'react';
 
 const LINKS = [
@@ -30,10 +30,14 @@ export function Sidebar({
   collapsed,
   onToggle,
   onNewDeal,
+  dark,
+  onToggleDark,
 }: {
   collapsed: boolean;
   onToggle: () => void;
   onNewDeal: () => void;
+  dark: boolean;
+  onToggleDark: () => void;
 }) {
   return (
     <nav className="side" aria-label="Main">
@@ -64,6 +68,20 @@ export function Sidebar({
           </Tip>
         ))}
       </div>
+      <Tip show={collapsed} label="Dark mode">
+        <button
+          type="button"
+          role="switch"
+          className="side-mode"
+          aria-checked={dark}
+          aria-label="Dark mode"
+          onClick={onToggleDark}
+        >
+          <Moon aria-hidden="true" />
+          <span className="side-text">Dark mode</span>
+          <span className="switch side-text" aria-hidden="true" />
+        </button>
+      </Tip>
       <Tip show={collapsed} label="Expand menu">
         <button
           type="button"
